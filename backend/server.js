@@ -18,8 +18,18 @@ const pool = new Pool({
 });
 
 app.get('/api/data', async (req, res) => {
+    let query = 
+    `SELECT DISTINCT p.*, STRING_AGG(t.name, ', ') AS tournaments_played
+    FROM players p
+    JOIN player_tournament pt ON p.player = pt.player_name
+    JOIN tournaments t ON pt.tournament_name = t.name
+    WHERE t.year IN (2021, 2022, 2023, 2024)
+    GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality, 
+            p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances, 
+            p.team_name, p.team_last;
+    `
     try {
-        const result = await pool.query('SELECT * FROM players');
+        const result = await pool.query(query);
         res.json(result.rows);
         console.log('Retrieved players data')
     } catch (err) {

@@ -23,26 +23,29 @@ function DataComponent() {
     const columns = Object.keys(data[0]);
 
     return (
-        <div className="table-container">
-            <table className="data-table">
-                <thead>
-                    <tr>
-                        {columns.map((column) => (
-                            <th key={column}>{column}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
+        <>
+            <div className="table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
                             {columns.map((column) => (
-                                <td key={`${rowIndex}-${column}`}>{row[column]}</td>
+                                <th key={column}>{column}</th>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {data.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {columns.map((column) => (
+                                    <td key={`${rowIndex}-${column}`}>{row[column]}</td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <button onClick={() => console.log(Object.values(data).find(entry => entry.player === "APA (Eain Stearns)"))}>aaaaa</button>
+        </>
     );
 }
 
