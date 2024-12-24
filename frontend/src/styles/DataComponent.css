@@ -1,0 +1,26 @@
+.table-container {
+    max-width: 90%;
+    max-height: 800px; /* Adjust this value as needed */
+    overflow: auto;
+    border: 1px solid #ddd;
+    font-size: medium;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th,
+  .data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .data-table th {
+    background-color: #000000;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
