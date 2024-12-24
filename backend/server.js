@@ -17,21 +17,31 @@ const pool = new Pool({
     port: 5432,
 });
 
-app.get('/api/data', async (req, res) => {
+app.get('/api/players', async (req, res) => {
     let query = 
-    `SELECT DISTINCT p.*, STRING_AGG(t.name, ', ') AS tournaments_played
-    FROM players p
-    JOIN player_tournament pt ON p.player = pt.player_name
-    JOIN tournaments t ON pt.tournament_name = t.name
-    WHERE t.year IN (2021, 2022, 2023, 2024)
-    GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality, 
-            p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances, 
-            p.team_name, p.team_last;
-    `
+        `SELECT DISTINCT p.*, STRING_AGG(t.name, ', ') AS tournaments_played
+        FROM players p
+        JOIN player_tournament pt ON p.player = pt.player_name
+        JOIN tournaments t ON pt.tournament_name = t.name
+        WHERE t.year IN (2021, 2022, 2023, 2024)
+        GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality, 
+                p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances, 
+                p.team_name, p.team_last;`
     try {
         const result = await pool.query(query);
         res.json(result.rows);
         console.log('Retrieved players data')
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/team/:name', async (req, res) => {
+    try {
+        const result = await pool.query(`SELECT * FROM teams WHERE name = '${req.params.name}'`);
+        res.json(result.rows);
+        console.log(`Retrieved teams data for ${req.params.name}`)
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });

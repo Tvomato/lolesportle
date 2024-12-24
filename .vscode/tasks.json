@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	  {
+		"type": "shell",
+		"label": "Start Frontend",
+		"command": "npm",
+		"args": ["start"],
+		"options": {
+		  "cwd": "${workspaceFolder}/frontend"
+		},
+		"problemMatcher": []
+	  },
+	  {
+		"type": "shell",
+		"label": "Start Backend (nodemon)",
+		"command": "nodemon",
+		"args": ["server.js"],
+		"options": {
+		  "cwd": "${workspaceFolder}/backend"
+		},
+		"problemMatcher": []
+	  }
+	]
+  }
+  

@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import '../styles/DataComponent.css'
 
 function DataComponent() {
     const [data, setData] = useState([]);
+    const [playerData, setPlayerData] = useState(null);
+    const nameRef = useRef();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/data');
+                const response = await axios.get('http://localhost:5000/api/team/Samsung Blue');
                 setData(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -17,6 +19,16 @@ function DataComponent() {
 
         fetchData();
     }, []);
+
+    const playerMap = useMemo(() => {
+        return new Map(data.map(player => [player.player, player]));
+    }, [data]);
+
+    const findPlayer = useCallback(() => {
+        const playerName = nameRef.current.value;
+        const foundPlayer = playerMap.get(playerName);
+        setPlayerData(foundPlayer || null);
+    }, [playerMap]);
 
     if (data.length === 0) return <div>Loading...</div>;
 
@@ -44,7 +56,14 @@ function DataComponent() {
                     </tbody>
                 </table>
             </div>
-            <button onClick={() => console.log(Object.values(data).find(entry => entry.player === "APA (Eain Stearns)"))}>aaaaa</button>
+            <input ref={nameRef} type="text" />
+            <button onClick={findPlayer}>Find Player</button>
+            {playerData && (
+                <div>
+                    <h3>Player Found:</h3>
+                    <pre className="table-container">{JSON.stringify(playerData, null, 2)}</pre>
+                </div>
+            )}
         </>
     );
 }
