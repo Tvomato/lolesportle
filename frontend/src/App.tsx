@@ -1,5 +1,6 @@
+import React from 'react';
 import './App.css';
-import DataComponent from './components/DataComponent';
+import DataComponent from './components/DataComponent.tsx';
 
 function App() {
   return (

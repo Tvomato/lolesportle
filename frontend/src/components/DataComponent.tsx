@@ -5,12 +5,12 @@ import '../styles/DataComponent.css'
 function DataComponent() {
     const [data, setData] = useState([]);
     const [playerData, setPlayerData] = useState(null);
-    const nameRef = useRef();
+    const nameRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/team/Samsung Blue');
+                const response = await axios.get('http://localhost:5000/api/players');
                 setData(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -21,12 +21,15 @@ function DataComponent() {
     }, []);
 
     const playerMap = useMemo(() => {
-        return new Map(data.map(player => [player.player, player]));
+        return new Map(data.map(player => [player['player'], player]));
     }, [data]);
 
     const findPlayer = useCallback(() => {
+        if (!nameRef.current) {
+            return;
+        }
         const playerName = nameRef.current.value;
-        const foundPlayer = playerMap.get(playerName);
+        const foundPlayer = playerMap[playerName];
         setPlayerData(foundPlayer || null);
     }, [playerMap]);
 
