@@ -1,26 +1,51 @@
 .table-container {
-    max-width: 90%;
-    max-height: 800px; /* Adjust this value as needed */
-    overflow: auto;
-    border: 1px solid #ddd;
-    font-size: medium;
-  }
-  
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .data-table th,
-  .data-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .data-table th {
-    background-color: #000000;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
+  max-width: 90%;
+  max-height: 800px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  font-size: large;
+  font-weight: bold;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  width: 100px;
+}
+
+.data-table th {
+  background-color: #000000;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.player-cell,
+.team-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-image {
+  width: 100px;
+  height: 100px;
+  margin: 6px;
+  object-fit: cover;
+}
+
+.team-image {
+  width: 60px;
+  height: 60px;
+  margin: 6px;
+  object-fit: cover;
+}
