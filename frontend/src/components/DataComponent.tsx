@@ -4,7 +4,8 @@ import '../styles/DataComponent.css';
 
 function DataComponent() {
     const [data, setData] = useState<any[]>([]);
-    const [playerData, setPlayerData] = useState<any | null>(null);
+    const [currentPlayer, setCurrentPlayer] = useState<any>(null);
+    const [guessedPlayers, setGuessedPlayers] = useState<any[]>([]);
     const nameRef = useRef<HTMLInputElement>(null);
 
     const playerMap = useMemo(() => {
@@ -14,7 +15,10 @@ function DataComponent() {
     const findPlayer = useCallback(() => {
         const playerName = nameRef.current?.value;
         const foundPlayer = playerMap.get(playerName);
-        setPlayerData(foundPlayer || null);
+        if (foundPlayer) {
+            setGuessedPlayers(prev => [...prev, transformData(foundPlayer)])
+        }
+        if (nameRef.current) nameRef.current.value = ''; 
     }, [playerMap]);
 
     const calculateAge = (birthdate: string) => {
@@ -23,17 +27,17 @@ function DataComponent() {
         return Math.floor(ageDiff / 31536000000)
     };
 
-    const transformedData = data.map(row => ({
-        player: `${row.player.split(" (")[0]} (${row.name})${row.native_name ? ` - ${row.native_name}` : ''}`,
-        nationality: row.nationality,
-        birthdate: calculateAge(row.birthdate),
-        role: row.role,
-        is_retired: row.is_retired ? 'True' : 'False',
-        trophies: row.trophies,
-        worlds_appearances: row.worlds_appearances,
-        team_name: row.team_name || `NONE, prev: <br />${row.team_last}`,
-        tournaments_played: row.tournaments_played,
-    }));
+    const transformData = (p) => ({
+        player: `${p.player.split(" (")[0]} (${p.name})${p.native_name ? ` - ${p.native_name}` : ''}`,
+        nationality: p.nationality,
+        birthdate: calculateAge(p.birthdate),
+        role: p.role,
+        is_retired: p.is_retired ? 'True' : 'False',
+        trophies: p.trophies,
+        worlds_appearances: p.worlds_appearances,
+        team_name: p.team_name || `NONE, prev: <br />${p.team_last}`,
+        tournaments_played: p.tournaments_played,
+    });
 
     const columnMapping = {
         player: 'Player ID',
@@ -76,10 +80,19 @@ function DataComponent() {
                         </tr>
                     </thead>
                     <tbody>
-                        {transformedData.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
+                        {currentPlayer && (
+                            <tr>
                                 {columns.map((column) => (
-                                    <td key={`${rowIndex}-${column}`} dangerouslySetInnerHTML={{ __html: row[column] }} />
+                                    <td key={`current-${column}`} dangerouslySetInnerHTML={{ __html: currentPlayer[column] }} />
+                                ))}
+                            </tr>
+                        )}
+                    </tbody>
+                    <tbody>
+                        {guessedPlayers.map((player, index) => (
+                            <tr key={index}>
+                                {columns.map((column) => (
+                                    <td key={`${index}-${column}`} dangerouslySetInnerHTML={{ __html: player[column] }} />
                                 ))}
                             </tr>
                         ))}
@@ -88,12 +101,8 @@ function DataComponent() {
             </div>
             <input ref={nameRef} type="text" />
             <button onClick={findPlayer}>Find Player</button>
-            {playerData && (
-                <div>
-                    <h3>Player Found:</h3>
-                    <pre className="table-container">{JSON.stringify(playerData, null, 2)}</pre>
-                </div>
-            )}
+            <button onClick={() => setGuessedPlayers([])}>Clear</button>
+            <button onClick={() => setCurrentPlayer(transformData(data[Math.floor(Math.random() * data.length)]))}>Random</button>
         </>
     );
 }
