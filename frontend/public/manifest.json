@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Lolesportle",
+  "name": "League-of-Legends-Esports-Player-Guessing-Gamedle",
   "icons": [
     {
       "src": "favicon.ico",

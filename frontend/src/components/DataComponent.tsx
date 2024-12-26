@@ -8,11 +8,24 @@ function DataComponent() {
     const [guessedPlayers, setGuessedPlayers] = useState<any[]>([]);
     const nameRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/players');
+                setData(response.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     const playerMap = useMemo(() => {
         return new Map(data.map(player => [player.player, player]));
     }, [data]);
 
-    const findPlayer = useCallback(() => {
+    const getPlayer = useCallback(() => {
         const playerName = nameRef.current?.value;
         const foundPlayer = playerMap.get(playerName);
         if (foundPlayer) {
@@ -53,19 +66,6 @@ function DataComponent() {
 
     const columns = Object.keys(columnMapping);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/players');
-                setData(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     if (data.length === 0) return <div>Loading...</div>;
 
     return (
@@ -100,7 +100,7 @@ function DataComponent() {
                 </table>
             </div>
             <input ref={nameRef} type="text" />
-            <button onClick={findPlayer}>Find Player</button>
+            <button onClick={getPlayer}>Find Player</button>
             <button onClick={() => setGuessedPlayers([])}>Clear</button>
             <button onClick={() => setCurrentPlayer(transformData(data[Math.floor(Math.random() * data.length)]))}>Random</button>
         </>
