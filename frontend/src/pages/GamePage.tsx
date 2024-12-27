@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect, useMemo, useCallback, Fragment } fr
 import axios from 'axios';
 import clm from 'country-locale-map';
 import { decode } from 'html-entities';
-import '../styles/DataComponent.css';
+import '../styles/GamePage.css';
 
-function DataComponent() {
+function GamePage() {
     const [playerData, setPlayerData] = useState<any[]>([]);
     const [teamData, setTeamData] = useState<any[]>([]);
     const [currentPlayer, setCurrentPlayer] = useState<any>(null);
@@ -232,4 +232,4 @@ function DataComponent() {
     );
 }
 
-export default DataComponent;
+export default GamePage;
