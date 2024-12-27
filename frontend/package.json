@@ -8,6 +8,7 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "axios": "^1.7.9",
+    "country-locale-map": "^1.9.9",
     "cra-template": "1.2.0",
     "html-entities": "^2.5.2",
     "lodash": "^4.17.21",

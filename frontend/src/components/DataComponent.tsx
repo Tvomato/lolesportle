@@ -88,8 +88,6 @@ function DataComponent() {
         },
         birthdate: { header: 'Age', render: (value: number) => <span className="age-cell">{value}</span> },
         role: { header: 'Role', render: (value: string) => <span className={`role-cell role-${value.toLowerCase()}`}>{value}</span> },
-        trophies: { header: 'Trophies', render: (value: number) => <span className="trophies-cell">{value}</span> },
-        worlds_appearances: { header: 'Worlds Appearances', render: (value: number) => <span className="worlds-cell">{value}</span> },
         team_name: {
             header: "Team",
             render: (value: string, player: any) => (
@@ -107,6 +105,8 @@ function DataComponent() {
             )
         },
         is_retired: { header: 'Retired', render: (value: string) => <span className={`retired-cell ${value === 'True' ? 'retired' : 'active'}`}>{value}</span> },
+        trophies: { header: 'Trophies', render: (value: number) => <span className="trophies-cell">{value}</span> },
+        worlds_appearances: { header: 'Worlds Appearances', render: (value: number) => <span className="worlds-cell">{value}</span> },
         tournaments_played: {
             header: "Tournaments",
             render: (value: Array<string>) => (
