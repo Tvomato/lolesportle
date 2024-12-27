@@ -37,9 +37,9 @@ app.get('/api/players', async (req, res) => {
     }
 });
 
-app.get('/api/team/:name', async (req, res) => {
+app.get('/api/teams', async (req, res) => {
     try {
-        const result = await pool.query(`SELECT * FROM teams WHERE name = '${req.params.name}'`);
+        const result = await pool.query('SELECT * FROM teams');
         res.json(result.rows);
         console.log(`Retrieved teams data for ${req.params.name}`)
     } catch (err) {

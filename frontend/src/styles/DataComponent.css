@@ -5,6 +5,7 @@
   border: 1px solid #ddd;
   font-size: large;
   font-weight: bold;
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
 }
 
 .data-table {
