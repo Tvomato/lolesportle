@@ -9,6 +9,7 @@ function DataComponent() {
     const [teamData, setTeamData] = useState<any[]>([]);
     const [currentPlayer, setCurrentPlayer] = useState<any>(null);
     const [guessedPlayers, setGuessedPlayers] = useState<any[]>([]);
+    const [showPlayer, setShowPlayer] = useState<boolean>(false);
     const nameRef = useRef<HTMLInputElement>(null);
     const has_won = guessedPlayers.some(item => JSON.stringify(item) === JSON.stringify(currentPlayer))
 
@@ -129,9 +130,9 @@ function DataComponent() {
         if (column === "player") {
             return { backgroundColor: blue }
         }
-        
+
         if (currentPlayer[column] === player[column] && (player[column] || player[column] === 0)) {
-            return { backgroundColor: green};
+            return { backgroundColor: green };
         }
 
         if (column === "birthdate" && Math.abs(currentPlayer.birthdate - player.birthdate) <= 2) {
@@ -170,7 +171,7 @@ function DataComponent() {
             }
         }
 
-        return { backgroundColor: red };  
+        return { backgroundColor: red };
     };
 
     const columns = Object.keys(columnMapping);
@@ -179,48 +180,53 @@ function DataComponent() {
 
     return (
         <>
-            <div className="table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            {columns.map((column) => (
-                                <th key={column}>{columnMapping[column].header}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentPlayer && (
-                            <tr>
-                                {columns.map((column) => (
-                                    <td key={`current-${column}`}>
-                                        {columnMapping[column].render(currentPlayer[column], currentPlayer)}
-                                    </td>
-                                ))}
-                            </tr>
-                        )}
-                    </tbody>
-                    <tbody>
-                        {guessedPlayers.map((player, index) => (
-                            <tr key={index}>
-                                {columns.map((column) => (
-                                    <td key={`${index}-${column}`} style={getCellStyle(column, player)}>
-                                        {columnMapping[column].render(player[column], player)}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="game-setup">
+                <button onClick={() => setCurrentPlayer(transformData(playerData[Math.floor(Math.random() * playerData.length)]))}>NEW PLAYER</button>
+                <input type="checkbox" onChange={() => setShowPlayer(!showPlayer)} />
             </div>
             {has_won && (<div>YOU WIN YAY</div>)}
-            <button onClick={() => setCurrentPlayer(transformData(playerData[Math.floor(Math.random() * playerData.length)]))}>Random</button>
             {currentPlayer && (
-                <>
-                    <input ref={nameRef} type="text"/>
+                <div className="game-setup">
+                    <input ref={nameRef} type="text" />
                     <button onClick={getPlayer}>Find Player</button>
                     <button onClick={() => setGuessedPlayers([])}>Clear</button>
                     <button onClick={() => console.log(clm.getCountryByName("Chile"))}>Logger</button>
-                </>
+                </div>
+            )}
+            {currentPlayer && (
+                <div className="table-container">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                {columns.map((column) => (
+                                    <th key={column}>{columnMapping[column].header}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        {showPlayer && (
+                            <tbody>
+                                <tr>
+                                    {columns.map((column) => (
+                                        <td key={`current-${column}`}>
+                                            {columnMapping[column].render(currentPlayer[column], currentPlayer)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            </tbody>
+                        )}
+                        <tbody>
+                            {guessedPlayers.map((player, index) => (
+                                <tr key={index}>
+                                    {columns.map((column) => (
+                                        <td key={`${index}-${column}`} style={getCellStyle(column, player)}>
+                                            {columnMapping[column].render(player[column], player)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </>
     );

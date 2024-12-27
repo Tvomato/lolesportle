@@ -1,6 +1,13 @@
+.game-setup {
+  display: flex;
+  padding: 6px;
+  gap: 6px;
+}
+
 .table-container {
   max-width: 90%;
   max-height: 800px;
+  margin-top: 6px;
   overflow: auto;
   border: 1px solid #ddd;
   font-size: large;
