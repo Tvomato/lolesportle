@@ -41,7 +41,7 @@ app.get('/api/teams', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM teams');
         res.json(result.rows);
-        console.log(`Retrieved teams data for ${req.params.name}`)
+        console.log('Retrieved teams data')
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });

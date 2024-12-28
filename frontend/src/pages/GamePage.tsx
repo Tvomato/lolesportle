@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useMemo, useCallback, Fragment } fr
 import axios from 'axios';
 import clm from 'country-locale-map';
 import { decode } from 'html-entities';
+import SearchBar from '../components/SearchBar.tsx';
 import '../styles/GamePage.css';
 
 function GamePage() {
@@ -10,7 +11,6 @@ function GamePage() {
     const [currentPlayer, setCurrentPlayer] = useState<any>(null);
     const [guessedPlayers, setGuessedPlayers] = useState<any[]>([]);
     const [showPlayer, setShowPlayer] = useState<boolean>(false);
-    const nameRef = useRef<HTMLInputElement>(null);
     const has_won = guessedPlayers.some(item => JSON.stringify(item) === JSON.stringify(currentPlayer))
 
     useEffect(() => {
@@ -29,22 +29,14 @@ function GamePage() {
         fetchData();
     }, []);
 
-    const playerMap = useMemo(() => {
-        return new Map(playerData.map(player => [player.player, player]));
-    }, [playerData]);
+    const getNewPlayer = () => { 
+        setCurrentPlayer(transformData(playerData[Math.floor(Math.random() * playerData.length)]));
+        setGuessedPlayers([]);
+    }
 
-    const teamMap = useMemo(() => {
-        return new Map(teamData.map(team => [team.name, team]));
-    }, [teamData]);
-
-    const getPlayer = useCallback(() => {
-        const playerName = nameRef.current?.value;
-        const foundPlayer = playerMap.get(playerName);
-        if (foundPlayer) {
-            setGuessedPlayers(prev => [...prev, transformData(foundPlayer)])
-        }
-        if (nameRef.current) nameRef.current.value = '';
-    }, [playerMap]);
+    const handleAddPlayer = (player: any) => {
+        setGuessedPlayers(prev => [...prev, player])
+    }
 
     const calculateAge = (birthdate: string) => {
         const birthDateObj = new Date(birthdate);
@@ -65,6 +57,21 @@ function GamePage() {
         team_last: p.team_last,
         tournaments_played: p.tournaments_played.split(","),
     });
+
+
+    const playerMap = useMemo(() => {
+        const guessedPlayerNames = new Set(guessedPlayers.map(gp => gp.player));
+        return new Map(
+            playerData
+                .filter(player => !guessedPlayerNames.has(decode(`${player.player.split(" (")[0]} (${player.name})`)))
+                .sort((a, b) => a.player.localeCompare(b.player))
+                .map(player => [decode(`${player.player.split(" (")[0]} (${player.name})`), transformData(player)])
+        );
+    }, [playerData, guessedPlayers]);
+
+    const teamMap = useMemo(() => {
+        return new Map(teamData.map(team => [team.name, team]));
+    }, [teamData]);
 
     // [TODO]: Create new column for player image (after finish extraction)
     // [TODO]: Change Team column to just the logo and have it show more info on hover (maybe also for Player)
@@ -119,7 +126,7 @@ function GamePage() {
         },
     };
 
-    const getCellStyle = (column, player) => {
+    const getCellStyle = (column: string, player: any) => {
         if (!currentPlayer) return {};
 
         const blue = '#256ecd'
@@ -128,6 +135,9 @@ function GamePage() {
         const red = '#981e1e'
 
         if (column === "player") {
+            if (currentPlayer.player === player.player) {
+                return { backgroundColor: green }
+            }
             return { backgroundColor: blue }
         }
 
@@ -151,8 +161,13 @@ function GamePage() {
             return { backgroundColor: orange };
         }
 
-        if (column === "tournaments_played" && Math.abs(currentPlayer.tournaments_played.length - player.tournaments_played.length) <= 5) {
-            return { backgroundColor: orange };
+        if (column === "tournaments_played") {
+            const diff = Math.abs(currentPlayer.tournaments_played.length - player.tournaments_played.length)
+            if (diff === 0) {
+                return { backgroundColor: green }
+            } else if (diff <= 5) {
+                return { backgroundColor: orange };
+            }
         }
 
         if (column == "team_name") {
@@ -176,22 +191,17 @@ function GamePage() {
 
     const columns = Object.keys(columnMapping);
 
-    if (playerData.length === 0 || teamData.length === 0) return <div>Loading...</div>;
+    if (playerData.length === 0 || teamData.length === 0 || playerMap.size === 0 || teamMap.size === 0) return <div>Loading...</div>;
 
     return (
         <>
             <div className="game-setup">
-                <button onClick={() => setCurrentPlayer(transformData(playerData[Math.floor(Math.random() * playerData.length)]))}>NEW PLAYER</button>
+                <button onClick={getNewPlayer}>NEW GAME</button>
                 <input type="checkbox" onChange={() => setShowPlayer(!showPlayer)} />
             </div>
             {has_won && (<div>YOU WIN YAY</div>)}
-            {currentPlayer && (
-                <div className="game-setup">
-                    <input ref={nameRef} type="text" />
-                    <button onClick={getPlayer}>Find Player</button>
-                    <button onClick={() => setGuessedPlayers([])}>Clear</button>
-                    <button onClick={() => console.log(clm.getCountryByName("Chile"))}>Logger</button>
-                </div>
+            {currentPlayer && !has_won && (
+                <SearchBar data={playerMap} onSelect={handleAddPlayer} />
             )}
             {currentPlayer && (
                 <div className="table-container">
@@ -228,6 +238,10 @@ function GamePage() {
                     </table>
                 </div>
             )}
+            <div className="game-setup">
+                <button onClick={() => setGuessedPlayers([])}>Clear</button>
+                <button onClick={() => console.log(playerData)}>Logger</button>
+            </div>
         </>
     );
 }
