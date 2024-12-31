@@ -51,6 +51,7 @@
   height: 100px;
   margin: 6px;
   object-fit: cover;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.75));
 }
 
 .team-image {
@@ -58,4 +59,5 @@
   height: 60px;
   margin: 6px;
   object-fit: cover;
+  filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.75));
 }

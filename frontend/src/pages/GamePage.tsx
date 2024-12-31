@@ -29,7 +29,7 @@ function GamePage() {
         fetchData();
     }, []);
 
-    const getNewPlayer = () => { 
+    const getNewPlayer = () => {
         setCurrentPlayer(transformData(playerData[Math.floor(Math.random() * playerData.length)]));
         setGuessedPlayers([]);
     }
@@ -48,6 +48,7 @@ function GamePage() {
         player: decode(`${p.player.split(" (")[0]} (${p.name})`),
         native_name: p.native_name,
         nationality: p.nationality,
+        image_url: p.image_url,
         birthdate: calculateAge(p.birthdate),
         role: p.role,
         is_retired: p.is_retired ? 'True' : 'False',
@@ -57,7 +58,6 @@ function GamePage() {
         team_last: p.team_last,
         tournaments_played: p.tournaments_played.split(","),
     });
-
 
     const playerMap = useMemo(() => {
         const guessedPlayerNames = new Set(guessedPlayers.map(gp => gp.player));
@@ -80,7 +80,7 @@ function GamePage() {
             header: 'Player',
             render: (value: string, player: any) => (
                 <div className="player-cell">
-                    <img src='https://media.trackingthepros.com/profile/p585.png' alt={value} className="player-image" />
+                    <img src={(player.image_url as string).split('/revision')[0]} alt={decode(value)} className="player-image" />
                     <span>{decode(value)}</span>
                     {player.native_name && (<span>[{player.native_name}]</span>)}
                 </div>
@@ -100,9 +100,11 @@ function GamePage() {
             header: "Team",
             render: (value: string, player: any) => (
                 <div className="team-cell">
-                    <img src='https://static.wikia.nocookie.net/lolesports_gamepedia_en/images/9/9a/Team_Liquidlogo_square_Dark.png' alt={value} className="team-image" />
                     {player.team_name ? (
-                        <span>{value}</span>
+                        <>
+                            <img src={(teamMap.get(player.team_name).logo_url as string).split('/revision')[0]} alt={value} className="team-image" />
+                            <span>{value}</span>
+                        </>
                     ) : (
                         <>
                             <span>NO TEAM, prev:</span>
@@ -112,7 +114,7 @@ function GamePage() {
                 </div>
             )
         },
-        is_retired: { header: 'Retired', render: (value: string) => <span className={`retired-cell ${value === 'True' ? 'retired' : 'active'}`}>{value}</span> },
+        // is_retired: { header: 'Retired', render: (value: string) => <span className={`retired-cell ${value === 'True' ? 'retired' : 'active'}`}>{value}</span> },
         trophies: { header: 'Trophies', render: (value: number) => <span className="trophies-cell">{value}</span> },
         worlds_appearances: { header: 'Worlds Appearances', render: (value: number) => <span className="worlds-cell">{value}</span> },
         tournaments_played: {
@@ -157,7 +159,7 @@ function GamePage() {
             return { backgroundColor: orange };
         }
 
-        if (column === "worlds_appearances" && Math.abs(currentPlayer.worlds_appearances - player.worlds_appearances) <= 2) {
+        if (column === "worlds_appearances" && Math.abs(currentPlayer.worlds_appearances - player.worlds_appearances) <= 3) {
             return { backgroundColor: orange };
         }
 
