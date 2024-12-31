@@ -19,13 +19,18 @@ const pool = new Pool({
 
 app.get('/api/players', async (req, res) => {
     let query = 
-        `SELECT DISTINCT p.*, STRING_AGG(t.name, ', ') AS tournaments_played
+        `SELECT DISTINCT p.*,
+            STRING_AGG(DISTINCT t.name, ', ') AS tournaments_played,
+            STRING_AGG(DISTINCT tw.tournament_name, ', ') AS tournaments_won
         FROM players p
-        JOIN player_tournament pt ON p.player = pt.player_name
-        JOIN tournaments t ON pt.tournament_name = t.name
-        WHERE t.year IN (2021, 2022, 2023, 2024)
-        GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality, 
-                p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances, 
+        LEFT JOIN player_tournament pt ON p.player = pt.player_name
+        LEFT JOIN tournaments t ON pt.tournament_name = t.name
+        LEFT JOIN tournament_winner tw ON p.player = tw.player_name
+        WHERE p.team_name IS NOT NULL AND (t.year IN (2021, 2022, 2023, 2024) OR tw.tournament_name IN (
+            SELECT name FROM tournaments WHERE year IN (2021, 2022, 2023, 2024)
+        ))
+        GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality,
+                p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances,
                 p.team_name, p.team_last;`
     try {
         const result = await pool.query(query);

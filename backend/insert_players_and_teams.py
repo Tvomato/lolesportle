@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 from db_config import get_db
 from create_skeletons import *
 from mwrogue.esports_client import EsportsClient
@@ -15,17 +14,50 @@ session = Session()
 
 skipped_players = []
 
+def get_image(name):
+    image = site.client.api(
+        action="query",
+        format="json",
+        titles=f"File:{name}",
+        prop="imageinfo",
+        iiprop="url",
+    )
+
+    image_info = next(iter(image["query"]["pages"].values()))["imageinfo"][0]
+
+    return image_info["url"]
+
+def get_player_image_file(name):
+    response = site.cargo_client.query(
+        limit=1,
+        tables="PlayerImages=PI, Tournaments=T",
+        fields="PI.FileName, PI.Link",
+        join_on="PI.Tournament=T.OverviewPage",
+        where='Link="%s"' % name,
+        order_by="PI.SortDate DESC, T.DateStart DESC",
+    )
+
+    if not response:
+        return ""
+
+    fileName = response[0].get("FileName")
+    return get_image(fileName)
+
 with open('players.json', 'r') as file:
     players_dict = json.load(file)
 
+count = 0
+
 for player_id, player_data in players_dict.items():
+    if count % 100 == 0:
+        print(str(count) + " players analyzed")
     if p_team := player_data['Team']:
         team = session.query(Team).filter_by(name=p_team).first()
         if not team:
             res = site.cargo_client.query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
-                where=f"T.Name='{p_team.replace("'", "''")}'",
+                where=f"T.OverviewPage='{p_team.replace("'", "''")}'",
                 limit=1,
             )
             if not res:
@@ -34,7 +66,7 @@ for player_id, player_data in players_dict.items():
 
             team = Team(
                 name=p_team,
-                logo_url="",
+                logo_url=get_image(p_team + "logo square.png"),
                 region=res[0].get("Region"),
             )
             session.add(team)
@@ -45,7 +77,7 @@ for player_id, player_data in players_dict.items():
             res = site.cargo_client.query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
-                where=f"T.Name='{p_team_last.replace("'", "''")}'",
+                where=f"T.OverviewPage='{p_team_last.replace("'", "''")}'",
                 limit=1,
             )
             if not res and not player_data['Team']:
@@ -54,7 +86,7 @@ for player_id, player_data in players_dict.items():
 
             team = Team(
                 name=p_team_last,
-                logo_url="",
+                logo_url=get_image(p_team_last + "logo square.png"),
                 region=res[0].get("Region"),
             )
             session.add(team)
@@ -63,7 +95,7 @@ for player_id, player_data in players_dict.items():
         player=player_id,
         name=player_data['Name'],
         native_name=player_data['NativeName'],
-        image_url="",
+        image_url=get_player_image_file(player_id),
         nationality=player_data['Country'],
         birthdate=datetime.strptime(player_data['Birthdate'], '%Y-%m-%d'),
         role=player_data['Role'],
@@ -82,6 +114,7 @@ for player_id, player_data in players_dict.items():
             print(f"Tournament not found: {tournament_name}")
 
     session.add(player)
+    count += 1
 
 session.commit()
 
