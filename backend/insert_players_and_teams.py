@@ -64,10 +64,16 @@ for player_id, player_data in players_dict.items():
                 skipped_players.append(player_id)
                 continue
 
+            region = res[0].get("Region")
+            if region == "Europe" or region == "EMEA":
+                region = "Europe & EMEA"
+            elif region == "North America" or region == "Brazil" or region == "Latin America":
+                region = "Americas"
+
             team = Team(
                 name=p_team,
                 logo_url=get_image(p_team + "logo square.png"),
-                region=res[0].get("Region"),
+                region=region,
             )
             session.add(team)
 
