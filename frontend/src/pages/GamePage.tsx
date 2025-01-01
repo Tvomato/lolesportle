@@ -256,8 +256,8 @@ function GamePage() {
                 <button className="display-button" onClick={getNewPlayer}>NEW GAME</button>
                 {currentPlayer && !has_won && (<button className="display-button" onClick={() => setShowPlayer(!showPlayer)}>REVEAL PLAYER</button>)}
             </div>
-            {has_won && (<div>YOU WIN YAY</div>)}
-            {currentPlayer && !has_won && (
+            {has_won && (<div className="victory-text">YOU WIN!</div>)}
+            {currentPlayer && !has_won && !showPlayer && (
                 <SearchBar data={playerMap} onSelect={handleAddPlayer} />
             )}
             {currentPlayer && (
