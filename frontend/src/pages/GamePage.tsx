@@ -253,8 +253,8 @@ function GamePage() {
     return (
         <>
             <div className="game-setup">
-                <button onClick={getNewPlayer}>NEW GAME</button>
-                {currentPlayer && !has_won && (<button onClick={() => setShowPlayer(!showPlayer)}>REVEAL PLAYER</button>)}
+                <button className="display-button" onClick={getNewPlayer}>NEW GAME</button>
+                {currentPlayer && !has_won && (<button className="display-button" onClick={() => setShowPlayer(!showPlayer)}>REVEAL PLAYER</button>)}
             </div>
             {has_won && (<div>YOU WIN YAY</div>)}
             {currentPlayer && !has_won && (
@@ -295,10 +295,11 @@ function GamePage() {
                     </table>
                 </div>
             )}
-            <div className="game-setup">
+            {/* Debug Tools: */}
+            {/* <div className="game-setup">
                 <button onClick={() => setGuessedPlayers([])}>Clear</button>
                 <button onClick={() => console.log(playerData)}>Logger</button>
-            </div>
+            </div> */}
         </>
     );
 }

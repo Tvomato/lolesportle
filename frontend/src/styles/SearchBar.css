@@ -1,6 +1,7 @@
 .searchInputs {
   display: flex;
-  border: 3px solid #4d484d;
+  border: 3px solid #0a8612;
+  margin-bottom: -4px;
   border-bottom-left-radius: 20px;
   border-top-right-radius: 20px;
   overflow: hidden;
@@ -8,6 +9,7 @@
 
 .search {
   position: relative;
+  margin-bottom: 12px;
 }
 
 .search input {
@@ -46,7 +48,7 @@ input:focus {
   max-height: 200px;
   background-color: white;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  border: 3px solid #4d484d;
+  border: 3px solid #0a8612;
   border-top-left-radius: 20px;
   overflow: hidden;
   overflow-y: auto;
