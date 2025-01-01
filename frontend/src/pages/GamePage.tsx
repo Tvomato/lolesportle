@@ -1,8 +1,10 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback, Fragment } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import clm from 'country-locale-map';
 import { decode } from 'html-entities';
 import SearchBar from '../components/SearchBar.tsx';
+import downArrow from '../assets/down_arrow.png'
+import upArrow from '../assets/up_arrow.png'
 import '../styles/GamePage.css';
 
 function GamePage() {
@@ -53,6 +55,7 @@ function GamePage() {
         role: p.role,
         is_retired: p.is_retired ? 'True' : 'False',
         trophies: p.trophies,
+        tournaments_won: p.tournaments_won?.split(","),
         worlds_appearances: p.worlds_appearances,
         team_name: p.team_name,
         team_last: p.team_last,
@@ -94,7 +97,21 @@ function GamePage() {
                 </div>
             )
         },
-        birthdate: { header: 'Age', render: (value: number) => <span className="age-cell">{value}</span> },
+        birthdate: {
+            header: 'Age',
+            render: (value: number) => (
+                <div className="age-cell">
+                    <span>{value}</span>
+                    {value !== currentPlayer.birthdate && (
+                        <img
+                            src={value < currentPlayer.birthdate ? upArrow : downArrow}
+                            alt={value < currentPlayer.birthdate ? "Older" : "Younger"}
+                            className="arrow-icon"
+                        />
+                    )}
+                </div>
+            )
+        },
         role: { header: 'Role', render: (value: string) => <span className={`role-cell role-${value.toLowerCase()}`}>{value}</span> },
         team_name: {
             header: "Team",
@@ -115,14 +132,52 @@ function GamePage() {
             )
         },
         // is_retired: { header: 'Retired', render: (value: string) => <span className={`retired-cell ${value === 'True' ? 'retired' : 'active'}`}>{value}</span> },
-        trophies: { header: 'Trophies', render: (value: number) => <span className="trophies-cell">{value}</span> },
-        worlds_appearances: { header: 'Worlds Appearances', render: (value: number) => <span className="worlds-cell">{value}</span> },
+        trophies: {
+            header: 'Trophies',
+            render: (value: number, player: any) => (
+                <div className="trophies-cell">
+                    <div>{value}</div>
+                    {player.tournaments_won && (
+                        <button onClick={() => console.log(player.tournaments_won)}>Info</button>
+                    )}
+                    {value !== currentPlayer.trophies && (
+                        <img
+                            src={value < currentPlayer.trophies ? upArrow : downArrow}
+                            alt={value < currentPlayer.trophies ? "More" : "Fewer"}
+                            className="arrow-icon"
+                        />
+                    )}
+                </div>
+            )
+        },
+        worlds_appearances: {
+            header: 'Worlds Appearances',
+            render: (value: number) => (
+                <div className="worlds-cell">
+                    <span>{value}</span>
+                    {value !== currentPlayer.worlds_appearances && (
+                        <img
+                            src={value < currentPlayer.worlds_appearances ? upArrow : downArrow}
+                            alt={value < currentPlayer.worlds_appearances ? "More" : "Fewer"}
+                            className="arrow-icon"
+                        />
+                    )}
+                </div>
+            )
+        },
         tournaments_played: {
             header: "Tournaments",
             render: (value: Array<string>) => (
                 <div className="tournaments-cell">
                     <div>Total: {value.length}</div>
                     <button onClick={() => console.log(value.join(", "))}>Info</button>
+                    {value.length !== currentPlayer.tournaments_played.length && (
+                        <img
+                            src={value.length < currentPlayer.tournaments_played.length ? upArrow : downArrow}
+                            alt={value.length < currentPlayer.tournaments_played.length ? "More" : "Fewer"}
+                            className="arrow-icon"
+                        />
+                    )}
                 </div>
             )
         },
@@ -159,7 +214,7 @@ function GamePage() {
             return { backgroundColor: orange };
         }
 
-        if (column === "worlds_appearances" && Math.abs(currentPlayer.worlds_appearances - player.worlds_appearances) <= 3) {
+        if (column === "worlds_appearances" && Math.abs(currentPlayer.worlds_appearances - player.worlds_appearances) <= 2) {
             return { backgroundColor: orange };
         }
 
@@ -172,7 +227,7 @@ function GamePage() {
             }
         }
 
-        if (column == "team_name") {
+        if (column === "team_name") {
             const curr_team = currentPlayer.team_name
             const curr_team_last = currentPlayer.team_last
             const player_team = player.team_name

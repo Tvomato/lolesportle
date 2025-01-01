@@ -26,12 +26,14 @@ app.get('/api/players', async (req, res) => {
         LEFT JOIN player_tournament pt ON p.player = pt.player_name
         LEFT JOIN tournaments t ON pt.tournament_name = t.name
         LEFT JOIN tournament_winner tw ON p.player = tw.player_name
-        WHERE p.team_name IS NOT NULL AND (t.year IN (2021, 2022, 2023, 2024) OR tw.tournament_name IN (
+        WHERE p.team_name IS NOT NULL AND 
+            (t.year IN (2021, 2022, 2023, 2024) OR tw.tournament_name IN (
             SELECT name FROM tournaments WHERE year IN (2021, 2022, 2023, 2024)
         ))
         GROUP BY p.player, p.name, p.native_name, p.image_url, p.nationality,
                 p.birthdate, p.role, p.is_retired, p.trophies, p.worlds_appearances,
-                p.team_name, p.team_last;`
+                p.team_name, p.team_last
+        HAVING COUNT(DISTINCT t.name) >= 3;`
     try {
         const result = await pool.query(query);
         res.json(result.rows);

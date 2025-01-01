@@ -46,6 +46,24 @@
   align-items: center;
 }
 
+.age-cell,
+.trophies-cell,
+.worlds-cell,
+.tournaments-cell {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+.age-cell span, 
+.trophies-cell div, 
+.worlds-cell span, 
+.tournaments-cell div {
+  position: relative;
+  z-index: 1;
+}
+
+
 .player-image {
   width: 100px;
   height: 100px;
@@ -60,4 +78,14 @@
   margin: 6px;
   object-fit: cover;
   filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.75));
+}
+
+.arrow-icon {
+  position: absolute;
+  width: 140px;
+  align-self: center;
+  opacity: 0.2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
