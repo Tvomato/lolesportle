@@ -57,8 +57,10 @@
 
 .age-cell span, 
 .trophies-cell div, 
+.trophies-cell button,
 .worlds-cell span, 
-.tournaments-cell div {
+.tournaments-cell div,
+.tournaments-cell button {
   position: relative;
   z-index: 1;
 }

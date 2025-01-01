@@ -17,24 +17,24 @@ with open('tournaments.json', 'r') as file:
 scanned = set()
 
 for tournament in tournaments_data:
-    t_name = tournament.get("Name", None)
+    t_name = tournament.get("name", None)
     if not t_name:
         continue
     
-    t_name = t_name.split(" Main Event")[0]
-    if t_name in scanned:
+    query_name = t_name.split(" Main Event")[0] # Special case is necessary for World Championships
+    if query_name in scanned:
         continue
-    scanned.add(t_name)
+    scanned.add(query_name)
 
     res = site.cargo_client.query(
             tables="Tournaments=T, TournamentResults=TR, TournamentPlayers=TP",
             join_on="TR.OverviewPage=T.OverviewPage, TR.RosterPage=TP.OverviewPage, TR.Team=TP.Team",
             fields="TP.Player",
-            where=f"TR.Place='1' AND T.Name = '{t_name}' AND (T.IsPlayoffs AND T.TournamentLevel='Primary' OR T.Region = 'International')",
+            where=f"TR.Place='1' AND T.Name = '{query_name}' AND (T.IsPlayoffs AND T.TournamentLevel='Primary' OR T.Region = 'International')",
         )
 
     for player_data in res:
-        player_name = player_data['Player']
+        player_name = player_data.get("Player")
         
         player = session.query(Player).filter_by(player=player_name).first()
         tournament = session.query(Tournament).filter_by(name=t_name).first()
@@ -42,12 +42,6 @@ for tournament in tournaments_data:
         if player and tournament:
             player.tournaments_won_list.append(tournament)
             player.trophies += 1
-
-    session.commit()
-
-players = session.query(Player).all()
-for player in players:
-    player.trophies = len(player.tournaments_won_list)
 
 session.commit()
 
