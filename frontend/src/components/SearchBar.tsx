@@ -18,6 +18,13 @@ export default function SearchBar({ data, onSelect }: { data: Map<string, any>, 
         setFilteredKeys(searchWord === "" ? [] : newFilteredKeys);
     }
 
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            onSelect(data.get(filteredKeys[0]));
+            clearInput();
+        }
+    }
+
     const handleSelect = (player: any) => {
         onSelect(data.get(player));
         clearInput();
@@ -31,7 +38,13 @@ export default function SearchBar({ data, onSelect }: { data: Map<string, any>, 
     return (
         <div className="search">
             <div className="searchInputs">
-                <input type="text" placeholder="Start typing to guess..." value={inputWord} onChange={handleFilter} />
+                <input 
+                    type="text" 
+                    placeholder="Start typing to guess..." 
+                    value={inputWord} 
+                    onChange={handleFilter} 
+                    onKeyDown={handleKeyDown} 
+                />
                 <div className="searchIcon">
                     {inputWord.length > 0 && (
                         <CloseIcon id="clearBtn" onClick={clearInput} />
