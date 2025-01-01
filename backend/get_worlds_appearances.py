@@ -19,6 +19,8 @@ def count_instances(tournies):
 with open('players.json', 'r') as file:
     players_data = json.load(file)
 
+print(">> Processing worlds appearances...")
+
 for player in players_data:
     p_info = players_data.get(player)
     p_name = p_info.get("Player", None)
@@ -32,4 +34,4 @@ for player in players_data:
 
     session.commit()
 
-print("Worlds appearances processed")
+print(">> Worlds appearances processed")

@@ -16,6 +16,8 @@ with open('tournaments.json', 'r') as file:
 
 scanned = set()
 
+print(">> Processing tournament winners...")
+
 for tournament in tournaments_data:
     t_name = tournament.get("name", None)
     if not t_name:
@@ -25,6 +27,8 @@ for tournament in tournaments_data:
     if query_name in scanned:
         continue
     scanned.add(query_name)
+
+    print(f"Now looking at winners for {query_name}")
 
     res = site.cargo_client.query(
             tables="Tournaments=T, TournamentResults=TR, TournamentPlayers=TP",
@@ -45,4 +49,4 @@ for tournament in tournaments_data:
 
 session.commit()
 
-print("Tournament winners processed")
+print(">> Tournament winners processed")

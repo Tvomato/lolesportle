@@ -59,4 +59,4 @@ class Tournament(Base):
 
 Base.metadata.create_all(engine)
 
-print("Tables created")
+print(">> Tables verified")

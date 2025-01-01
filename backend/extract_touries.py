@@ -7,6 +7,8 @@ years = list(range(2013, 2025))
 valid_tournaments = ["LEC", "LCK", "LCS", "LPL", "MSI", "Worlds", "NA LCS", "EU LCS", "Champions"]
 invalid_tournaments = ["Promotion", "Qualifiers", "Expansion", "Prequalifier"]
 
+print(">> Extracting tournaments...")
+
 for y in years:
     for region in regions:
         tournies += leaguepedia_parser.get_tournaments(
@@ -20,4 +22,4 @@ full_list = [t.__dict__ for t in tournies
 with open('tournaments.json', 'w') as file:
     json.dump(full_list, file, indent=4)
 
-print("Retrieved tournaments")
+print(">> Finished extracting tournaments")

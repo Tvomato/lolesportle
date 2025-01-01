@@ -18,6 +18,8 @@ session = Session()
 with open('tournaments.json', 'r') as file:
     tournaments_data = json.load(file)
 
+print(">> Inserting tournaments to table...")
+
 for tournament in tournaments_data:
     year = get_year(tournament.get("name"))
     new_tournament = Tournament(
@@ -31,4 +33,4 @@ session.commit()
 
 session.close()
 
-print("Tournaments inserted")
+print(">> Tournaments inserted")

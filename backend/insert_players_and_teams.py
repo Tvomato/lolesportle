@@ -47,10 +47,13 @@ with open('players.json', 'r') as file:
     players_dict = json.load(file)
 
 count = 0
+total = len(players_dict)
+
+print(">> Inserting players and teams...")
 
 for player_id, player_data in players_dict.items():
-    if count % 100 == 0:
-        print(str(count) + " players analyzed")
+    if count % 25 == 0:
+        print(f"{str(count)} players analyzed out of {total}")
     if p_team := player_data['Team']:
         team = session.query(Team).filter_by(name=p_team).first()
         if not team:
@@ -124,5 +127,5 @@ for player_id, player_data in players_dict.items():
 
 session.commit()
 
-print("Players and Teams inserted")
-print("Skipped: ", skipped_players)
+print(">> Players and Teams inserted")
+print(f"DEBUG: Skipped: {skipped_players} (this can be ignored)")

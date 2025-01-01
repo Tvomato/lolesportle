@@ -8,10 +8,14 @@ with open('tournaments.json', 'r') as file:
 
 players_dict = {}
 
+print(">> Extracting players...")
+
 for tournament in tournaments_data:
     t_name = tournament.get("name", None)
     if not t_name:
         continue
+
+    print(f"Now looking at players for {t_name}")
 
     res = site.cargo_client.query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
@@ -39,4 +43,4 @@ for tournament in tournaments_data:
 with open('players.json', 'w') as file:
     json.dump(players_dict, file, indent=4)
 
-print("Retrieved players")
+print(">> Finished extracting players")
