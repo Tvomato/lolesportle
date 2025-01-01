@@ -254,7 +254,7 @@ function GamePage() {
         <>
             <div className="game-setup">
                 <button onClick={getNewPlayer}>NEW GAME</button>
-                <input type="checkbox" onChange={() => setShowPlayer(!showPlayer)} />
+                {currentPlayer && !has_won && (<button onClick={() => setShowPlayer(!showPlayer)}>REVEAL PLAYER</button>)}
             </div>
             {has_won && (<div>YOU WIN YAY</div>)}
             {currentPlayer && !has_won && (
