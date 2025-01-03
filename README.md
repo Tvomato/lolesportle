@@ -45,7 +45,7 @@ Follow these steps to install and run this project locally:
   ```
 
 ## How to Play
-From the home page, click `New Page` to generate a new mystery player to guess. Start by using the the search bar to guess an initial player. This will give you details about the mystery player.
+From the home page, click `New Player` to generate a new mystery player to guess. Start by using the the search bar to guess an initial player. This will give you details about the mystery player.
 In each column, a green background means the mystery player has the same attribute for that column, a yellow background means the attribute is similar, and a red background means the attribute is far off.
 
 Yellow color legend:
