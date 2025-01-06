@@ -17,6 +17,7 @@ scripts = [
 print(">> Now commencing backend setup <<")
 
 for script in scripts:
+    print(f">> Now executing `{script}` <<")
     exit_code = run_script(script)
     if exit_code != 0:
         print(f"!! Error running {script}. Exiting with code {exit_code}. !!")

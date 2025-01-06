@@ -1,0 +1,4 @@
+leaguepedia_parser==2.0.2
+mwrogue==0.1.5
+python-dotenv==1.0.1
+SQLAlchemy==2.0.36

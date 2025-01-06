@@ -60,7 +60,7 @@ for player_id, player_data in players_dict.items():
             res = site.cargo_client.query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
-                where=f"T.OverviewPage='{p_team.replace("'", "''")}'",
+                where=f"""T.OverviewPage='{p_team.replace("'", "''")}'""",
                 limit=1,
             )
             if not res:
@@ -86,7 +86,7 @@ for player_id, player_data in players_dict.items():
             res = site.cargo_client.query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
-                where=f"T.OverviewPage='{p_team_last.replace("'", "''")}'",
+                where=f"""T.OverviewPage='{p_team_last.replace("'", "''")}'""",
                 limit=1,
             )
             if not res and not player_data['Team']:
