@@ -16,30 +16,38 @@ Follow these steps to install and run this project locally:
   ```sh
   git clone https://github.com/Tvomato/lolesportle.git
   ```
-2. Install NPM packages
-  ```sh
-  npm install
-  ```
-3. In the main `lolesportle` folder, create a `.env` file and fill in the following fields with your postgres instance
+2. In the main `lolesportle` folder, create a `.env` file and fill in the following fields with your postgres instance
   ```sh
   DB_USER={your_db_name}
   DB_PASSWORD={your_db_password}
   DB_HOST={your_db_host}
   DB_NAME={your_db_name}
   ```
-4. Head into the backend and run the setup to populate the tables
+3. Install all necessary pip libraries for the backend
   ```sh
   cd backend
+  pip install -r requirements.txt
+  ```
+4. While in the backend, run the setup to populate all tables
+  ```sh
   # This may take a few minutes to finish
   python setup_backend.py
   ```
-5. Start the backend server
+5. Install NPM packages for the frontend
   ```sh
+  cd ..
+  cd frontend
+  npm install
+  ```
+6. Start the backend server
+  ```sh
+  cd ..
   cd backend
   nodemon server.js
   ```
-6. Start the frontend server
+7. Start the frontend server
   ```sh
+  cd ..
   cd frontend
   npm start
   ```
