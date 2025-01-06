@@ -23,10 +23,11 @@ Follow these steps to install and run this project locally:
   DB_HOST={your_db_host}
   DB_NAME={your_db_name}
   ```
-3. Install all necessary pip libraries for the backend
+3. Install all necessary libraries and packages for the backend
   ```sh
   cd backend
   pip install -r requirements.txt
+  npm install
   ```
 4. While in the backend, run the setup to populate all tables
   ```sh
