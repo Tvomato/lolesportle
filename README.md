@@ -18,7 +18,7 @@ Follow these steps to install and run this project locally:
   ```
 2. In the main `lolesportle` folder, create a `.env` file and fill in the following fields with your postgres instance
   ```sh
-  DB_USER={your_db_name}
+  DB_USER={your_db_username}
   DB_PASSWORD={your_db_password}
   DB_HOST={your_db_host}
   DB_NAME={your_db_name}
