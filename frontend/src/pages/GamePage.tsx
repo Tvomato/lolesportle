@@ -14,6 +14,7 @@ function GamePage() {
     const [guessedPlayers, setGuessedPlayers] = useState<any[]>([]);
     const [showPlayer, setShowPlayer] = useState<boolean>(false);
     const has_won = guessedPlayers.some(item => JSON.stringify(item) === JSON.stringify(currentPlayer))
+    const reveal_button = (!showPlayer ? "REVEAL PLAYER" : "HIDE PLAYER")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +38,7 @@ function GamePage() {
     }
 
     const handleAddPlayer = (player: any) => {
-        setGuessedPlayers(prev => [...prev, player])
+        setGuessedPlayers(prev => [player, ...prev])
     }
 
     const calculateAge = (birthdate: string) => {
@@ -254,7 +255,7 @@ function GamePage() {
         <>
             <div className="game-setup">
                 <button className="display-button" onClick={getNewPlayer}>NEW GAME</button>
-                {currentPlayer && !has_won && (<button className="display-button" onClick={() => setShowPlayer(!showPlayer)}>REVEAL PLAYER</button>)}
+                {currentPlayer && !has_won && (<button className="display-button" onClick={() => setShowPlayer(!showPlayer)}>{reveal_button}</button>)}
             </div>
             {has_won && (<div className="victory-text">YOU WIN!</div>)}
             {currentPlayer && !has_won && !showPlayer && (
