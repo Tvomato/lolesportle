@@ -19,7 +19,7 @@ export default function SearchBar({ data, onSelect }: { data: Map<string, any>, 
     }
 
     const handleKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && filteredKeys.length > 0) {
             onSelect(data.get(filteredKeys[0]));
             clearInput();
         }
