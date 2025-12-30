@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 
+
 def get_db():
     load_dotenv()
 

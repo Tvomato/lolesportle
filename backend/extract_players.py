@@ -1,9 +1,9 @@
 from mwrogue.esports_client import EsportsClient
 import json
 
-site = EsportsClient('lol')
+site = EsportsClient("lol")
 
-with open('tournaments.json', 'r') as file:
+with open("tournaments.json", "r") as file:
     tournaments_data = json.load(file)
 
 players_dict = {}
@@ -40,7 +40,7 @@ for tournament in tournaments_data:
                 if t_name not in players_dict[player_id]["Tournaments"]:
                     players_dict[player_id]["Tournaments"].append(t_name)
 
-with open('players.json', 'w') as file:
+with open("players.json", "w") as file:
     json.dump(players_dict, file, indent=4)
 
 print(">> Finished extracting players")

@@ -1,13 +1,15 @@
 import subprocess
 
+
 def run_script(script_name):
     result = subprocess.run(["python", script_name], check=True)
     return result.returncode
 
+
 scripts = [
     "create_skeletons.py",
-    "extract_players.py",
     "extract_tournies.py",
+    "extract_players.py",
     "insert_tournies.py",
     "insert_players_and_teams.py",
     "get_tourny_winners.py",

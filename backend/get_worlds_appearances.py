@@ -3,20 +3,35 @@ from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from mwrogue.esports_client import EsportsClient
 import json
+from datetime import date
 from create_skeletons import Player
 
-site = EsportsClient('lol')
+site = EsportsClient("lol")
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 def count_instances(tournies):
-    years = {entry.split()[1] for entry in tournies if "Worlds" in entry and len(entry.split()) > 1 and entry.split()[1].isdigit() and 2013 <= int(entry.split()[1]) <= 2024}
-    no_year_count = sum(1 for entry in tournies if "Worlds" in entry and (len(entry.split()) == 1 or not entry.split()[1].isdigit()))
+    years = {
+        entry.split()[1]
+        for entry in tournies
+        if "Worlds" in entry
+        and len(entry.split()) > 1
+        and entry.split()[1].isdigit()
+        and 2013 <= int(entry.split()[1]) <= date.today().year
+    }
+    no_year_count = sum(
+        1
+        for entry in tournies
+        if "Worlds" in entry
+        and (len(entry.split()) == 1 or not entry.split()[1].isdigit())
+    )
     return len(years) + no_year_count
 
-with open('players.json', 'r') as file:
+
+with open("players.json", "r") as file:
     players_data = json.load(file)
 
 print(">> Processing worlds appearances...")
