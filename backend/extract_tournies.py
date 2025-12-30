@@ -1,39 +1,27 @@
 import json
-import leaguepedia_parser
-from datetime import date
+from mwrogue.esports_client import EsportsClient
+from mwrogue.auth_credentials import AuthCredentials
+
+credentials = AuthCredentials(user_file="me")
+site = EsportsClient("lol", credentials=credentials)
 
 tournies = []
-regions = ["Korea", "China", "North America", "EMEA", "Europe", "International"]
-years = list(range(2013, date.today().year + 1))
-valid_tournaments = [
-    "LEC",
-    "LCK",
-    "LCS",
-    "LPL",
-    "MSI",
-    "Worlds",
-    "NA LCS",
-    "EU LCS",
-    "Champions",
-]
-invalid_tournaments = ["Promotion", "Qualifiers", "Expansion", "Prequalifier"]
 
 print(">> Extracting tournaments...")
 
-for y in years:
-    for region in regions:
-        tournies += leaguepedia_parser.get_tournaments(
-            year=y, tournament_level="Primary", region=region
-        )
+with open("tournaments_raw.txt", "r") as file:
+    tournaments_raw = file
 
-full_list = [
-    t.__dict__
-    for t in tournies
-    if any(t.name.startswith(v) for v in valid_tournaments)
-    and not any(iv in t.name for iv in invalid_tournaments)
-]
+for line in tournaments_raw:
+    name = line.strip()
+    tournies += site.cargo_client.query(
+        tables="Tournaments=T",
+        fields="T.Name, T.DateStart, T.Date, T.League, T.Region, T.League, T.TournamentLevel, T.IsQualifier, T.IsPlayoffs, T.IsOfficial",
+        where=f"T.Name = '{name}'",
+        limit=1,
+    )
 
 with open("tournaments.json", "w") as file:
-    json.dump(full_list, file, indent=4)
+    json.dump(tournies, file, indent=4)
 
 print(">> Finished extracting tournaments")

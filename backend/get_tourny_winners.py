@@ -2,10 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from mwrogue.esports_client import EsportsClient
+from mwrogue.auth_credentials import AuthCredentials
 import json
 from create_skeletons import Player, Tournament, tournament_winner
 
-site = EsportsClient("lol")
+credentials = AuthCredentials(user_file="me")
+site = EsportsClient("lol", credentials=credentials)
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)

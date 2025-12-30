@@ -1,7 +1,9 @@
-from mwrogue.esports_client import EsportsClient
 import json
+from mwrogue.esports_client import EsportsClient
+from mwrogue.auth_credentials import AuthCredentials
 
-site = EsportsClient("lol")
+credentials = AuthCredentials(user_file="me")
+site = EsportsClient("lol", credentials=credentials)
 
 with open("tournaments.json", "r") as file:
     tournaments_data = json.load(file)
