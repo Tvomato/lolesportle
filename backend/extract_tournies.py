@@ -11,7 +11,6 @@ tournies = []
 
 print(">> Extracting tournaments...")
 
-cnt = 0
 with open("tournaments_raw.txt", "r") as file:
     for line in file:
         t_name = line.strip()
@@ -21,8 +20,6 @@ with open("tournaments_raw.txt", "r") as file:
             where=f"T.Name = '{t_name}'",
             limit=1,
         )
-        cnt += 1
-        print(cnt)
 
 with open("tournaments.json", "w") as file:
     json.dump(tournies, file, indent=4)
