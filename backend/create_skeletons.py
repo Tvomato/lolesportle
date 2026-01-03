@@ -1,3 +1,5 @@
+# create database skeletons for players, teams, and tournaments
+
 from sqlalchemy import (
     create_engine,
     Column,
@@ -11,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from db_config import get_db
+from sqlalchemy.dialects.postgresql import ARRAY
 
 engine = create_engine(get_db())
 
@@ -46,6 +49,7 @@ class Player(Base):
     worlds_appearances = Column(Integer, default=0)
     team_name = Column(String, ForeignKey("teams.name"), nullable=True)
     team_last = Column(String, ForeignKey("teams.name"), nullable=True)
+    fav_champs = Column(ARRAY(String), default=list)
 
     team = relationship("Team", foreign_keys=[team_name], back_populates="players")
     last_team = relationship("Team", foreign_keys=[team_last])

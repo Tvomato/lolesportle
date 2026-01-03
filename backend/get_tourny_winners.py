@@ -1,10 +1,13 @@
+# get tournament winners and update player records in the database
+
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from mwrogue.esports_client import EsportsClient
 from mwrogue.auth_credentials import AuthCredentials
 import json
-from create_skeletons import Player, Tournament, tournament_winner
+from create_skeletons import Player, Tournament
 
 credentials = AuthCredentials(user_file="me")
 site = EsportsClient("lol", credentials=credentials)
@@ -13,7 +16,11 @@ engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
 session = Session()
 
-with open("tournaments.json", "r") as file:
+if not os.path.exists("to_insert_tournaments.json"):
+    print(">> No tournaments to insert")
+    exit(0)
+
+with open("to_insert_tournaments.json", "r") as file:
     tournaments_data = json.load(file)
 
 scanned = set()
@@ -25,9 +32,8 @@ for tournament in tournaments_data:
     if not t_name:
         continue
 
-    query_name = t_name.split(" Main Event")[
-        0
-    ]  # Special case is necessary for World Championships
+    # Special case is necessary for World Championships
+    query_name = t_name.split(" Main Event")[0]
     if query_name in scanned:
         continue
     scanned.add(query_name)
@@ -52,5 +58,7 @@ for tournament in tournaments_data:
             player.trophies += 1
 
 session.commit()
+
+os.remove("to_insert_tournaments.json")
 
 print(">> Tournament winners processed")

@@ -1,3 +1,5 @@
+# extract player data from tournaments and save to JSON
+
 import json
 from mwrogue.esports_client import EsportsClient
 from mwrogue.auth_credentials import AuthCredentials
@@ -21,7 +23,7 @@ for tournament in tournaments_data:
 
     res = site.cargo_client.query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
-        fields="P.Player, P.Name, P.NativeName, P.Country, P.Birthdate, P.Age, P.Role, P.Team, P.TeamLast, P.IsRetired",
+        fields="P.Player, P.Name, P.NativeName, P.Country, P.Birthdate, P.Age, P.Role, P.Team, P.TeamLast, P.IsRetired, P.FavChamps",
         where=f"(T.Name = '{str(t_name)}') AND (P.Role = 'Support' OR P.Role = 'Bot' OR P.Role = 'Mid' OR P.Role = 'Top' OR P.Role = 'Jungle')",
         join_on="T.OverviewPage=TP.OverviewPage, TP.Player=PR.AllName, PR.OverviewPage=P.OverviewPage",
         group_by="P.OverviewPage",
@@ -42,7 +44,14 @@ for tournament in tournaments_data:
                 if t_name not in players_dict[player_id]["Tournaments"]:
                     players_dict[player_id]["Tournaments"].append(t_name)
 
+            if p.get("FavChamps"):
+                fav_champs = [champ.strip() for champ in p["FavChamps"].split(",")]
+                players_dict[player_id]["FavChamps"] = fav_champs
+
 with open("players.json", "w") as file:
+    json.dump(players_dict, file, indent=4)
+
+with open("to_insert_players.json", "w") as file:
     json.dump(players_dict, file, indent=4)
 
 print(">> Finished extracting players")

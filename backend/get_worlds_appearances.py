@@ -1,3 +1,5 @@
+# get number of worlds appearances for each player and update database
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db

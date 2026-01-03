@@ -1,3 +1,6 @@
+# insert players and teams from JSON into database
+
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
@@ -48,7 +51,7 @@ def get_player_image_file(name):
     return get_image(fileName)
 
 
-with open("players.json", "r") as file:
+with open("to_insert_players.json", "r") as file:
     players_dict = json.load(file)
 
 count = 0
@@ -135,6 +138,8 @@ for player_id, player_data in players_dict.items():
     count += 1
 
 session.commit()
+
+os.remove("to_insert_players.json")
 
 print(">> Players and Teams inserted")
 print(f"DEBUG: Skipped: {skipped_players} (this can be ignored)")

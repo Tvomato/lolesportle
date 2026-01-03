@@ -1,3 +1,5 @@
+# initial backend setup script
+
 import subprocess
 
 
