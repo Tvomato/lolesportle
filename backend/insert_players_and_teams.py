@@ -32,10 +32,11 @@ def get_image(name):
 
 def get_player_image_file(name):
     res = exec_query(
-        tables="PlayerImages=PI",
-        fields="PI.FileName",
+        tables="PlayerImages=PI, Tournaments=T",
+        fields="PI.FileName, PI.Link",
+        join_on="PI.Tournament=T.OverviewPage",
         where='Link="%s"' % name,
-        order_by="PI.SortDate DESC",
+        order_by="PI.SortDate DESC, T.DateStart DESC",
         limit=1,
     )
 
