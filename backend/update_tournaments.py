@@ -1,11 +1,6 @@
 import json
 from typing import List, Set
-
-from mwrogue.esports_client import EsportsClient
-from mwrogue.auth_credentials import AuthCredentials
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
+from executor import exec_query
 
 
 def load_raw() -> List[str]:
@@ -45,14 +40,14 @@ with open("players.json", "r") as file:
 
 for t_name in raw_names:
     if t_name not in loaded_tournaments:
-        new_tournies += site.cargo_client.query(
+        new_tournies += exec_query(
             tables="Tournaments=T",
             fields="T.Name, T.DateStart, T.Date, T.League, T.Region, T.League, T.TournamentLevel, T.IsQualifier, T.IsPlayoffs, T.IsOfficial",
             where=f"T.Name = '{t_name}'",
             limit=1,
         )
 
-        res = site.cargo_client.query(
+        res = exec_query(
             tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
             fields="P.Player, P.Name, P.NativeName, P.Country, P.Birthdate, P.Age, P.Role, P.Team, P.TeamLast, P.IsRetired, P.FavChamps",
             where=f"(T.Name = '{str(t_name)}') AND (P.Role = 'Support' OR P.Role = 'Bot' OR P.Role = 'Mid' OR P.Role = 'Top' OR P.Role = 'Jungle')",
@@ -62,8 +57,8 @@ for t_name in raw_names:
 
         for p in res:
             if (
-                p.get("Birthdate") is not None
-                and p.get("Country") is not None
+                p.get("Birthdate")
+                and p.get("Country")
                 and p.get("TeamLast") != "Riot Games Inc."
             ):
                 player_id = p["Player"]

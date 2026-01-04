@@ -10,8 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Table,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from db_config import get_db
 from sqlalchemy.dialects.postgresql import ARRAY
 

@@ -4,13 +4,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
-from mwrogue.esports_client import EsportsClient
-from mwrogue.auth_credentials import AuthCredentials
 import json
 from create_skeletons import Player, Tournament
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
+from executor import exec_query
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
@@ -28,7 +24,7 @@ scanned = set()
 print(">> Processing tournament winners...")
 
 for tournament in tournaments_data:
-    t_name = tournament.get("name", None)
+    t_name = tournament.get("Name", None)
     if not t_name:
         continue
 
@@ -40,7 +36,7 @@ for tournament in tournaments_data:
 
     print(f"Now looking at winners for {query_name}")
 
-    res = site.cargo_client.query(
+    res = exec_query(
         tables="Tournaments=T, TournamentResults=TR, TournamentPlayers=TP",
         join_on="TR.OverviewPage=T.OverviewPage, TR.RosterPage=TP.OverviewPage, TR.Team=TP.Team",
         fields="TP.Player",

@@ -29,9 +29,9 @@ session = Session()
 print(">> Inserting tournaments to table...")
 
 for tournament in tournaments_data:
-    year = get_year(tournament.get("name"))
+    year = get_year(tournament.get("Name"))
     new_tournament = Tournament(
-        name=tournament["name"], region=tournament["region"], year=year
+        name=tournament["Name"], region=tournament["Region"], year=year
     )
     session.add(new_tournament)
 

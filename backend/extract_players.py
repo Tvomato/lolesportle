@@ -1,11 +1,7 @@
 # extract player data from tournaments and save to JSON
 
 import json
-from mwrogue.esports_client import EsportsClient
-from mwrogue.auth_credentials import AuthCredentials
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
+from executor import exec_query
 
 with open("tournaments.json", "r") as file:
     tournaments_data = json.load(file)
@@ -15,13 +11,13 @@ players_dict = {}
 print(">> Extracting players...")
 
 for tournament in tournaments_data:
-    t_name = tournament.get("name", None)
+    t_name = tournament.get("Name", None)
     if not t_name:
         continue
 
     print(f"Now looking at players for {t_name}")
 
-    res = site.cargo_client.query(
+    res = exec_query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
         fields="P.Player, P.Name, P.NativeName, P.Country, P.Birthdate, P.Age, P.Role, P.Team, P.TeamLast, P.IsRetired, P.FavChamps",
         where=f"(T.Name = '{str(t_name)}') AND (P.Role = 'Support' OR P.Role = 'Bot' OR P.Role = 'Mid' OR P.Role = 'Top' OR P.Role = 'Jungle')",
@@ -30,8 +26,8 @@ for tournament in tournaments_data:
     )
     for p in res:
         if (
-            p.get("Birthdate") is not None
-            and p.get("Country") is not None
+            p.get("Birthdate")
+            and p.get("Country")
             and p.get("TeamLast") != "Riot Games Inc."
         ):
             player_id = p["Player"]
@@ -39,6 +35,7 @@ for tournament in tournaments_data:
                 # Add player to the dictionary with an empty Tournaments list
                 p["Tournaments"] = [t_name]
                 players_dict[player_id] = p
+                print(f"Added new player: {player_id}")
             else:
                 # Append the tournament to the Tournaments list if not already present
                 if t_name not in players_dict[player_id]["Tournaments"]:

@@ -3,11 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from create_skeletons import *
-from mwrogue.esports_client import EsportsClient
-from mwrogue.esports_client import AuthCredentials
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
+from executor import exec_query
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
@@ -27,7 +23,7 @@ for player_id, player_data in players_dict.items():
     cur_retired = player_data.get("IsRetired", "0")
     cur_champs = player_data.get("FavChamps", [])
 
-    res = site.cargo_client.query(
+    res = exec_query(
         tables="Players=P, PlayerRedirects=PR",
         fields="P.Player, P.Country, P.Age, P.Role, P.Team, P.TeamLast, P.IsRetired, P.FavChamps",
         where="PR.AllName='%s'" % player_id,

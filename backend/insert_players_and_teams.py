@@ -5,13 +5,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from create_skeletons import *
-from mwrogue.esports_client import EsportsClient
-from mwrogue.esports_client import AuthCredentials
 from datetime import datetime
+from executor import exec_query, exec_api
 import json
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
@@ -21,7 +17,7 @@ skipped_players = []
 
 
 def get_image(name):
-    image = site.client.api(
+    image = exec_api(
         action="query",
         format="json",
         titles=f"File:{name}",
@@ -35,21 +31,24 @@ def get_image(name):
 
 
 def get_player_image_file(name):
-    response = site.cargo_client.query(
-        limit=1,
-        tables="PlayerImages=PI, Tournaments=T",
-        fields="PI.FileName, PI.Link",
-        join_on="PI.Tournament=T.OverviewPage",
+    res = exec_query(
+        tables="PlayerImages=PI",
+        fields="PI.FileName",
         where='Link="%s"' % name,
-        order_by="PI.SortDate DESC, T.DateStart DESC",
+        order_by="PI.SortDate DESC",
+        limit=1,
     )
 
-    if not response:
+    if not res:
         return ""
 
-    fileName = response[0].get("FileName")
+    fileName = res[0].get("FileName")
     return get_image(fileName)
 
+
+if not os.path.exists("to_insert_players.json"):
+    print(">> No players to insert")
+    exit(0)
 
 with open("to_insert_players.json", "r") as file:
     players_dict = json.load(file)
@@ -62,15 +61,17 @@ print(">> Inserting players and teams...")
 for player_id, player_data in players_dict.items():
     if count % 25 == 0:
         print(f"{str(count)} players analyzed out of {total}")
+
     if p_team := player_data["Team"]:
         team = session.query(Team).filter_by(name=p_team).first()
         if not team:
-            res = site.cargo_client.query(
+            res = exec_query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
                 where=f"""T.OverviewPage='{p_team.replace("'", "''")}'""",
                 limit=1,
             )
+
             if not res:
                 skipped_players.append(player_id)
                 continue
@@ -95,12 +96,13 @@ for player_id, player_data in players_dict.items():
     if p_team_last := player_data["TeamLast"]:
         team_last = session.query(Team).filter_by(name=p_team_last).first()
         if not team_last:
-            res = site.cargo_client.query(
+            res = exec_query(
                 tables="Teams=T",
                 fields="T.Name, T.Region",
                 where=f"""T.OverviewPage='{p_team_last.replace("'", "''")}'""",
                 limit=1,
             )
+
             if not res and not player_data["Team"]:
                 skipped_players.append(player_id)
                 continue
@@ -123,9 +125,10 @@ for player_id, player_data in players_dict.items():
         is_retired=bool(int(player_data["IsRetired"])),
         trophies=0,
         worlds_appearances=0,
-        team_name=player_data["Team"],
-        team_last=player_data["TeamLast"],
+        team_name=player_data["Team"] or None,
+        team_last=player_data["TeamLast"] or None,
     )
+    session.add(player)
 
     for tournament_name in player_data["Tournaments"]:
         tournament = session.query(Tournament).filter_by(name=tournament_name).first()
@@ -134,7 +137,6 @@ for player_id, player_data in players_dict.items():
         else:
             print(f"Tournament not found: {tournament_name}")
 
-    session.add(player)
     count += 1
 
 session.commit()
