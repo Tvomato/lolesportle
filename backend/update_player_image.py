@@ -28,7 +28,7 @@ def get_player_image(player_name):
         fields="PI.FileName, PI.Link",
         join_on="PI.Tournament=T.OverviewPage",
         where='Link="%s"' % player_name,
-        order_by="PI.SortDate DESC, T.DateStart DESC",
+        order_by="T.Date DESC, PI.SortDate DESC",
         limit=1,
     )
 
