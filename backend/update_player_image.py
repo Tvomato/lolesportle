@@ -1,18 +1,28 @@
-# get number of worlds appearances for each player and update database
+"""Get and update player images in the database."""
 
+import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
-import json
 from create_skeletons import Player
 from executor import exec_query, exec_api
 
-engine = create_engine(get_db())
-Session = sessionmaker(bind=engine)
-session = Session()
+
+def get_image_url_from_filename(filename):
+    """Get image URL from filename using API."""
+    image = exec_api(
+        action="query",
+        format="json",
+        titles=f"File:{filename}",
+        prop="imageinfo",
+        iiprop="url",
+    )
+    image_info = next(iter(image["query"]["pages"].values()))["imageinfo"][0]
+    return image_info["url"]
 
 
-def get_image(player_name):
+def get_player_image(player_name):
+    """Get the latest player image from database."""
     res = exec_query(
         tables="PlayerImages=PI, Tournaments=T",
         fields="PI.FileName, PI.Link",
@@ -25,36 +35,54 @@ def get_image(player_name):
     if not res:
         return ""
 
-    fileName = res[0].get("FileName")
-
-    image = exec_api(
-        action="query",
-        format="json",
-        titles=f"File:{fileName}",
-        prop="imageinfo",
-        iiprop="url",
-    )
-
-    image_info = next(iter(image["query"]["pages"].values()))["imageinfo"][0]
-
-    return image_info["url"]
+    filename = res[0].get("FileName")
+    return get_image_url_from_filename(filename)
 
 
-with open("players.json", "r") as file:
-    players_data = json.load(file)
+def load_players(filename="players.json"):
+    """Load player data from JSON file."""
+    with open(filename, "r") as file:
+        return json.load(file)
 
-for player_id, player_data in players_data.items():
-    p_name = player_data.get("Player", None)
-    tournaments = player_data.get("Tournaments", None)
-    if not p_name or not tournaments:
-        continue
 
-    player = session.query(Player).filter_by(player=p_name).first()
+def update_player_images(session, players_data):
+    """Update player images in the database."""
+    for player_id, player_data in players_data.items():
+        p_name = player_data.get("Player")
+        tournaments = player_data.get("Tournaments")
 
-    if player:
-        image_url = get_image(p_name)
+        if not p_name or not tournaments:
+            continue
 
-        if image_url != player.image_url:
-            player.image_url = image_url
+        player = session.query(Player).filter_by(player=p_name).first()
+        if player:
+            image_url = get_player_image(p_name)
+            if image_url and image_url != player.image_url:
+                player.image_url = image_url
 
-session.commit()
+    session.commit()
+
+
+def main():
+    """Main function to update player images."""
+    engine = create_engine(get_db())
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    print(">> Updating player images...")
+
+    try:
+        players_data = load_players()
+        update_player_images(session, players_data)
+        print(">> Player images updated")
+        return 0
+    except Exception as e:
+        session.rollback()
+        print(f"!! Error updating player images: {e}")
+        return 1
+    finally:
+        session.close()
+
+
+if __name__ == "__main__":
+    exit(main())

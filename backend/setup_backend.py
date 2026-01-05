@@ -1,31 +1,48 @@
-# initial backend setup script
+"""Initial backend setup script."""
 
 import subprocess
 
 
 def run_script(script_name):
+    """Run a Python script and return the exit code."""
     result = subprocess.run(["python", script_name], check=True)
     return result.returncode
 
 
-scripts = [
-    "create_skeletons.py",
-    "extract_tournies.py",
-    "extract_players.py",
-    "insert_tournies.py",
-    "insert_players_and_teams.py",
-    "get_tourny_winners.py",
-    "get_worlds_appearances.py",
-]
+def main():
+    """Main function to run all setup scripts in sequence."""
+    scripts = [
+        "create_skeletons.py",
+        "extract_tournies.py",
+        "extract_players.py",
+        "insert_tournies.py",
+        "insert_players_and_teams.py",
+        "get_tourny_winners.py",
+        "get_worlds_appearances.py",
+    ]
 
-print(">> Now commencing backend setup <<")
+    print(">> Now commencing backend setup <<")
 
-for script in scripts:
-    print(f">> Now executing `{script}` <<")
-    exit_code = run_script(script)
-    if exit_code != 0:
-        print(f"!! Error running {script}. Exiting with code {exit_code}. !!")
-        print("!! Please ensure your credentials and database are set up properly !!")
-        break
+    for script in scripts:
+        print(f">> Now executing `{script}` <<")
+        try:
+            exit_code = run_script(script)
+            if exit_code != 0:
+                print(f"!! Error running {script}. Exiting with code {exit_code}. !!")
+                print(
+                    "!! Please ensure your credentials and database are set up properly !!"
+                )
+                return exit_code
+        except subprocess.CalledProcessError as e:
+            print(f"!! Error running {script}: {e} !!")
+            print(
+                "!! Please ensure your credentials and database are set up properly !!"
+            )
+            return 1
 
-print(">> Backend setup complete. <<")
+    print(">> Backend setup complete. <<")
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

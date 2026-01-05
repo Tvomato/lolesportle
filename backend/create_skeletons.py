@@ -1,4 +1,4 @@
-# create database skeletons for players, teams, and tournaments
+"""Create database skeletons for players, teams, and tournaments."""
 
 from sqlalchemy import (
     create_engine,
@@ -11,10 +11,9 @@ from sqlalchemy import (
     Table,
 )
 from sqlalchemy.orm import relationship, declarative_base
-from db_config import get_db
 from sqlalchemy.dialects.postgresql import ARRAY
+from db_config import get_db
 
-engine = create_engine(get_db())
 
 Base = declarative_base()
 
@@ -34,6 +33,8 @@ tournament_winner = Table(
 
 
 class Player(Base):
+    """Player database model."""
+
     __tablename__ = "players"
 
     player = Column(String, primary_key=True)
@@ -61,6 +62,8 @@ class Player(Base):
 
 
 class Team(Base):
+    """Team database model."""
+
     __tablename__ = "teams"
 
     name = Column(String, primary_key=True)
@@ -73,6 +76,8 @@ class Team(Base):
 
 
 class Tournament(Base):
+    """Tournament database model."""
+
     __tablename__ = "tournaments"
 
     name = Column(String, primary_key=True)
@@ -87,4 +92,17 @@ class Tournament(Base):
     )
 
 
-Base.metadata.create_all(engine)
+def main():
+    """Create all database tables."""
+    try:
+        engine = create_engine(get_db())
+        Base.metadata.create_all(engine)
+        print(">> Database skeletons created successfully")
+        return 0
+    except Exception as e:
+        print(f"!! Error creating database skeletons: {e}")
+        return 1
+
+
+if __name__ == "__main__":
+    exit(main())
