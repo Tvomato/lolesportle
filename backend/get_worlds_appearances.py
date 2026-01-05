@@ -3,14 +3,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
-from mwrogue.esports_client import EsportsClient
-from mwrogue.esports_client import AuthCredentials
 import json
 from datetime import date
 from create_skeletons import Player
-
-credentials = AuthCredentials(user_file="me")
-site = EsportsClient("lol", credentials=credentials)
 
 engine = create_engine(get_db())
 Session = sessionmaker(bind=engine)
@@ -51,6 +46,6 @@ for player in players_data:
     if player:
         player.worlds_appearances = count_instances(tournaments)
 
-    session.commit()
+session.commit()
 
 print(">> Worlds appearances processed")

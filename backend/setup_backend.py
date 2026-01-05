@@ -28,5 +28,4 @@ for script in scripts:
         print("!! Please ensure your credentials and database are set up properly !!")
         break
 
-print(">> Backend setup complete! <<")
-print(">> Welcome to Lolesportle! <<")
+print(">> Backend setup complete. <<")

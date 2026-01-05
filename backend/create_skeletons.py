@@ -88,5 +88,3 @@ class Tournament(Base):
 
 
 Base.metadata.create_all(engine)
-
-print(">> Tables verified")
