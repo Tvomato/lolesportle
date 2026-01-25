@@ -1,5 +1,6 @@
 """Insert tournaments from JSON into database."""
 
+from datetime import date
 import json
 import os
 import re
@@ -11,7 +12,9 @@ from create_skeletons import Tournament
 
 def get_year(name):
     """Extract year from tournament name."""
-    pattern = r"\b(201[3-9]|202[0-6])\b"
+    current_year = date.today().year
+    last_digit = current_year % 10
+    pattern = rf"\b(201[3-9]|202[0-{last_digit}])\b"
     match = re.search(pattern, name)
     return match.group() if match else None
 

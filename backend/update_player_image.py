@@ -47,7 +47,7 @@ def load_players(filename="players.json"):
 
 def update_player_images(session, players_data):
     """Update player images in the database."""
-    for player_id, player_data in players_data.items():
+    for _, player_data in players_data.items():
         p_name = player_data.get("Player")
         tournaments = player_data.get("Tournaments")
 
