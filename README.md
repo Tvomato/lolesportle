@@ -27,7 +27,6 @@ Follow these steps to install and run this project locally:
   ```sh
   cd backend
   pip install -r requirements.txt
-  npm install
   ```
 4. While in the backend, run the setup to populate all tables
   ```sh
@@ -36,21 +35,18 @@ Follow these steps to install and run this project locally:
   ```
 5. Install NPM packages for the frontend
   ```sh
-  cd ..
-  cd frontend
+  cd ../frontend
   npm install
   ```
-6. Start the backend server
+6. Start the FastAPI backend server
   ```sh
-  cd ..
-  cd backend
-  nodemon server.js
+  cd ../backend
+  uvicorn api:app --reload --port 8000
   ```
-7. Start the frontend server
+7. Start the Next.js frontend dev server
   ```sh
-  cd ..
-  cd frontend
-  npm start
+  cd ../frontend
+  npm run dev
   ```
 
 ## How to Play
@@ -83,7 +79,7 @@ Yellow color legend:
 
 ## TODO
 * Create new home page
-* Allow customizing pool of players chosen (for now, this can be done manually by modifying the api query in `server.js`)
+* Allow customizing pool of players chosen (the FastAPI endpoint supports `start_year`, `end_year`, `tourny_count`, and `include_retired` query params)
 * Keep track of game statistics
 * Better animations for revealing cards and game victory
 * (Maybe) Compress table rows to be much shorter and take up less space

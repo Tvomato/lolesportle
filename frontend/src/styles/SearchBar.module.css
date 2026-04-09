@@ -31,12 +31,12 @@
   place-items: center;
 }
 
-input:focus {
+.search input:focus {
   outline: none;
 }
 
-.searchIcon svg {
-  font-size: 35px;
+.clearBtn {
+  cursor: pointer;
 }
 
 .dataResult {
@@ -80,8 +80,4 @@ input:focus {
 .dataItem:hover {
   cursor: pointer;
   background-color: lightgrey;
-}
-
-#clearBtn {
-  cursor: pointer;
 }

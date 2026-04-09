@@ -1,0 +1,35 @@
+.gameSetup {
+  display: flex;
+  padding: 6px;
+  gap: 6px;
+}
+
+.displayButton {
+  background-color: #1c841c;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
+  margin-bottom: 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.75);
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.displayButton:hover {
+  background-color: #283593;
+  transform: translateY(-2px);
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.75);
+}
+
+.displayButton:active {
+  transform: translateY(0);
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+}

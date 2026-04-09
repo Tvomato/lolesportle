@@ -1,0 +1,96 @@
+/* Global styles (merged from index.css + App.css) */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  text-align: center;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('/images/trophy_background.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: rgba(255, 255, 255, 0.5);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: -6px;
+  font-size: calc(10px + 2vmin);
+  color: rgb(65, 205, 43);
+  text-shadow: 0 6px 12px #000000, 0 8px 15px #000000;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+/* Cell layout classes used by column renderers */
+
+:global(.player-cell),
+:global(.team-cell) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+:global(.age-cell),
+:global(.trophies-cell),
+:global(.worlds-cell),
+:global(.tournaments-cell) {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.age-cell) span,
+:global(.trophies-cell) div,
+:global(.trophies-cell) button,
+:global(.worlds-cell) span,
+:global(.tournaments-cell) div,
+:global(.tournaments-cell) button {
+  position: relative;
+  z-index: 1;
+}
+
+:global(.player-image) {
+  width: 100px;
+  height: 100px;
+  margin: 6px;
+  margin-top: -4px;
+  object-fit: cover;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.75));
+}
+
+:global(.team-image) {
+  width: 60px;
+  height: 60px;
+  margin: 6px;
+  object-fit: cover;
+  filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.75));
+}
+
+:global(.arrow-icon) {
+  position: absolute;
+  width: 140px;
+  align-self: center;
+  opacity: 0.2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

@@ -1,0 +1,35 @@
+.tableContainer {
+  max-width: 90%;
+  max-height: 800px;
+  margin: 6px;
+  overflow: auto;
+  border: 2px solid #ddd;
+  font-size: large;
+  font-weight: bold;
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataTable th,
+.dataTable td {
+  background-color: #4d484d;
+  border: 2px solid #b9b9b9;
+  padding: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  width: 100px;
+}
+
+.dataTable th {
+  background-color: #000000;
+  border-top: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+

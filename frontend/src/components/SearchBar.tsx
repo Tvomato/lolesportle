@@ -1,72 +1,92 @@
-import React, { useState } from 'react'
-import CloseIcon from '@mui/icons-material/Close';
-import { decode } from 'html-entities';
-import '../styles/SearchBar.css'
+"use client";
 
-export default function SearchBar({ data, onSelect }: { data: Map<string, any>, onSelect: (value: any) => void }) {
-    const [filteredKeys, setFilteredKeys] = useState<string[]>([]);
-    const [inputWord, setInputWord] = useState<string>('');
+import { useState } from "react";
+import { decode } from "html-entities";
+import styles from "@/styles/SearchBar.module.css";
 
-    const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const searchWord = event.target.value.toLowerCase();
-        setInputWord(searchWord);
+interface SearchBarProps {
+  playerNames: string[];
+  onSelect: (name: string) => void;
+}
 
-        const newFilteredKeys = Array.from(data.keys()).filter(key =>
-            key.toLowerCase().startsWith(searchWord)
-        );
+export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
+  const [filteredNames, setFilteredNames] = useState<string[]>([]);
+  const [inputWord, setInputWord] = useState("");
 
-        setFilteredKeys(searchWord === "" ? [] : newFilteredKeys);
+  const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const searchWord = event.target.value.toLowerCase();
+    setInputWord(searchWord);
+
+    if (searchWord === "") {
+      setFilteredNames([]);
+      return;
     }
 
-    const handleKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter' && filteredKeys.length > 0) {
-            onSelect(data.get(filteredKeys[0]));
-            clearInput();
-        }
-    }
+    setFilteredNames(
+      playerNames.filter((name) => name.toLowerCase().startsWith(searchWord))
+    );
+  };
 
-    const handleSelect = (player: any) => {
-        onSelect(data.get(player));
-        clearInput();
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && filteredNames.length > 0) {
+      onSelect(filteredNames[0]);
+      clearInput();
     }
+  };
 
-    const clearInput = () => {
-        setFilteredKeys([]);
-        setInputWord('');
-    }
+  const handleSelect = (name: string) => {
+    onSelect(name);
+    clearInput();
+  };
 
-    return (
-        <div className="search">
-            <div className="searchInputs">
-                <input 
-                    type="text" 
-                    placeholder="Start typing to guess..." 
-                    value={inputWord} 
-                    onChange={handleFilter} 
-                    onKeyDown={handleKeyDown} 
-                />
-                <div className="searchIcon">
-                    {inputWord.length > 0 && (
-                        <CloseIcon id="clearBtn" onClick={clearInput} />
-                    )}
-                </div>
-            </div>
-            {(filteredKeys.length > 0 && inputWord.length > 0) ? (
-                <div className="dataResult">
-                    {filteredKeys.map((key, index) => (
-                        <div key={index} className="dataItem" onClick={() => handleSelect(key)}>
-                            {decode(key)}
-                        </div>
-                    ))}
-                </div>
-            ) : (inputWord.length > 0) ? (
-                <div className="dataResult">
-                    <div className="noData">
-                        No players found.
-                    </div>
-                </div>
-            ) : null
-            }
+  const clearInput = () => {
+    setFilteredNames([]);
+    setInputWord("");
+  };
+
+  return (
+    <div className={styles.search}>
+      <div className={styles.searchInputs}>
+        <input
+          type="text"
+          placeholder="Start typing to guess..."
+          value={inputWord}
+          onChange={handleFilter}
+          onKeyDown={handleKeyDown}
+        />
+        <div className={styles.searchIcon}>
+          {inputWord.length > 0 && (
+            <svg
+              onClick={clearInput}
+              className={styles.clearBtn}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="28"
+              height="28"
+              fill="currentColor"
+            >
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          )}
         </div>
-    )
+      </div>
+      {filteredNames.length > 0 && inputWord.length > 0 ? (
+        <div className={styles.dataResult}>
+          {filteredNames.map((name, index) => (
+            <div
+              key={index}
+              className={styles.dataItem}
+              onClick={() => handleSelect(name)}
+            >
+              {decode(name)}
+            </div>
+          ))}
+        </div>
+      ) : inputWord.length > 0 ? (
+        <div className={styles.dataResult}>
+          <div className={styles.noData}>No players found.</div>
+        </div>
+      ) : null}
+    </div>
+  );
 }

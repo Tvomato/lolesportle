@@ -1,6 +1,13 @@
 # .gitignore
 .env
+.env.local
 
 node_modules
-backend/node_modules
 backend/__pycache__
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Legacy frontend
+frontend-legacy

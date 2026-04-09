@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query, Depends
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, selectinload
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
@@ -51,6 +51,8 @@ class PlayerResponse(BaseModel):
     team_name: Optional[str] = None
     team_last: Optional[str] = None
     fav_champs: List[str] = []
+    tournaments_played: List[str] = []
+    tournaments_won: List[str] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,6 +91,9 @@ async def get_players_by_tournament_count(
         date.today().year, description="End year of the tournament span", le=2100
     ),
     tourny_count: int = Query(5, description="Minimum number of tournaments", ge=1),
+    include_retired: bool = Query(
+        False, description="Include players without a current team"
+    ),
     db: Session = Depends(get_db_session),
 ):
     """
@@ -96,12 +101,18 @@ async def get_players_by_tournament_count(
     Returns only the player column.
     """
     try:
-        result = (
+        query = (
             db.query(Player.player)
             .join(player_tournament, Player.player == player_tournament.c.player_name)
             .join(Tournament, player_tournament.c.tournament_name == Tournament.name)
             .filter(Tournament.year >= start_year, Tournament.year <= end_year)
-            .group_by(Player.player)
+        )
+
+        if not include_retired:
+            query = query.filter(Player.team_name.isnot(None))
+
+        result = (
+            query.group_by(Player.player)
             .having(func.count(func.distinct(Tournament.name)) >= tourny_count)
             .all()
         )
@@ -121,12 +132,26 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
     """
     Get all details (all columns) of a player given the player ID.
     """
-    player = db.query(Player).filter(Player.player == player_id).first()
+    player = (
+        db.query(Player)
+        .options(
+            selectinload(Player.tournaments),
+            selectinload(Player.tournaments_won_list),
+        )
+        .filter(Player.player == player_id)
+        .first()
+    )
 
     if not player:
         raise HTTPException(status_code=404, detail=f"Player '{player_id}' not found")
 
-    return PlayerResponse.model_validate(player)
+    data = {
+        c.name: getattr(player, c.name) for c in Player.__table__.columns
+    }
+    data["tournaments_played"] = [t.name for t in player.tournaments]
+    data["tournaments_won"] = [t.name for t in player.tournaments_won_list]
+
+    return PlayerResponse(**data)
 
 
 @app.get(
@@ -145,6 +170,23 @@ async def get_team_details(team_name: str, db: Session = Depends(get_db_session)
         raise HTTPException(status_code=404, detail=f"Team '{team_name}' not found")
 
     return TeamResponse.model_validate(team)
+
+
+@app.get(
+    "/api/teams",
+    response_model=List[TeamResponse],
+    summary="Get all teams",
+    description="Returns all teams",
+)
+async def get_all_teams(db: Session = Depends(get_db_session)):
+    """
+    Get all teams.
+    """
+    try:
+        teams = db.query(Team).all()
+        return [TeamResponse.model_validate(t) for t in teams]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 @app.get(

@@ -1,0 +1,12 @@
+.loading {
+  font-size: 24px;
+  color: white;
+  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+}
+
+.victoryText {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: 50px;
+  font-weight: 600;
+  text-shadow: 0 0 3px #000000, 0 0 10px #000000;
+}
