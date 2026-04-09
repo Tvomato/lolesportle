@@ -3,7 +3,8 @@ import { Player, Team, ColumnDefinition } from "@/types";
 
 export function getColumnMapping(
   currentPlayer: Player,
-  teamMap: Map<string, Team>
+  teamMap: Map<string, Team>,
+  styles: Record<string, string>
 ): Record<string, ColumnDefinition> {
   return {
     player: {
@@ -11,11 +12,11 @@ export function getColumnMapping(
       render: (value: unknown, player: Player) => {
         const name = value as string;
         return (
-          <div className="player-cell">
+          <div className={styles.playerCell}>
             <img
               src={player.image_url.split("/revision")[0]}
               alt={decode(name)}
-              className="player-image"
+              className={styles.playerImage}
             />
             <span>{decode(name)}</span>
             {player.native_name && <span>[{player.native_name}]</span>}
@@ -28,7 +29,7 @@ export function getColumnMapping(
       render: (value: unknown) => {
         const nationality = value as string;
         return (
-          <div className="nationality-cell">
+          <div>
             <span>{nationality}</span>
           </div>
         );
@@ -39,7 +40,7 @@ export function getColumnMapping(
       render: (value: unknown) => {
         const age = value as number;
         return (
-          <div className="age-cell">
+          <div className={styles.ageCell}>
             <span>{age}</span>
             {age !== currentPlayer.birthdate && (
               <img
@@ -49,7 +50,7 @@ export function getColumnMapping(
                     : "/images/down_arrow.png"
                 }
                 alt={age < currentPlayer.birthdate ? "Older" : "Younger"}
-                className="arrow-icon"
+                className={styles.arrowIcon}
               />
             )}
           </div>
@@ -60,9 +61,7 @@ export function getColumnMapping(
       header: "Role",
       render: (value: unknown) => {
         const role = value as string;
-        return (
-          <span className={`role-cell role-${role.toLowerCase()}`}>{role}</span>
-        );
+        return <span>{role}</span>;
       },
     },
     team_name: {
@@ -70,7 +69,7 @@ export function getColumnMapping(
       render: (value: unknown, player: Player) => {
         const teamName = value as string | null;
         return (
-          <div className="team-cell">
+          <div className={styles.teamCell}>
             {player.team_name ? (
               <>
                 <img
@@ -80,7 +79,7 @@ export function getColumnMapping(
                       ?.logo_url.split("/revision")[0] ?? ""
                   }
                   alt={teamName ?? ""}
-                  className="team-image"
+                  className={styles.teamImage}
                 />
                 <span>{teamName}</span>
               </>
@@ -99,7 +98,7 @@ export function getColumnMapping(
       render: (value: unknown, player: Player) => {
         const trophies = value as number;
         return (
-          <div className="trophies-cell">
+          <div className={styles.trophiesCell}>
             <div>{trophies}</div>
             {player.tournaments_won && (
               <button onClick={() => console.log(player.tournaments_won)}>
@@ -114,7 +113,7 @@ export function getColumnMapping(
                     : "/images/down_arrow.png"
                 }
                 alt={trophies < currentPlayer.trophies ? "More" : "Fewer"}
-                className="arrow-icon"
+                className={styles.arrowIcon}
               />
             )}
           </div>
@@ -126,7 +125,7 @@ export function getColumnMapping(
       render: (value: unknown) => {
         const worlds = value as number;
         return (
-          <div className="worlds-cell">
+          <div className={styles.worldsCell}>
             <span>{worlds}</span>
             {worlds !== currentPlayer.worlds_appearances && (
               <img
@@ -138,7 +137,7 @@ export function getColumnMapping(
                 alt={
                   worlds < currentPlayer.worlds_appearances ? "More" : "Fewer"
                 }
-                className="arrow-icon"
+                className={styles.arrowIcon}
               />
             )}
           </div>
@@ -150,7 +149,7 @@ export function getColumnMapping(
       render: (value: unknown) => {
         const tournaments = value as string[];
         return (
-          <div className="tournaments-cell">
+          <div className={styles.tournamentsCell}>
             <div>Total: {tournaments.length}</div>
             <button onClick={() => console.log(tournaments.join(", "))}>
               Info
@@ -170,7 +169,7 @@ export function getColumnMapping(
                     ? "More"
                     : "Fewer"
                 }
-                className="arrow-icon"
+                className={styles.arrowIcon}
               />
             )}
           </div>

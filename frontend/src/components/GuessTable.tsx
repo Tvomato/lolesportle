@@ -18,7 +18,7 @@ export default function GuessTable({
   showPlayer,
   teamMap,
 }: GuessTableProps) {
-  const columnMapping = getColumnMapping(currentPlayer, teamMap);
+  const columnMapping = getColumnMapping(currentPlayer, teamMap, styles);
   const columns = Object.keys(columnMapping);
 
   return (
