@@ -9,6 +9,15 @@ import SearchBar from "./SearchBar";
 import GuessTable from "./GuessTable";
 import styles from "@/styles/GameBoard.module.css";
 
+function preloadImage(url: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url.split("/revision")[0];
+  });
+}
+
 export default function GameBoard() {
   const [playerNames, setPlayerNames] = useState<string[]>([]);
   const [teamMap, setTeamMap] = useState<Map<string, Team>>(new Map());
@@ -19,10 +28,15 @@ export default function GameBoard() {
   );
   const [showPlayer, setShowPlayer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [guessRevealId, setGuessRevealId] = useState(0);
+  const [revealComplete, setRevealComplete] = useState(true);
 
-  const hasWon = currentPlayer
-    ? guessedPlayers.some((p) => p.player === currentPlayer.player)
-    : false;
+  const ANIMATION_DURATION = 3000;
+
+  const hasWon = 
+    currentPlayer && revealComplete
+      ? guessedPlayers.some((p) => p.player === currentPlayer.player)
+      : false;
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,10 +71,22 @@ export default function GameBoard() {
       const randomName =
         playerNames[Math.floor(Math.random() * playerNames.length)];
       const raw = await fetchPlayerDetails(randomName);
-      setCurrentPlayer(transformData(raw));
+
+      const player = transformData(raw);
+      const teamLogoUrl = player.team_name
+        ? teamMap.get(player.team_name)?.logo_url
+        : undefined;
+
+      await Promise.all([
+        preloadImage(player.image_url), 
+        teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
+      ]);
+
+      setCurrentPlayer(player);
       setGuessedPlayers([]);
       setGuessedRawNames(new Set());
       setShowPlayer(false);
+      setGuessRevealId(0);
     } catch (error) {
       console.error("Error fetching player:", error);
     } finally {
@@ -72,9 +98,27 @@ export default function GameBoard() {
     setLoading(true);
     try {
       const raw = await fetchPlayerDetails(name);
+      
       const player = transformData(raw);
+      const teamLogoUrl = player.team_name
+        ? teamMap.get(player.team_name)?.logo_url
+        : undefined;
+
+      await Promise.all([
+        preloadImage(player.image_url), 
+        teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
+      ]);
+
+      setRevealComplete(false);
+
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
+      setGuessRevealId((prev) => prev + 1);
+
+      setTimeout(() => {
+        setRevealComplete(true);
+        setLoading(false);
+      }, ANIMATION_DURATION);
     } catch (error) {
       console.error("Error fetching player details:", error);
     } finally {
@@ -104,6 +148,7 @@ export default function GameBoard() {
           guessedPlayers={guessedPlayers}
           showPlayer={showPlayer}
           teamMap={teamMap}
+          guessRevealId={guessRevealId}
         />
       )}
     </>

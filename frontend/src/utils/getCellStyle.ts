@@ -15,9 +15,9 @@ export function getCellStyle(
   teamMap: Map<string, Team>
 ): React.CSSProperties {
   if (column === "player") {
-    if (currentPlayer.player === player.player) {
-      return { backgroundColor: COLORS.green };
-    }
+    // if (currentPlayer.player === player.player) {
+    //   return { backgroundColor: COLORS.green };
+    // }
     return { backgroundColor: COLORS.blue };
   }
 

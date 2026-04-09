@@ -12,14 +12,12 @@ export function getColumnMapping(
       render: (value: unknown, player: Player) => {
         const name = value as string;
         return (
-          <div className={styles.playerCell}>
+          <div className={styles.playerCell} title={decode(name)}>
             <img
               src={player.image_url.split("/revision")[0]}
               alt={decode(name)}
-              className={styles.playerImage}
+              className={styles.playerImageFill}
             />
-            <span>{decode(name)}</span>
-            {player.native_name && <span>[{player.native_name}]</span>}
           </div>
         );
       },
@@ -68,26 +66,23 @@ export function getColumnMapping(
       header: "Team",
       render: (value: unknown, player: Player) => {
         const teamName = value as string | null;
+        const displayName = player.team_name
+          ? teamName
+          : `No team, prev: ${player.team_last}`;
         return (
-          <div className={styles.teamCell}>
+          <div className={styles.teamCell} title={displayName ?? ""}>
             {player.team_name ? (
-              <>
-                <img
-                  src={
-                    teamMap
-                      .get(player.team_name)
-                      ?.logo_url.split("/revision")[0] ?? ""
-                  }
-                  alt={teamName ?? ""}
-                  className={styles.teamImage}
-                />
-                <span>{teamName}</span>
-              </>
+              <img
+                src={
+                  teamMap
+                    .get(player.team_name)
+                    ?.logo_url.split("/revision")[0] ?? ""
+                }
+                alt={teamName ?? ""}
+                className={styles.teamImage}
+              />
             ) : (
-              <>
-                <span>NO TEAM, prev:</span>
-                <span>{player.team_last}</span>
-              </>
+              <span>{displayName}</span>
             )}
           </div>
         );
@@ -100,11 +95,11 @@ export function getColumnMapping(
         return (
           <div className={styles.trophiesCell}>
             <div>{trophies}</div>
-            {player.tournaments_won && (
+            {/* {player.tournaments_won && (
               <button onClick={() => console.log(player.tournaments_won)}>
                 Info
               </button>
-            )}
+            )} */}
             {trophies !== currentPlayer.trophies && (
               <img
                 src={
@@ -145,33 +140,33 @@ export function getColumnMapping(
       },
     },
     tournaments_played: {
-      header: "Tournaments",
+      header: "Tournaments Played",
       render: (value: unknown) => {
         const tournaments = value as string[];
         return (
           <div className={styles.tournamentsCell}>
-            <div>Total: {tournaments.length}</div>
-            <button onClick={() => console.log(tournaments.join(", "))}>
+            <div>{tournaments.length}</div>
+            {/* <button onClick={() => console.log(tournaments.join(", "))}>
               Info
-            </button>
+            </button> */}
             {tournaments.length !==
               currentPlayer.tournaments_played.length && (
-              <img
-                src={
-                  tournaments.length <
-                  currentPlayer.tournaments_played.length
-                    ? "/images/up_arrow.png"
-                    : "/images/down_arrow.png"
-                }
-                alt={
-                  tournaments.length <
-                  currentPlayer.tournaments_played.length
-                    ? "More"
-                    : "Fewer"
-                }
-                className={styles.arrowIcon}
-              />
-            )}
+                <img
+                  src={
+                    tournaments.length <
+                      currentPlayer.tournaments_played.length
+                      ? "/images/up_arrow.png"
+                      : "/images/down_arrow.png"
+                  }
+                  alt={
+                    tournaments.length <
+                      currentPlayer.tournaments_played.length
+                      ? "More"
+                      : "Fewer"
+                  }
+                  className={styles.arrowIcon}
+                />
+              )}
           </div>
         );
       },

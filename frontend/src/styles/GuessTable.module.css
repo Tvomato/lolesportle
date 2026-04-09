@@ -1,54 +1,126 @@
-.tableContainer {
+/* Container */
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
   max-width: 90%;
-  max-height: 800px;
-  margin: 6px;
-  overflow: auto;
-  border: 2px solid #ddd;
-  font-size: large;
-  font-weight: bold;
-  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+  overflow-x: auto;
 }
 
-.dataTable {
-  width: 100%;
-  border-collapse: collapse;
+/* Row layouts */
+.headerRow {
+  display: grid;
+  grid-template-columns: repeat(8, 120px);
+  gap: 8px;
+  justify-content: center;
 }
 
-.dataTable th,
-.dataTable td {
-  background-color: #4d484d;
-  border: 2px solid #b9b9b9;
-  padding: 8px;
-  padding-left: 20px;
-  padding-right: 20px;
+.guessRow {
+  display: grid;
+  grid-template-columns: repeat(8, 120px);
+  grid-auto-rows: 120px;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Header cells */
+.headerCell {
+  box-sizing: border-box;
+  width: 120px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #c0c0c0;
+  border-bottom: 2px solid #0a8612;
+}
+
+/* Data cells */
+.cell {
+  box-sizing: border-box;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  width: 100px;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 3px #000, 0 0 5px #000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  word-break: break-word;
+  padding: 4px;
 }
 
-.dataTable th {
-  background-color: #000000;
-  border-top: 0;
-  position: sticky;
-  top: 0;
-  z-index: 2;
+/* Player cell — no padding so image fills edge-to-edge */
+.cell.playerSquare {
+  padding: 0;
 }
 
-/* Cell layout classes used by column renderers */
+.playerCell {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: default;
+}
 
-.playerCell,
+.playerImageFill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Auto-fit wrapper for cell content */
+.autoFit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Team cell layout */
 .teamCell {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
+.teamImage {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+
+/* Age / trophies / worlds / tournaments cells with arrow overlay */
 .ageCell,
 .trophiesCell,
 .worldsCell,
 .tournamentsCell {
   position: relative;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .ageCell span,
@@ -61,29 +133,64 @@
   z-index: 1;
 }
 
-.playerImage {
-  width: 100px;
-  height: 100px;
-  margin: 6px;
-  margin-top: -4px;
-  object-fit: cover;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.75));
-}
-
-.teamImage {
-  width: 60px;
-  height: 60px;
-  margin: 6px;
-  object-fit: cover;
-  filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.75));
-}
-
 .arrowIcon {
   position: absolute;
-  width: 140px;
-  align-self: center;
+  width: 110px;
   opacity: 0.2;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* ==================== */
+/* Flip animation       */
+/* ==================== */
+
+.flipContainer {
+  box-sizing: border-box;
+  width: 120px;
+  height: 120px;
+  perspective: 600px;
+}
+
+.flipInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flipInner.flipped {
+  transform: rotateX(180deg);
+}
+
+.flipFront,
+.flipBack {
+  box-sizing: border-box;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.flipFront {
+  background-color: #3a3a3a;
+}
+
+.flipBack {
+  transform: rotateX(180deg);
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 3px #000, 0 0 5px #000;
+  text-align: center;
+  word-break: break-word;
+  padding: 4px;
 }
