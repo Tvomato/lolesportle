@@ -283,3 +283,10 @@ MSI 2025
 Worlds 2025 Main Event
 LPL 2025 Regional Finals
 Worlds 2025 Play-In
+LCK Cup 2026
+LPL 2026 Split 1
+LEC 2026 Versus
+LCS 2026 Lock-In
+LPL 2026 Split 1 Playoffs
+LEC 2026 Versus Playoffs
+First Stand 2026

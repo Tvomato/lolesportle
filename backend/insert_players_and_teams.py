@@ -45,8 +45,6 @@ def normalize_region(region):
     """Normalize region names to standard format."""
     if region in ("Europe", "EMEA"):
         return "Europe & EMEA"
-    elif region in ("North America", "Brazil", "Latin America"):
-        return "Americas"
     return region
 
 
@@ -54,6 +52,9 @@ def get_or_create_team(session, team_name, skipped_players, player_id):
     """Get existing team or create new one."""
     team = session.query(Team).filter_by(name=team_name).first()
     if team:
+        normalized = normalize_region(team.region)
+        if normalized != team.region:
+            team.region = normalized
         return team
 
     res = exec_query(

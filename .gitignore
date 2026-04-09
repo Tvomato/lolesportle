@@ -11,3 +11,6 @@ frontend/out/
 
 # Legacy frontend
 frontend-legacy
+
+# Test scripts
+test_scripts

@@ -4,14 +4,74 @@ import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
-from create_skeletons import Player
-from executor import exec_query
+from create_skeletons import Player, Team
+from executor import exec_query, exec_api
 
 
 def load_players(filename="players.json"):
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
+
+
+def save_players(players_dict, filename="players.json"):
+    """Save player data to JSON file."""
+    with open(filename, "w") as file:
+        json.dump(players_dict, file, indent=4)
+
+
+def get_image_url(filename):
+    """Get image URL from filename using API."""
+    image = exec_api(
+        action="query",
+        format="json",
+        titles=f"File:{filename}",
+        prop="imageinfo",
+        iiprop="url",
+    )
+    image_info = next(iter(image["query"]["pages"].values()))["imageinfo"][0]
+    return image_info["url"]
+
+
+def normalize_region(region):
+    """Normalize region names to standard format."""
+    if region in ("Europe", "EMEA"):
+        return "Europe & EMEA"
+    elif region in ("North America", "Brazil", "Latin America"):
+        return "Americas"
+    return region
+
+
+def get_or_create_team(session, team_name):
+    """Get existing team or create new one. Returns None if team not found in wiki."""
+    if not team_name:
+        return None
+
+    team = session.query(Team).filter_by(name=team_name).first()
+    if team:
+        normalized = normalize_region(team.region)
+        if normalized != team.region:
+            team.region = normalized
+        return team
+
+    res = exec_query(
+        tables="Teams=T",
+        fields="T.Name, T.Region",
+        where=f"""T.OverviewPage='{team_name.replace("'", "''")}'""",
+        limit=1,
+    )
+
+    if not res:
+        return None
+
+    region = normalize_region(res[0].get("Region"))
+    team = Team(
+        name=team_name,
+        logo_url=get_image_url(team_name + "logo square.png"),
+        region=region,
+    )
+    session.add(team)
+    return team
 
 
 def get_updated_player_info(player_id):
@@ -38,19 +98,33 @@ def update_player(session, player_id, player_data, players_dict):
     if not player:
         return
 
-    player.nationality = player_data.get("Country", "")
-    player.role = player_data.get("Role", "")
-    player.team = player_data.get("Team", "")
-    player.team_last = player_data.get("TeamLast", "")
-    player.is_retired = player_data.get("IsRetired", "0")
-    player.fav_champs = player_data.get("FavChamps", [])
+    # Create teams if they don't exist yet
+    team_name = p.get("Team") or None
+    team_last_name = p.get("TeamLast") or None
 
-    cur_player_name = player_data.get("Player", "")
+    if team_name:
+        get_or_create_team(session, team_name)
+    if team_last_name:
+        get_or_create_team(session, team_last_name)
+
+    player.nationality = p.get("Country", "")
+    player.role = p.get("Role", "")
+    player.team_name = team_name
+    player.team_last = team_last_name
+    player.is_retired = bool(int(p.get("IsRetired", "0")))
+
+    fav_champs_str = p.get("FavChamps") or ""
+    if fav_champs_str:
+        fav_champs = [champ.strip() for champ in fav_champs_str.split(",")]
+        player.fav_champs = fav_champs
+        p["FavChamps"] = fav_champs
+
+    cur_player_name = p.get("Player", "")
     if cur_player_name != player_id:
-        new_player_id = p.get("Player", "")
-        players_dict[new_player_id] = players_dict.pop(player_id)
+        players_dict[cur_player_name] = players_dict.pop(player_id)
+        players_dict[cur_player_name].update(p)
     else:
-        players_dict[player_id] = p
+        players_dict[player_id].update(p)
 
 
 def main():
@@ -64,10 +138,11 @@ def main():
     try:
         players_dict = load_players()
 
-        for player_id, player_data in players_dict.items():
+        for player_id, player_data in list(players_dict.items()):
             update_player(session, player_id, player_data, players_dict)
 
         session.commit()
+        save_players(players_dict)
         print(">> Player information updated")
         return 0
     except Exception as e:

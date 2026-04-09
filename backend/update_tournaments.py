@@ -2,7 +2,15 @@
 
 import json
 from typing import List, Set
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from db_config import get_db
+from create_skeletons import Player, Tournament
 from executor import exec_query
+import insert_tournies
+import insert_players_and_teams
+import get_tourny_winners
+import get_worlds_appearances
 
 
 def load_raw_tournaments(filename="tournaments_raw.txt") -> List[str]:
@@ -52,7 +60,7 @@ def query_tournament_players(t_name):
     )
 
 
-def process_player(player_data, t_name, players_dict, new_players):
+def process_player(player_data, t_name, players_dict, new_players, existing_player_new_tournies):
     """Process a single player's data."""
     if not all(
         [
@@ -72,6 +80,9 @@ def process_player(player_data, t_name, players_dict, new_players):
     else:
         if t_name not in players_dict[player_id]["Tournaments"]:
             players_dict[player_id]["Tournaments"].append(t_name)
+            if player_id not in existing_player_new_tournies:
+                existing_player_new_tournies[player_id] = []
+            existing_player_new_tournies[player_id].append(t_name)
 
     if player_data.get("FavChamps"):
         fav_champs = [champ.strip() for champ in player_data["FavChamps"].split(",")]
@@ -84,6 +95,35 @@ def save_json(data, filename):
         json.dump(data, file, indent=4)
 
 
+def update_existing_player_tournaments(existing_player_new_tournies):
+    """Update player_tournament M2M for existing players in new tournaments."""
+    if not existing_player_new_tournies:
+        return
+
+    engine = create_engine(get_db())
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    print(">> Updating existing player tournament associations...")
+
+    try:
+        for player_id, tournament_names in existing_player_new_tournies.items():
+            player = session.query(Player).filter_by(player=player_id).first()
+            if not player:
+                continue
+            for t_name in tournament_names:
+                tournament = session.query(Tournament).filter_by(name=t_name).first()
+                if tournament and tournament not in player.tournaments:
+                    player.tournaments.append(tournament)
+        session.commit()
+        print(">> Existing player tournament associations updated")
+    except Exception as e:
+        session.rollback()
+        print(f"!! Error updating existing player tournaments: {e}")
+    finally:
+        session.close()
+
+
 def main():
     """Main function to update tournaments and players."""
     print(">> Updating tournaments and players...")
@@ -93,6 +133,7 @@ def main():
         loaded_tournaments = load_existing_tournaments()
         new_tournies = []
         new_players = {}
+        existing_player_new_tournies = {}
 
         with open("players.json", "r") as file:
             players_dict = json.load(file)
@@ -104,7 +145,7 @@ def main():
             res = query_tournament_players(t_name)
 
             for player_data in res:
-                process_player(player_data, t_name, players_dict, new_players)
+                process_player(player_data, t_name, players_dict, new_players, existing_player_new_tournies)
 
         save_json(players_dict, "players.json")
 
@@ -118,6 +159,21 @@ def main():
                 existing_tournies = json.load(file)
             existing_tournies.extend(new_tournies)
             save_json(existing_tournies, "tournaments.json")
+
+        # Insert new tournaments into DB
+        insert_tournies.main()
+
+        # Insert new players and create their teams into DB
+        insert_players_and_teams.main()
+
+        # Update player_tournament M2M for existing players in new tournaments
+        update_existing_player_tournaments(existing_player_new_tournies)
+
+        # Update tournament winners and trophies
+        get_tourny_winners.main()
+
+        # Update worlds appearances
+        get_worlds_appearances.main()
 
         print(">> Update complete")
         return 0
