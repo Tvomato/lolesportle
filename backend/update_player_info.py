@@ -1,26 +1,27 @@
 """Update player information in the database."""
 
 import json
+from typing import Any, Optional
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from db_config import get_db
 from create_skeletons import Player, Team
 from executor import exec_query, exec_api
 
 
-def load_players(filename="players.json"):
+def load_players(filename: str = "players.json") -> dict[str, Any]:
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def save_players(players_dict, filename="players.json"):
+def save_players(players_dict: dict[str, Any], filename: str = "players.json") -> None:
     """Save player data to JSON file."""
     with open(filename, "w") as file:
         json.dump(players_dict, file, indent=4)
 
 
-def get_image_url(filename):
+def get_image_url(filename: str) -> str:
     """Get image URL from filename using API."""
     image = exec_api(
         action="query",
@@ -33,7 +34,7 @@ def get_image_url(filename):
     return image_info["url"]
 
 
-def normalize_region(region):
+def normalize_region(region: str) -> str:
     """Normalize region names to standard format."""
     if region in ("Europe", "EMEA"):
         return "Europe & EMEA"
@@ -42,7 +43,7 @@ def normalize_region(region):
     return region
 
 
-def get_or_create_team(session, team_name):
+def get_or_create_team(session: Session, team_name: Optional[str]) -> Optional[Team]:
     """Get existing team or create new one. Returns None if team not found in wiki."""
     if not team_name:
         return None
@@ -74,7 +75,7 @@ def get_or_create_team(session, team_name):
     return team
 
 
-def get_updated_player_info(player_id):
+def get_updated_player_info(player_id: str) -> list[dict[str, Any]]:
     """Query the database for updated player information."""
     return exec_query(
         tables="Players=P, PlayerRedirects=PR",
@@ -85,7 +86,7 @@ def get_updated_player_info(player_id):
     )
 
 
-def update_player(session, player_id, player_data, players_dict):
+def update_player(session: Session, player_id: str, players_dict: dict[str, Any]) -> None:
     """Update a single player's information."""
     res = get_updated_player_info(player_id)
 
@@ -127,7 +128,7 @@ def update_player(session, player_id, player_data, players_dict):
         players_dict[player_id].update(p)
 
 
-def main():
+def main() -> int:
     """Main function to update player information."""
     engine = create_engine(get_db())
     Session = sessionmaker(bind=engine)
@@ -138,8 +139,8 @@ def main():
     try:
         players_dict = load_players()
 
-        for player_id, player_data in list(players_dict.items()):
-            update_player(session, player_id, player_data, players_dict)
+        for player_id in list(players_dict):
+            update_player(session, player_id, players_dict)
 
         session.commit()
         save_players(players_dict)

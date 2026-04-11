@@ -1,10 +1,11 @@
 """Extract tournament data and save to JSON."""
 
 import json
+from typing import Any
 from executor import exec_query
 
 
-def extract_tournaments(input_file="tournaments_raw.txt"):
+def extract_tournaments(input_file: str = "tournaments_raw.txt") -> list[dict[str, Any]]:
     """Extract tournament data from input file."""
     tournies = []
 
@@ -26,14 +27,14 @@ def extract_tournaments(input_file="tournaments_raw.txt"):
     return tournies
 
 
-def save_tournaments(tournies, output_files):
+def save_tournaments(tournies: list[dict[str, Any]], output_files: list[str]) -> None:
     """Save tournament data to JSON files."""
     for output_file in output_files:
         with open(output_file, "w") as file:
             json.dump(tournies, file, indent=4)
 
 
-def main():
+def main() -> int:
     """Main function to extract and save tournament data."""
     print(">> Extracting tournaments...")
 

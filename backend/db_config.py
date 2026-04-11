@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 
-def get_db():
+def get_db() -> str:
     load_dotenv()
 
     DB_USER = os.environ.get("DB_USER")

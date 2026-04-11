@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session, selectinload
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict
-from typing import List, Optional
+from typing import Generator, List, Optional
 from datetime import date
 from db_config import get_db
 from create_skeletons import Player, Team, Tournament, player_tournament
@@ -28,7 +28,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # Dependency injection for database sessions
-def get_db_session():
+def get_db_session() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
@@ -208,7 +208,7 @@ async def get_all_tournaments(db: Session = Depends(get_db_session)):
 
 # Health check endpoint
 @app.get("/health", summary="Health check")
-async def health_check():
+async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
 

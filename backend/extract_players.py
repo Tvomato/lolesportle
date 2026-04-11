@@ -1,16 +1,17 @@
 """Extract player data from tournaments and save to JSON."""
 
 import json
+from typing import Any
 from executor import exec_query
 
 
-def load_tournaments(filename="tournaments.json"):
+def load_tournaments(filename: str = "tournaments.json") -> list[dict[str, Any]]:
     """Load tournament data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def extract_players_from_tournament(t_name):
+def extract_players_from_tournament(t_name: str) -> list[dict[str, Any]]:
     """Extract players for a specific tournament."""
     return exec_query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
@@ -21,7 +22,7 @@ def extract_players_from_tournament(t_name):
     )
 
 
-def process_player_data(players_dict, player_data, t_name):
+def process_player_data(players_dict: dict[str, Any], player_data: dict[str, Any], t_name: str) -> None:
     """Process and add player data to the players dictionary."""
     if not all(
         [
@@ -47,14 +48,14 @@ def process_player_data(players_dict, player_data, t_name):
         players_dict[player_id]["FavChamps"] = fav_champs
 
 
-def save_players(players_dict, output_files):
+def save_players(players_dict: dict[str, Any], output_files: list[str]) -> None:
     """Save player data to JSON files."""
     for output_file in output_files:
         with open(output_file, "w") as file:
             json.dump(players_dict, file, indent=4)
 
 
-def main():
+def main() -> int:
     """Main function to extract and save player data."""
     print(">> Extracting players...")
 

@@ -92,7 +92,7 @@ class Tournament(Base):
     )
 
 
-def main():
+def main() -> int:
     """Create all database tables."""
     try:
         engine = create_engine(get_db())

@@ -1,7 +1,7 @@
 """Update tournaments and players from raw data."""
 
 import json
-from typing import List, Set
+from typing import Any
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
@@ -13,7 +13,7 @@ import get_tourny_winners
 import get_worlds_appearances
 
 
-def load_raw_tournaments(filename="tournaments_raw.txt") -> List[str]:
+def load_raw_tournaments(filename: str = "tournaments_raw.txt") -> list[str]:
     """Load tournament names from raw text file."""
     names = []
     with open(filename, "r") as file:
@@ -24,7 +24,7 @@ def load_raw_tournaments(filename="tournaments_raw.txt") -> List[str]:
     return names
 
 
-def load_existing_tournaments(filename="tournaments.json") -> Set[str]:
+def load_existing_tournaments(filename: str = "tournaments.json") -> set[str]:
     """Load existing tournament names from JSON file."""
     with open(filename, "r") as file:
         data = json.load(file)
@@ -39,7 +39,7 @@ def load_existing_tournaments(filename="tournaments.json") -> Set[str]:
     return values
 
 
-def query_tournament_data(t_name):
+def query_tournament_data(t_name: str) -> list[dict[str, Any]]:
     """Query tournament data from database."""
     return exec_query(
         tables="Tournaments=T",
@@ -49,7 +49,7 @@ def query_tournament_data(t_name):
     )
 
 
-def query_tournament_players(t_name):
+def query_tournament_players(t_name: str) -> list[dict[str, Any]]:
     """Query players for a specific tournament."""
     return exec_query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
@@ -60,7 +60,7 @@ def query_tournament_players(t_name):
     )
 
 
-def process_player(player_data, t_name, players_dict, new_players, existing_player_new_tournies):
+def process_player(player_data: dict[str, Any], t_name: str, players_dict: dict[str, Any], new_players: dict[str, Any], existing_player_new_tournies: dict[str, list[str]]) -> None:
     """Process a single player's data."""
     if not all(
         [
@@ -89,13 +89,13 @@ def process_player(player_data, t_name, players_dict, new_players, existing_play
         players_dict[player_id]["FavChamps"] = fav_champs
 
 
-def save_json(data, filename):
+def save_json(data: Any, filename: str) -> None:
     """Save data to JSON file."""
     with open(filename, "w") as file:
         json.dump(data, file, indent=4)
 
 
-def update_existing_player_tournaments(existing_player_new_tournies):
+def update_existing_player_tournaments(existing_player_new_tournies: dict[str, list[str]]) -> None:
     """Update player_tournament M2M for existing players in new tournaments."""
     if not existing_player_new_tournies:
         return
@@ -124,7 +124,7 @@ def update_existing_player_tournaments(existing_player_new_tournies):
         session.close()
 
 
-def main():
+def main() -> int:
     """Main function to update tournaments and players."""
     print(">> Updating tournaments and players...")
 

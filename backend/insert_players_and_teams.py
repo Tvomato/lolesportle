@@ -3,14 +3,15 @@
 import os
 import json
 from datetime import datetime
+from typing import Any, Optional
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from db_config import get_db
 from create_skeletons import Player, Team, Tournament
 from executor import exec_query, exec_api
 
 
-def get_image_url(filename):
+def get_image_url(filename: str) -> str:
     """Get image URL from filename using API."""
     image = exec_api(
         action="query",
@@ -23,7 +24,7 @@ def get_image_url(filename):
     return image_info["url"]
 
 
-def get_player_image_file(name):
+def get_player_image_file(name: str) -> str:
     """Get the player image filename from database."""
     res = exec_query(
         tables="PlayerImages=PI, Tournaments=T",
@@ -41,14 +42,14 @@ def get_player_image_file(name):
     return get_image_url(filename)
 
 
-def normalize_region(region):
+def normalize_region(region: str) -> str:
     """Normalize region names to standard format."""
     if region in ("Europe", "EMEA"):
         return "Europe & EMEA"
     return region
 
 
-def get_or_create_team(session, team_name, skipped_players, player_id):
+def get_or_create_team(session: Session, team_name: str, skipped_players: list[str], player_id: str) -> Optional[Team]:
     """Get existing team or create new one."""
     team = session.query(Team).filter_by(name=team_name).first()
     if team:
@@ -78,7 +79,7 @@ def get_or_create_team(session, team_name, skipped_players, player_id):
     return team
 
 
-def create_player_record(session, player_id, player_data):
+def create_player_record(player_id: str, player_data: dict[str, Any]) -> Player:
     """Create a new player record."""
     return Player(
         player=player_id,
@@ -97,7 +98,7 @@ def create_player_record(session, player_id, player_data):
     )
 
 
-def add_player_tournaments(session, player, tournament_names):
+def add_player_tournaments(session: Session, player: Player, tournament_names: list[str]) -> None:
     """Add tournament associations to player."""
     for tournament_name in tournament_names:
         tournament = session.query(Tournament).filter_by(name=tournament_name).first()
@@ -107,7 +108,7 @@ def add_player_tournaments(session, player, tournament_names):
             print(f"Tournament not found: {tournament_name}")
 
 
-def process_player(session, player_id, player_data, count, total, skipped_players):
+def process_player(session: Session, player_id: str, player_data: dict[str, Any], count: int, total: int, skipped_players: list[str]) -> bool:
     """Process a single player record."""
     if count % 25 == 0:
         print(f"{count} players analyzed out of {total}")
@@ -127,7 +128,7 @@ def process_player(session, player_id, player_data, count, total, skipped_player
                 return False
 
     # Create player
-    player = create_player_record(session, player_id, player_data)
+    player = create_player_record(player_id, player_data)
     session.add(player)
 
     # Add tournament associations
@@ -136,7 +137,7 @@ def process_player(session, player_id, player_data, count, total, skipped_player
     return True
 
 
-def load_players(filename="to_insert_players.json"):
+def load_players(filename: str = "to_insert_players.json") -> Optional[dict[str, Any]]:
     """Load player data from JSON file."""
     if not os.path.exists(filename):
         return None
@@ -145,7 +146,7 @@ def load_players(filename="to_insert_players.json"):
         return json.load(file)
 
 
-def main():
+def main() -> int:
     """Main function to insert players and teams into database."""
     players_dict = load_players()
 

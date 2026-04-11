@@ -1,14 +1,15 @@
 """Get and update player images in the database."""
 
 import json
+from typing import Any
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from db_config import get_db
 from create_skeletons import Player
 from executor import exec_query, exec_api
 
 
-def get_image_url_from_filename(filename):
+def get_image_url_from_filename(filename: str) -> str:
     """Get image URL from filename using API."""
     image = exec_api(
         action="query",
@@ -21,7 +22,7 @@ def get_image_url_from_filename(filename):
     return image_info["url"]
 
 
-def get_player_image(player_name):
+def get_player_image(player_name: str) -> str:
     """Get the latest player image from database."""
     res = exec_query(
         tables="PlayerImages=PI, Tournaments=T",
@@ -39,13 +40,13 @@ def get_player_image(player_name):
     return get_image_url_from_filename(filename)
 
 
-def load_players(filename="players.json"):
+def load_players(filename: str = "players.json") -> dict[str, Any]:
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def update_player_images(session, players_data):
+def update_player_images(session: Session, players_data: dict[str, Any]) -> None:
     """Update player images in the database."""
     for _, player_data in players_data.items():
         p_name = player_data.get("Player")
@@ -63,7 +64,7 @@ def update_player_images(session, players_data):
     session.commit()
 
 
-def main():
+def main() -> int:
     """Main function to update player images."""
     engine = create_engine(get_db())
     Session = sessionmaker(bind=engine)

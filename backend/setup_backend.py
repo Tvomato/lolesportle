@@ -3,13 +3,13 @@
 import subprocess
 
 
-def run_script(script_name):
+def run_script(script_name: str) -> int:
     """Run a Python script and return the exit code."""
     result = subprocess.run(["python", script_name], check=True)
     return result.returncode
 
 
-def main():
+def main() -> int:
     """Main function to run all setup scripts in sequence."""
     scripts = [
         "create_skeletons.py",

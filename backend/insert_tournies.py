@@ -4,13 +4,14 @@ from datetime import date
 import json
 import os
 import re
+from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
 from create_skeletons import Tournament
 
 
-def get_year(name):
+def get_year(name: str) -> Optional[str]:
     """Extract year from tournament name."""
     current_year = date.today().year
     last_digit = current_year % 10
@@ -19,7 +20,7 @@ def get_year(name):
     return match.group() if match else None
 
 
-def main():
+def main() -> int:
     """Main function to insert tournaments into database."""
     if not os.path.exists("to_insert_tournaments.json"):
         print(">> No tournaments to insert")

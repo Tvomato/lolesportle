@@ -1,4 +1,5 @@
 import time
+from typing import Any, Optional
 from mwrogue.esports_client import EsportsClient
 from mwrogue.auth_credentials import AuthCredentials
 from requests.exceptions import ReadTimeout
@@ -9,8 +10,14 @@ site = EsportsClient("lol", credentials=credentials)
 
 
 def exec_query(
-    tables, fields, where=None, join_on=None, limit=None, group_by=None, order_by=None
-):
+    tables: str,
+    fields: str,
+    where: Optional[str] = None,
+    join_on: Optional[str] = None,
+    limit: Optional[int] = None,
+    group_by: Optional[str] = None,
+    order_by: Optional[str] = None,
+) -> list[dict[str, Any]]:
     max_retries = 3
     retry_delay = 5
 
@@ -41,8 +48,12 @@ def exec_query(
 
 
 def exec_api(
-    action="query", format="json", titles=None, prop="imageinfo", iiprop="url"
-):
+    action: str = "query",
+    format: str = "json",
+    titles: Optional[str] = None,
+    prop: str = "imageinfo",
+    iiprop: str = "url",
+) -> dict[str, Any]:
     max_retries = 3
     retry_delay = 5
 
