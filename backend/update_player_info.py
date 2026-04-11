@@ -1,21 +1,24 @@
 """Update player information in the database."""
 
 import json
-from typing import Any, Optional
+from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from data_types import PlayerData, UpdatedPlayerQueryResult
 from db_config import get_db
 from create_skeletons import Player, Team
 from executor import exec_query, exec_api
 
 
-def load_players(filename: str = "players.json") -> dict[str, Any]:
+def load_players(filename: str = "players.json") -> dict[str, PlayerData]:
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def save_players(players_dict: dict[str, Any], filename: str = "players.json") -> None:
+def save_players(
+    players_dict: dict[str, PlayerData], filename: str = "players.json"
+) -> None:
     """Save player data to JSON file."""
     with open(filename, "w") as file:
         json.dump(players_dict, file, indent=4)
@@ -75,7 +78,7 @@ def get_or_create_team(session: Session, team_name: Optional[str]) -> Optional[T
     return team
 
 
-def get_updated_player_info(player_id: str) -> list[dict[str, Any]]:
+def get_updated_player_info(player_id: str) -> list[UpdatedPlayerQueryResult]:
     """Query the database for updated player information."""
     return exec_query(
         tables="Players=P, PlayerRedirects=PR",
@@ -86,7 +89,9 @@ def get_updated_player_info(player_id: str) -> list[dict[str, Any]]:
     )
 
 
-def update_player(session: Session, player_id: str, players_dict: dict[str, Any]) -> None:
+def update_player(
+    session: Session, player_id: str, players_dict: dict[str, PlayerData]
+) -> None:
     """Update a single player's information."""
     res = get_updated_player_info(player_id)
 

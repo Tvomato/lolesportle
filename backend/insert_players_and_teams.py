@@ -3,9 +3,10 @@
 import os
 import json
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from data_types import PlayerData
 from db_config import get_db
 from create_skeletons import Player, Team, Tournament
 from executor import exec_query, exec_api
@@ -49,7 +50,9 @@ def normalize_region(region: str) -> str:
     return region
 
 
-def get_or_create_team(session: Session, team_name: str, skipped_players: list[str], player_id: str) -> Optional[Team]:
+def get_or_create_team(
+    session: Session, team_name: str, skipped_players: list[str], player_id: str
+) -> Optional[Team]:
     """Get existing team or create new one."""
     team = session.query(Team).filter_by(name=team_name).first()
     if team:
@@ -79,7 +82,7 @@ def get_or_create_team(session: Session, team_name: str, skipped_players: list[s
     return team
 
 
-def create_player_record(player_id: str, player_data: dict[str, Any]) -> Player:
+def create_player_record(player_id: str, player_data: PlayerData) -> Player:
     """Create a new player record."""
     return Player(
         player=player_id,
@@ -98,7 +101,9 @@ def create_player_record(player_id: str, player_data: dict[str, Any]) -> Player:
     )
 
 
-def add_player_tournaments(session: Session, player: Player, tournament_names: list[str]) -> None:
+def add_player_tournaments(
+    session: Session, player: Player, tournament_names: list[str]
+) -> None:
     """Add tournament associations to player."""
     for tournament_name in tournament_names:
         tournament = session.query(Tournament).filter_by(name=tournament_name).first()
@@ -108,7 +113,14 @@ def add_player_tournaments(session: Session, player: Player, tournament_names: l
             print(f"Tournament not found: {tournament_name}")
 
 
-def process_player(session: Session, player_id: str, player_data: dict[str, Any], count: int, total: int, skipped_players: list[str]) -> bool:
+def process_player(
+    session: Session,
+    player_id: str,
+    player_data: PlayerData,
+    count: int,
+    total: int,
+    skipped_players: list[str],
+) -> bool:
     """Process a single player record."""
     if count % 25 == 0:
         print(f"{count} players analyzed out of {total}")
@@ -137,7 +149,9 @@ def process_player(session: Session, player_id: str, player_data: dict[str, Any]
     return True
 
 
-def load_players(filename: str = "to_insert_players.json") -> Optional[dict[str, Any]]:
+def load_players(
+    filename: str = "to_insert_players.json",
+) -> Optional[dict[str, PlayerData]]:
     """Load player data from JSON file."""
     if not os.path.exists(filename):
         return None

@@ -2,15 +2,18 @@
 
 import os
 import json
-from typing import Any, Optional
+from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from data_types import PlayerWinnerQueryResult, TournamentQueryResult
 from db_config import get_db
 from create_skeletons import Player, Tournament
 from executor import exec_query
 
 
-def load_tournaments(filename: str = "to_insert_tournaments.json") -> Optional[list[dict[str, Any]]]:
+def load_tournaments(
+    filename: str = "to_insert_tournaments.json",
+) -> Optional[list[TournamentQueryResult]]:
     """Load tournament data from JSON file."""
     if not os.path.exists(filename):
         return None
@@ -19,7 +22,7 @@ def load_tournaments(filename: str = "to_insert_tournaments.json") -> Optional[l
         return json.load(file)
 
 
-def get_tournament_winners(query_name: str) -> list[dict[str, Any]]:
+def get_tournament_winners(query_name: str) -> list[PlayerWinnerQueryResult]:
     """Query and return tournament winners."""
     return exec_query(
         tables="Tournaments=T, TournamentResults=TR, TournamentPlayers=TP",
@@ -29,7 +32,9 @@ def get_tournament_winners(query_name: str) -> list[dict[str, Any]]:
     )
 
 
-def update_player_trophies(session: Session, tournaments_data: list[dict[str, Any]]) -> None:
+def update_player_trophies(
+    session: Session, tournaments_data: list[TournamentQueryResult]
+) -> None:
     """Update player trophies and tournament wins."""
     scanned = set()
 

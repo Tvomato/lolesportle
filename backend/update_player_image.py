@@ -1,9 +1,9 @@
 """Get and update player images in the database."""
 
 import json
-from typing import Any
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from data_types import PlayerData
 from db_config import get_db
 from create_skeletons import Player
 from executor import exec_query, exec_api
@@ -40,13 +40,13 @@ def get_player_image(player_name: str) -> str:
     return get_image_url_from_filename(filename)
 
 
-def load_players(filename: str = "players.json") -> dict[str, Any]:
+def load_players(filename: str = "players.json") -> dict[str, PlayerData]:
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def update_player_images(session: Session, players_data: dict[str, Any]) -> None:
+def update_player_images(session: Session, players_data: dict[str, PlayerData]) -> None:
     """Update player images in the database."""
     for _, player_data in players_data.items():
         p_name = player_data.get("Player")

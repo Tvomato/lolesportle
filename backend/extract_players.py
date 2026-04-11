@@ -1,17 +1,17 @@
 """Extract player data from tournaments and save to JSON."""
 
 import json
-from typing import Any
 from executor import exec_query
+from data_types import PlayerData, PlayerQueryResult, TournamentQueryResult
 
 
-def load_tournaments(filename: str = "tournaments.json") -> list[dict[str, Any]]:
+def load_tournaments(filename: str = "tournaments.json") -> list[TournamentQueryResult]:
     """Load tournament data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def extract_players_from_tournament(t_name: str) -> list[dict[str, Any]]:
+def extract_players_from_tournament(t_name: str) -> list[PlayerQueryResult]:
     """Extract players for a specific tournament."""
     return exec_query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
@@ -22,7 +22,9 @@ def extract_players_from_tournament(t_name: str) -> list[dict[str, Any]]:
     )
 
 
-def process_player_data(players_dict: dict[str, Any], player_data: dict[str, Any], t_name: str) -> None:
+def process_player_data(
+    players_dict: dict[str, PlayerData], player_data: PlayerQueryResult, t_name: str
+) -> None:
     """Process and add player data to the players dictionary."""
     if not all(
         [
@@ -48,7 +50,7 @@ def process_player_data(players_dict: dict[str, Any], player_data: dict[str, Any
         players_dict[player_id]["FavChamps"] = fav_champs
 
 
-def save_players(players_dict: dict[str, Any], output_files: list[str]) -> None:
+def save_players(players_dict: dict[str, PlayerData], output_files: list[str]) -> None:
     """Save player data to JSON files."""
     for output_file in output_files:
         with open(output_file, "w") as file:

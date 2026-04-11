@@ -2,9 +2,9 @@
 
 import json
 from datetime import date
-from typing import Any
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from data_types import PlayerData
 from db_config import get_db
 from create_skeletons import Player
 
@@ -30,13 +30,15 @@ def count_worlds_instances(tournies: list[str]) -> int:
     return len(years) + no_year_count
 
 
-def load_players(filename: str = "players.json") -> dict[str, Any]:
+def load_players(filename: str = "players.json") -> dict[str, PlayerData]:
     """Load player data from JSON file."""
     with open(filename, "r") as file:
         return json.load(file)
 
 
-def update_worlds_appearances(session: Session, players_data: dict[str, Any]) -> None:
+def update_worlds_appearances(
+    session: Session, players_data: dict[str, PlayerData]
+) -> None:
     """Update worlds appearances for each player."""
     for _, p_info in players_data.items():
         p_name = p_info.get("Player")

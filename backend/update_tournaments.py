@@ -2,6 +2,7 @@
 
 import json
 from typing import Any
+from data_types import PlayerData, PlayerQueryResult, TournamentQueryResult
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db_config import get_db
@@ -39,7 +40,7 @@ def load_existing_tournaments(filename: str = "tournaments.json") -> set[str]:
     return values
 
 
-def query_tournament_data(t_name: str) -> list[dict[str, Any]]:
+def query_tournament_data(t_name: str) -> list[TournamentQueryResult]:
     """Query tournament data from database."""
     return exec_query(
         tables="Tournaments=T",
@@ -49,7 +50,7 @@ def query_tournament_data(t_name: str) -> list[dict[str, Any]]:
     )
 
 
-def query_tournament_players(t_name: str) -> list[dict[str, Any]]:
+def query_tournament_players(t_name: str) -> list[PlayerQueryResult]:
     """Query players for a specific tournament."""
     return exec_query(
         tables="Tournaments=T, TournamentPlayers=TP, PlayerRedirects=PR, Players=P",
@@ -60,7 +61,13 @@ def query_tournament_players(t_name: str) -> list[dict[str, Any]]:
     )
 
 
-def process_player(player_data: dict[str, Any], t_name: str, players_dict: dict[str, Any], new_players: dict[str, Any], existing_player_new_tournies: dict[str, list[str]]) -> None:
+def process_player(
+    player_data: PlayerQueryResult,
+    t_name: str,
+    players_dict: dict[str, PlayerData],
+    new_players: dict[str, PlayerData],
+    existing_player_new_tournies: dict[str, list[str]],
+) -> None:
     """Process a single player's data."""
     if not all(
         [
@@ -95,7 +102,9 @@ def save_json(data: Any, filename: str) -> None:
         json.dump(data, file, indent=4)
 
 
-def update_existing_player_tournaments(existing_player_new_tournies: dict[str, list[str]]) -> None:
+def update_existing_player_tournaments(
+    existing_player_new_tournies: dict[str, list[str]],
+) -> None:
     """Update player_tournament M2M for existing players in new tournaments."""
     if not existing_player_new_tournies:
         return
@@ -145,7 +154,13 @@ def main() -> int:
             res = query_tournament_players(t_name)
 
             for player_data in res:
-                process_player(player_data, t_name, players_dict, new_players, existing_player_new_tournies)
+                process_player(
+                    player_data,
+                    t_name,
+                    players_dict,
+                    new_players,
+                    existing_player_new_tournies,
+                )
 
         save_json(players_dict, "players.json")
 
