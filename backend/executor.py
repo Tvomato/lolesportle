@@ -25,7 +25,7 @@ def exec_query(
                 group_by=group_by,
                 order_by=order_by,
             )
-            time.sleep(2)
+            time.sleep(1)
             return res
 
         except ReadTimeout:

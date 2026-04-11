@@ -14,7 +14,7 @@ def extract_tournaments(input_file="tournaments_raw.txt"):
             if not t_name:
                 continue
 
-            print(t_name)
+            print(f"Adding tournament: {t_name}")
             result = exec_query(
                 tables="Tournaments=T",
                 fields="T.Name, T.DateStart, T.Date, T.League, T.Region, T.League, T.TournamentLevel, T.IsQualifier, T.IsPlayoffs, T.IsOfficial",

@@ -93,6 +93,7 @@ def create_player_record(session, player_id, player_data):
         worlds_appearances=0,
         team_name=player_data["Team"] or None,
         team_last=player_data["TeamLast"] or None,
+        fav_champs=player_data["FavChamps"] or None,
     )
 
 
@@ -120,8 +121,10 @@ def process_player(session, player_id, player_data, count, total, skipped_player
     # Handle last team
     if p_team_last := player_data["TeamLast"]:
         team_last = get_or_create_team(session, p_team_last, skipped_players, player_id)
-        if not team_last and not player_data["Team"]:
-            return False
+        if not team_last:
+            player_data["TeamLast"] = ""
+            if not player_data["Team"]:
+                return False
 
     # Create player
     player = create_player_record(session, player_id, player_data)
