@@ -7,6 +7,7 @@ import { transformData } from "@/utils/transformData";
 import GameControls from "./GameControls";
 import SearchBar from "./SearchBar";
 import GuessTable from "./GuessTable";
+import ClueButtons from "./ClueButtons";
 import styles from "@/styles/GameBoard.module.css";
 
 function preloadImage(url: string): Promise<void> {
@@ -33,7 +34,7 @@ export default function GameBoard() {
 
   const ANIMATION_DURATION = 3000;
 
-  const hasWon = 
+  const hasWon =
     currentPlayer && revealComplete
       ? guessedPlayers.some((p) => p.player === currentPlayer.player)
       : false;
@@ -78,7 +79,7 @@ export default function GameBoard() {
         : undefined;
 
       await Promise.all([
-        preloadImage(player.image_url), 
+        preloadImage(player.image_url),
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
@@ -98,14 +99,14 @@ export default function GameBoard() {
     setLoading(true);
     try {
       const raw = await fetchPlayerDetails(name);
-      
+
       const player = transformData(raw);
       const teamLogoUrl = player.team_name
         ? teamMap.get(player.team_name)?.logo_url
         : undefined;
 
       await Promise.all([
-        preloadImage(player.image_url), 
+        preloadImage(player.image_url),
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
@@ -127,30 +128,57 @@ export default function GameBoard() {
   };
 
   if (loading && playerNames.length === 0) {
-    return <div className={styles.loading}>Loading...</div>;
+    return (
+      <div className={styles.loadingWrapper}>
+        <div className={styles.spinner} />
+        <div className={styles.loadingText}>Loading</div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <GameControls
-        onNewGame={getNewPlayer}
-        onToggleReveal={() => setShowPlayer(!showPlayer)}
-        showRevealButton={!!currentPlayer && !hasWon}
-        revealLabel={showPlayer ? "HIDE PLAYER" : "REVEAL PLAYER"}
-      />
-      {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
-      {currentPlayer && !hasWon && !showPlayer && (
-        <SearchBar playerNames={availableNames} onSelect={handleAddPlayer} />
-      )}
+    <div className={styles.gameContainer}>
+      {/* Top section: start button, clues, search, victory */}
+      <div className={styles.topSection}>
+        {!currentPlayer && (
+          <button className={styles.startButton} onClick={getNewPlayer}>
+            START GAME
+          </button>
+        )}
+
+        {currentPlayer && (
+          <ClueButtons guessCount={guessedPlayers.length} />
+        )}
+
+        {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
+
+        {currentPlayer && !hasWon && !showPlayer && (
+          <SearchBar playerNames={availableNames} onSelect={handleAddPlayer} />
+        )}
+      </div>
+
+      {/* Scrollable table section */}
       {currentPlayer && (
-        <GuessTable
-          currentPlayer={currentPlayer}
-          guessedPlayers={guessedPlayers}
-          showPlayer={showPlayer}
-          teamMap={teamMap}
-          guessRevealId={guessRevealId}
+        <div className={styles.tableSection}>
+          <GuessTable
+            currentPlayer={currentPlayer}
+            guessedPlayers={guessedPlayers}
+            showPlayer={showPlayer}
+            teamMap={teamMap}
+            guessRevealId={guessRevealId}
+          />
+        </div>
+      )}
+
+      {/* Bottom controls — only after at least 1 guess */}
+      {currentPlayer && guessedPlayers.length >= 1 && (
+        <GameControls
+          onNewGame={getNewPlayer}
+          onToggleReveal={() => setShowPlayer(!showPlayer)}
+          showRevealButton={!hasWon}
+          revealLabel={showPlayer ? "HIDE PLAYER" : "REVEAL PLAYER"}
         />
       )}
-    </>
+    </div>
   );
 }

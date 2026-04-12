@@ -1,0 +1,67 @@
+.clueRow {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 6px 4px;
+}
+
+.clueButton {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-muted);
+  cursor: default;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.locked {
+  opacity: 0.5;
+}
+
+.unlocked {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(247, 152, 16, 0.08);
+  cursor: pointer;
+}
+
+.unlocked:hover {
+  background: rgba(247, 152, 16, 0.15);
+  box-shadow: 0 0 10px rgba(247, 152, 16, 0.2);
+}
+
+.justUnlocked {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(247, 152, 16, 0.08);
+  cursor: pointer;
+  animation: clueGlow 0.6s ease-in-out 3;
+}
+
+@keyframes clueGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(247, 152, 16, 0);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(247, 152, 16, 0.5);
+  }
+}
+
+.lockIcon {
+  width: 13px;
+  height: 13px;
+  opacity: 0.5;
+}
+
+.remaining {
+  font-size: 11px;
+  opacity: 0.6;
+}

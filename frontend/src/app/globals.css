@@ -1,7 +1,25 @@
-/* Global styles (merged from index.css + App.css) */
+/* Global styles */
+
+:root {
+  --color-primary: #10E3F7;
+  --color-secondary: #000000;
+  --color-accent: #F79810;
+  --color-surface: #111111;
+  --color-surface-light: #1a1a1a;
+  --color-text: #ffffff;
+  --color-text-muted: #999999;
+}
 
 body {
   margin: 0;
+  background-color: var(--color-secondary);
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)),
+    url('/images/trophy_background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--color-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -9,34 +27,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
-  text-align: center;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-    url('/images/trophy_background.jpg');
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: fixed;
-  background-color: rgba(255, 255, 255, 0.5);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.app-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: -6px;
-  font-size: calc(10px + 2vmin);
-  color: rgb(65, 205, 43);
-  text-shadow: 0 6px 12px #000000, 0 8px 15px #000000;
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+::-webkit-scrollbar-track {
+  background: #111;
 }
 
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

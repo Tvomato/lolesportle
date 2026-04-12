@@ -1,0 +1,68 @@
+.menuLink {
+  text-decoration: none;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.menuItem:hover {
+  transform: translateX(4px);
+}
+
+.menuCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  flex-shrink: 0;
+  color: #000;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(16, 227, 247, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.menuItem:hover .menuCircle {
+  transform: scale(1.08);
+  box-shadow: 0 2px 14px rgba(16, 227, 247, 0.4);
+}
+
+.menuRect {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px 24px 14px 36px;
+  margin-left: -20px;
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.menuItem:hover .menuRect {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(16, 227, 247, 0.25);
+}
+
+.menuTitle {
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disabled .menuCircle {
+  background-color: #555;
+  box-shadow: none;
+}

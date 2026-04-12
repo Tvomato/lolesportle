@@ -1,12 +1,118 @@
-.loading {
-  font-size: 24px;
-  color: white;
-  text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+.gameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.topSection {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 10px;
+  min-height: 100px;
+  justify-content: center;
+}
+
+.tableSection {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.startButton {
+  background-color: var(--color-primary);
+  color: #000;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 227, 247, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-family: inherit;
+}
+
+.startButton:hover {
+  background-color: #0bc8d9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 227, 247, 0.4);
+}
+
+.startButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(16, 227, 247, 0.3);
+}
+
+.loadingWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(16, 227, 247, 0.15);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 .victoryText {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  font-size: 50px;
-  font-weight: 600;
-  text-shadow: 0 0 3px #000000, 0 0 10px #000000;
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 10px rgba(16, 227, 247, 0.4),
+    0 0 30px rgba(16, 227, 247, 0.2);
+  animation: victoryPop 0.5s ease-out;
+}
+
+@keyframes victoryPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
