@@ -17,11 +17,11 @@ export default function Home() {
           icon={<MdImage size={22} />}
           title="Guess by Face (WIP)"
         />
-        <MenuItem
+        {/* <MenuItem
           disabled
           icon={<MdHistory size={22} />}
           title="Team History (WIP)"
-        />
+        /> */}
         <MenuItem
           disabled
           icon={<MdMoreHoriz size={22} />}
