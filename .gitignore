@@ -1,6 +1,7 @@
 # .gitignore
 .env
 .env.local
+.ignore
 
 node_modules
 backend/__pycache__
@@ -14,3 +15,6 @@ frontend-legacy
 
 # Test scripts
 test_scripts
+
+# Local notes
+md_notes
