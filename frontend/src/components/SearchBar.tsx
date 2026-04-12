@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { decode } from "html-entities";
 import { MdClose } from "react-icons/md";
 import styles from "@/styles/SearchBar.module.css";
@@ -13,6 +13,7 @@ interface SearchBarProps {
 export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
   const [filteredNames, setFilteredNames] = useState<string[]>([]);
   const [inputWord, setInputWord] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchWord = event.target.value.toLowerCase();
@@ -38,6 +39,7 @@ export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
   const handleSelect = (name: string) => {
     onSelect(name);
     clearInput();
+    inputRef.current?.focus();
   };
 
   const clearInput = () => {
@@ -51,6 +53,7 @@ export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
         <input
           type="text"
           placeholder="Start typing to guess..."
+          ref={inputRef}
           value={inputWord}
           onChange={handleFilter}
           onKeyDown={handleKeyDown}
