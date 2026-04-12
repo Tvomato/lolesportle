@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { decode } from "html-entities";
+import { MdClose } from "react-icons/md";
 import styles from "@/styles/SearchBar.module.css";
 
 interface SearchBarProps {
@@ -56,17 +57,11 @@ export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
         />
         <div className={styles.searchIcon}>
           {inputWord.length > 0 && (
-            <svg
+            <MdClose
               onClick={clearInput}
               className={styles.clearBtn}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="28"
-              height="28"
-              fill="currentColor"
-            >
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-            </svg>
+              size={28}
+            />
           )}
         </div>
       </div>

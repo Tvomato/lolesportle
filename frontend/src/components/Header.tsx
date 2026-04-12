@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MdHome } from "react-icons/md";
 import styles from "@/styles/Header.module.css";
 
 export default function Header() {
@@ -13,14 +14,7 @@ export default function Header() {
       <div className={styles.headerInner}>
         {!isHome && (
           <Link href="/" className={styles.homeButton} aria-label="Home">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className={styles.homeIcon}
-            >
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-            </svg>
+            <MdHome className={styles.homeIcon} />
           </Link>
         )}
         <Link href="/" className={styles.logoLink}>
