@@ -74,9 +74,7 @@ Yellow color legend:
 **To be added**
 
 ## TODO
-* Create new home page
-* Add hints unlocked by accumulating incorrect guesses
-* Allow customizing pool of players chosen (the FastAPI endpoint supports `start_year`, `end_year`, `tourny_count`, and `include_retired` query params)
+* Implement hints unlocked by accumulating incorrect guesses
 * Add new game modes (guess player by face/silhouette)
-* Improve UI and styling
-* Keep track of game statistics
+* Allow customizing pool of players chosen in settings (the FastAPI endpoint supports `start_year`, `end_year`, `tourny_count`, and `include_retired` query params)
+* Keep track of game statistics and keep progress on refresh
