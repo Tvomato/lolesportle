@@ -33,21 +33,21 @@ export function getColumnMapping(
         );
       },
     },
-    birthdate: {
+    age: {
       header: "Age",
       render: (value: unknown) => {
         const age = value as number;
         return (
           <div className={styles.ageCell}>
             <span>{age}</span>
-            {age !== currentPlayer.birthdate && (
+            {age !== currentPlayer.age && (
               <img
                 src={
-                  age < currentPlayer.birthdate
+                  age < currentPlayer.age
                     ? "/images/up_arrow.png"
                     : "/images/down_arrow.png"
                 }
-                alt={age < currentPlayer.birthdate ? "Older" : "Younger"}
+                alt={age < currentPlayer.age ? "Older" : "Younger"}
                 className={styles.arrowIcon}
               />
             )}

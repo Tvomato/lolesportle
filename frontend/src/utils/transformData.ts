@@ -13,7 +13,7 @@ export function transformData(p: PlayerRaw): Player {
     native_name: p.native_name,
     nationality: p.nationality,
     image_url: p.image_url,
-    birthdate: p.birthdate ? calculateAge(p.birthdate) : 0,
+    age: p.birthdate ? calculateAge(p.birthdate) : 0,
     role: p.role,
     is_retired: p.is_retired ? "True" : "False",
     fav_champs: p.fav_champs.length > 0 ? p.fav_champs : undefined,

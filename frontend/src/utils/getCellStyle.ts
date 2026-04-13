@@ -29,8 +29,8 @@ export function getCellStyle(
   }
 
   if (
-    column === "birthdate" &&
-    Math.abs(currentPlayer.birthdate - player.birthdate) <= 2
+    column === "age" &&
+    Math.abs(currentPlayer.age - player.age) <= 2
   ) {
     return { backgroundColor: COLORS.orange };
   }

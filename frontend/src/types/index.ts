@@ -23,7 +23,7 @@ export interface Player {
   native_name: string | null;
   nationality: string;
   image_url: string;
-  birthdate: number;
+  age: number;
   role: string;
   is_retired: string;
   fav_champs: string[] | undefined;
