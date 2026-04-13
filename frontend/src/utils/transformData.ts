@@ -16,6 +16,7 @@ export function transformData(p: PlayerRaw): Player {
     birthdate: p.birthdate ? calculateAge(p.birthdate) : 0,
     role: p.role,
     is_retired: p.is_retired ? "True" : "False",
+    fav_champs: p.fav_champs.length > 0 ? p.fav_champs : undefined,
     trophies: p.trophies,
     tournaments_won:
       p.tournaments_won.length > 0 ? p.tournaments_won : undefined,

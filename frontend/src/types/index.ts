@@ -23,9 +23,10 @@ export interface Player {
   native_name: string | null;
   nationality: string;
   image_url: string;
-  birthdate: number; // calculated age
+  birthdate: number;
   role: string;
-  is_retired: string; // "True" or "False"
+  is_retired: string;
+  fav_champs: string[] | undefined;
   trophies: number;
   tournaments_won: string[] | undefined;
   worlds_appearances: number;
