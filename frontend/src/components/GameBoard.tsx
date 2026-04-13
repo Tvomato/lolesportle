@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Player, Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
@@ -31,6 +31,7 @@ export default function GameBoard() {
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [revealComplete, setRevealComplete] = useState(true);
+  const pendingGuessesRef = useRef(new Set<string>());
 
   const ANIMATION_DURATION = 3000;
 
@@ -96,6 +97,8 @@ export default function GameBoard() {
   };
 
   const handleAddPlayer = async (name: string) => {
+    if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;
+    pendingGuessesRef.current.add(name);
     setLoading(true);
     try {
       const raw = await fetchPlayerDetails(name);
@@ -123,6 +126,7 @@ export default function GameBoard() {
     } catch (error) {
       console.error("Error fetching player details:", error);
     } finally {
+      pendingGuessesRef.current.delete(name);
       setLoading(false);
     }
   };
