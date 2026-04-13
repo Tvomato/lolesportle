@@ -1,6 +1,6 @@
 .gameSetup {
   display: flex;
-  padding: 10px 6px 14px;
+  padding: 10px 6px 24px;
   gap: 8px;
   flex-shrink: 0;
 }
