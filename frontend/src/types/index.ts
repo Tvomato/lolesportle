@@ -15,6 +15,7 @@ export interface PlayerRaw {
   fav_champs: string[];
   tournaments_played: string[];
   tournaments_won: string[];
+  tier1_debut: string | null;
 }
 
 /** Transformed player used in game logic */
@@ -33,6 +34,7 @@ export interface Player {
   team_name: string | null;
   team_last: string | null;
   tournaments_played: string[];
+  tier1_debut: string | null;
 }
 
 /** API response from GET /api/teams */

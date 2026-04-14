@@ -36,10 +36,10 @@ export function getCellStyle(
   }
 
   if (column === "nationality") {
-    const currentRegion = clm.getCountryByName(currentPlayer.nationality)
-      ?.region;
-    const playerRegion = clm.getCountryByName(player.nationality)?.region;
-    if (currentRegion && currentRegion === playerRegion) {
+    const currentContinent = clm.getCountryByName(currentPlayer.nationality)
+      ?.continent;
+    const playerContinent = clm.getCountryByName(player.nationality)?.continent;
+    if (currentContinent && currentContinent === playerContinent) {
       return { backgroundColor: COLORS.orange };
     }
   }

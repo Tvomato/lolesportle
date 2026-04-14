@@ -5,7 +5,7 @@ import { Player, Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import GameControls from "./GameControls";
-import SearchBar from "./SearchBar";
+import SearchBar, { SearchBarHandle } from "./SearchBar";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
 import styles from "@/styles/GameBoard.module.css";
@@ -32,6 +32,7 @@ export default function GameBoard() {
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [revealComplete, setRevealComplete] = useState(true);
   const pendingGuessesRef = useRef(new Set<string>());
+  const searchBarRef = useRef<SearchBarHandle>(null);
 
   const ANIMATION_DURATION = 3000;
 
@@ -151,13 +152,13 @@ export default function GameBoard() {
         )}
 
         {currentPlayer && (
-          <ClueButtons guessCount={guessedPlayers.length} />
+          <ClueButtons key={currentPlayer.player} guessCount={guessedPlayers.length} currentPlayer={currentPlayer} gameOver={!!hasWon || showPlayer} onClueClose={() => searchBarRef.current?.focus()} />
         )}
 
         {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
 
         {currentPlayer && !hasWon && !showPlayer && (
-          <SearchBar playerNames={availableNames} onSelect={handleAddPlayer} />
+          <SearchBar ref={searchBarRef} playerNames={availableNames} onSelect={handleAddPlayer} />
         )}
       </div>
 

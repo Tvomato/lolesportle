@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { decode } from "html-entities";
 import { MdClose } from "react-icons/md";
 import styles from "@/styles/SearchBar.module.css";
@@ -10,10 +10,18 @@ interface SearchBarProps {
   onSelect: (name: string) => void;
 }
 
-export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
+export interface SearchBarHandle {
+  focus: () => void;
+}
+
+const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(function SearchBar({ playerNames, onSelect }, ref) {
   const [filteredNames, setFilteredNames] = useState<string[]>([]);
   const [inputWord, setInputWord] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+  }));
 
   const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchWord = event.target.value.toLowerCase();
@@ -87,4 +95,6 @@ export default function SearchBar({ playerNames, onSelect }: SearchBarProps) {
       ) : null}
     </div>
   );
-}
+});
+
+export default SearchBar;

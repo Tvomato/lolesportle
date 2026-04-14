@@ -20,6 +20,11 @@ export default function Header() {
         <Link href="/" className={styles.logoLink}>
           <span className={styles.logo}>Lolesportle</span>
         </Link>
+        {!isHome && (
+          <Link href="/" className={styles.homeButton} aria-label="Home">
+            <MdHome className={styles.homeIcon} />
+          </Link>
+        )}
       </div>
       {isHome && (
         <p className={styles.subtitle}>The LoL Esports Player Guessing Game</p>

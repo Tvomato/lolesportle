@@ -53,6 +53,7 @@ class PlayerResponse(BaseModel):
     fav_champs: List[str] = []
     tournaments_played: List[str] = []
     tournaments_won: List[str] = []
+    tier1_debut: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -150,6 +151,12 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
     }
     data["tournaments_played"] = [t.name for t in player.tournaments]
     data["tournaments_won"] = [t.name for t in player.tournaments_won_list]
+
+    earliest = min(
+        (t.date_start for t in player.tournaments if t.date_start is not None),
+        default=None,
+    )
+    data["tier1_debut"] = earliest.isoformat() if earliest else None
 
     return PlayerResponse(**data)
 

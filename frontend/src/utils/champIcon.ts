@@ -24,7 +24,16 @@ function normalize(name: string): string {
   );
 }
 
+export const FALLBACK_CHAMP_ICON = "/champ_icons/-1.png";
+
 export function getChampIconPath(championName: string): string {
   const filename = OVERRIDES[championName] ?? normalize(championName);
   return `/champ_icons/${filename}.png`;
+}
+
+export function handleChampIconError(
+  e: React.SyntheticEvent<HTMLImageElement>
+): void {
+  e.currentTarget.src = FALLBACK_CHAMP_ICON;
+  e.currentTarget.onerror = null;
 }
