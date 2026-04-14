@@ -37,8 +37,14 @@ def main() -> int:
     try:
         for tournament in tournaments_data:
             year = get_year(tournament.get("Name"))
+            date_start = tournament.get("DateStart")
+            date_end = tournament.get("Date")
             new_tournament = Tournament(
-                name=tournament["Name"], region=tournament["Region"], year=year
+                name=tournament["Name"],
+                region=tournament["Region"],
+                year=year,
+                date_start=date.fromisoformat(date_start) if date_start else None,
+                date_end=date.fromisoformat(date_end) if date_end else None,
             )
             session.add(new_tournament)
 

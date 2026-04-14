@@ -83,6 +83,8 @@ class Tournament(Base):
     name = Column(String, primary_key=True)
     year = Column(Integer)
     region = Column(String)
+    date_start = Column(Date, nullable=True)
+    date_end = Column(Date, nullable=True)
 
     players = relationship(
         "Player", secondary=player_tournament, back_populates="tournaments"
