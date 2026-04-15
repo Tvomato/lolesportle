@@ -5,8 +5,8 @@ import { Player, Team } from "@/types";
 import { getCellStyle } from "@/utils/getCellStyle";
 import { getColumnMapping } from "./columns";
 import FlipCell from "./FlipCell";
-import AutoFit from "./AutoFit";
-import styles from "@/styles/GuessTable.module.css";
+import AutoFit from "@/components/shared/AutoFit";
+import styles from "@/styles/game-classic/GuessTable.module.css";
 
 interface GuessTableProps {
   currentPlayer: Player;

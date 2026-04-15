@@ -5,10 +5,10 @@ import { Player, Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import GameControls from "./GameControls";
-import SearchBar, { SearchBarHandle } from "./SearchBar";
+import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
-import styles from "@/styles/GameBoard.module.css";
+import styles from "@/styles/game-classic/GameBoard.module.css";
 
 function preloadImage(url: string): Promise<void> {
   return new Promise((resolve) => {

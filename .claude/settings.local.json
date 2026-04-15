@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv components/SearchBar.tsx components/shared/)",
+      "Bash(mv components/Header.tsx components/shared/)",
+      "Bash(mv components/MenuItem.tsx components/shared/)",
+      "Bash(mv components/AutoFit.tsx components/shared/)",
+      "Bash(mv components/GameBoard.tsx components/game-classic/)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

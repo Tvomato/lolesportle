@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, ReactNode } from "react";
-import styles from "@/styles/GuessTable.module.css";
+import styles from "@/styles/game-classic/GuessTable.module.css";
 
 interface FlipCellProps {
   animate: boolean;

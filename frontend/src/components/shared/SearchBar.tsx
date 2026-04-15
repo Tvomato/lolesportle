@@ -3,7 +3,7 @@
 import { useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { decode } from "html-entities";
 import { MdClose } from "react-icons/md";
-import styles from "@/styles/SearchBar.module.css";
+import styles from "@/styles/shared/SearchBar.module.css";
 
 interface SearchBarProps {
   playerNames: string[];

@@ -5,7 +5,7 @@ import { MdLock } from "react-icons/md";
 import { Player } from "@/types";
 import { getChampIconPath } from "@/utils/champIcon";
 import ClueModal from "./ClueModal";
-import styles from "@/styles/ClueButtons.module.css";
+import styles from "@/styles/game-classic/ClueButtons.module.css";
 
 interface ClueButtonsProps {
   guessCount: number;

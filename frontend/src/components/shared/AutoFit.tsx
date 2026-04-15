@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, ReactNode } from "react";
-import styles from "@/styles/GuessTable.module.css";
+import styles from "@/styles/game-classic/GuessTable.module.css";
 
 interface AutoFitProps {
   children: ReactNode;

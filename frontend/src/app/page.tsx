@@ -1,6 +1,6 @@
 import { MdPerson, MdImage, MdHistory, MdMoreHoriz, MdSettings, MdBarChart } from "react-icons/md";
-import MenuItem from "@/components/MenuItem";
-import styles from "@/styles/Home.module.css";
+import MenuItem from "@/components/shared/MenuItem";
+import styles from "@/styles/shared/Home.module.css";
 
 export default function Home() {
   return (

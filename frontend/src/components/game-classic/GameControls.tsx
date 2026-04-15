@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "@/styles/GameControls.module.css";
+import styles from "@/styles/game-classic/GameControls.module.css";
 
 interface GameControlsProps {
   onNewGame: () => void;

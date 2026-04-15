@@ -1,5 +1,5 @@
-import GameBoard from "@/components/GameBoard";
-import styles from "@/styles/ClassicPage.module.css";
+import GameBoard from "@/components/game-classic/GameBoard";
+import styles from "@/styles/game-classic/ClassicPage.module.css";
 
 export default function ClassicPage() {
   return (

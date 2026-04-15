@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
-import styles from "@/styles/MenuItem.module.css";
+import styles from "@/styles/shared/MenuItem.module.css";
 
 interface MenuItemProps {
   icon: ReactNode;

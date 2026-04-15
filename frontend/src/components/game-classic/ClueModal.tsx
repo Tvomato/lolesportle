@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { MdClose } from "react-icons/md";
-import styles from "@/styles/ClueModal.module.css";
+import styles from "@/styles/game-classic/ClueModal.module.css";
 
 interface ClueModalProps {
   title: string;
