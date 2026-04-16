@@ -2,10 +2,10 @@ import clm from "country-locale-map";
 import { Player, Team } from "@/types";
 
 const COLORS = {
-  blue: "#256ecd",
-  green: "#14bc1a",
-  orange: "#db8f13",
-  red: "#981e1e",
+  blue: "var(--color-guess-player)",
+  green: "var(--color-guess-correct)",
+  orange: "var(--color-guess-partial)",
+  red: "var(--color-guess-incorrect)",
 } as const;
 
 export function getCellStyle(
@@ -15,9 +15,6 @@ export function getCellStyle(
   teamMap: Map<string, Team>
 ): React.CSSProperties {
   if (column === "player") {
-    // if (currentPlayer.player === player.player) {
-    //   return { backgroundColor: COLORS.green };
-    // }
     return { backgroundColor: COLORS.blue };
   }
 
@@ -63,7 +60,7 @@ export function getCellStyle(
   if (column === "tournaments_played") {
     const diff = Math.abs(
       currentPlayer.tournaments_played.length -
-        player.tournaments_played.length
+      player.tournaments_played.length
     );
     if (diff === 0) {
       return { backgroundColor: COLORS.green };
@@ -94,7 +91,7 @@ export function getCellStyle(
       currTeamLast &&
       playerTeamLast &&
       teamMap.get(currTeamLast)?.region ===
-        teamMap.get(playerTeamLast)?.region
+      teamMap.get(playerTeamLast)?.region
     ) {
       return { backgroundColor: COLORS.orange };
     }

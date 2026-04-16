@@ -21,6 +21,7 @@ export interface PlayerRaw {
 /** Transformed player used in game logic */
 export interface Player {
   player: string;
+  name: string;
   native_name: string | null;
   nationality: string;
   image_url: string;

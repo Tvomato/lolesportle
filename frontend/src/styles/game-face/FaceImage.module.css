@@ -1,0 +1,35 @@
+.frame {
+  width: 240px;
+  height: 240px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.imageBlurred {
+  transition: filter 0.5s ease;
+}
+
+.imageZoom {
+  transform-origin: center center;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}

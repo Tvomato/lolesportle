@@ -74,6 +74,7 @@ Yellow color legend:
 **To be added**
 
 ## TODO
-* Add new game modes (guess player by face/silhouette)
+* Add new gamemodes (tbd)
 * Allow customizing pool of players chosen in settings (the FastAPI endpoint supports `start_year`, `end_year`, `tourny_count`, and `include_retired` query params)
 * Keep track of game statistics and keep progress on refresh
+* Host site online

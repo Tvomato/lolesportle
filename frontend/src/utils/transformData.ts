@@ -10,7 +10,8 @@ export function calculateAge(birthdate: string): number {
 export function transformData(p: PlayerRaw): Player {
   return {
     player: decode(`${p.player.split(" (")[0]} (${p.name})`),
-    native_name: p.native_name,
+    name: decode(p.name),
+    native_name: p.native_name ? decode(p.native_name) : null,
     nationality: p.nationality,
     image_url: p.image_url,
     age: p.birthdate ? calculateAge(p.birthdate) : 0,

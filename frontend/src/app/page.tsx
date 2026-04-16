@@ -13,9 +13,9 @@ export default function Home() {
           title="Classic Mode"
         />
         <MenuItem
-          disabled
+          href="/face"
           icon={<MdImage size={22} />}
-          title="Guess by Face (WIP)"
+          title="Guess by Face"
         />
         {/* <MenuItem
           disabled

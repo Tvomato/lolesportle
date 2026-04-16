@@ -8,6 +8,13 @@
   --color-surface-light: #1a1a1a;
   --color-text: #ffffff;
   --color-text-muted: #aaaaaa;
+
+  /* Guess feedback colors — shared across game modes */
+  --color-guess-correct: #14bc1a;
+  --color-guess-incorrect: #981e1e;
+  --color-guess-partial: #db8f13;
+  --color-guess-neutral: #4d4d4d;
+  --color-guess-player: #256ecd;
 }
 
 body {

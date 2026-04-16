@@ -34,7 +34,7 @@ export default function GuessTable({
     prevRevealId.current = guessRevealId;
   }, [guessRevealId]);
 
-  const NEUTRAL_BG = "#4d4d4d"
+  const NEUTRAL_BG = "var(--color-guess-neutral)"
 
   const renderRow = (player: Player, animate: boolean, neutral?: boolean) => {
     const playerBg = neutral

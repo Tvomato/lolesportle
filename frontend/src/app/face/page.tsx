@@ -1,0 +1,11 @@
+import FaceBoard from "@/components/game-face/FaceBoard";
+import styles from "@/styles/game-face/FacePage.module.css";
+
+export default function FacePage() {
+  return (
+    <div className={styles.gameWrapper}>
+      <h1 className={styles.pageTitle}>Guess by Face</h1>
+      <FaceBoard />
+    </div>
+  );
+}
