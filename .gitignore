@@ -2,6 +2,9 @@
 .env
 .env.local
 .ignore
+.claude
+.DS_Store
+
 
 node_modules
 backend/__pycache__
