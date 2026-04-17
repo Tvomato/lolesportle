@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Player, Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import GameControls from "./GameControls";
+import GameControls from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
@@ -28,6 +28,7 @@ export default function GameBoard() {
     new Set()
   );
   const [showPlayer, setShowPlayer] = useState(false);
+  const [hasLost, setHasLost] = useState(false);
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [revealComplete, setRevealComplete] = useState(true);
@@ -89,6 +90,7 @@ export default function GameBoard() {
       setGuessedPlayers([]);
       setGuessedRawNames(new Set());
       setShowPlayer(false);
+      setHasLost(false);
       setGuessRevealId(0);
     } catch (error) {
       console.error("Error fetching player:", error);
@@ -156,6 +158,7 @@ export default function GameBoard() {
         )}
 
         {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
+        {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
 
         {currentPlayer && !hasWon && !showPlayer && (
           <SearchBar ref={searchBarRef} playerNames={availableNames} onSelect={handleAddPlayer} />
@@ -175,13 +178,15 @@ export default function GameBoard() {
         </div>
       )}
 
-      {/* Bottom controls — only after at least 1 guess */}
       {currentPlayer && guessedPlayers.length >= 1 && (
         <GameControls
           onNewGame={getNewPlayer}
-          onToggleReveal={() => setShowPlayer(!showPlayer)}
-          showRevealButton={!hasWon}
-          revealLabel={showPlayer ? "HIDE PLAYER" : "REVEAL PLAYER"}
+          onGiveUp={() => {
+            if (currentPlayer && guessedPlayers.some((p) => p.player === currentPlayer.player)) return;
+            setShowPlayer(true);
+            setHasLost(true);
+          }}
+          hasLost={hasLost || hasWon}
         />
       )}
     </div>

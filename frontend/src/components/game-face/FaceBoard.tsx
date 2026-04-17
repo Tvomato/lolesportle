@@ -6,7 +6,7 @@ import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
-import GameControls from "@/components/game-classic/GameControls";
+import GameControls from "@/components/shared/GameControls";
 // import FaceImageBlurred from "./FaceImageBlurred";
 import FaceImageZoom from "./FaceImageZoom";
 import FaceGuessRow from "./FaceGuessRow";
@@ -31,6 +31,7 @@ export default function FaceBoard() {
   const [guessedPlayers, setGuessedPlayers] = useState<Player[]>([]);
   const [guessedRawNames, setGuessedRawNames] = useState<Set<string>>(new Set());
   const [showPlayer, setShowPlayer] = useState(false);
+  const [hasLost, setHasLost] = useState(false);
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
@@ -81,6 +82,7 @@ export default function FaceBoard() {
       setGuessedPlayers([]);
       setGuessedRawNames(new Set());
       setShowPlayer(false);
+      setHasLost(false);
       setGuessRevealId(0);
       setGameId((prev) => prev + 1);
     } catch (error) {
@@ -168,6 +170,7 @@ export default function FaceBoard() {
             />
 
             {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
+            {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
 
             {!hasWon && !showPlayer && (
               <SearchBar
@@ -206,13 +209,11 @@ export default function FaceBoard() {
         </div>
       )}
 
-      {/* Bottom controls — only after at least 1 guess */}
       {currentPlayer && guessedPlayers.length >= 1 && (
         <GameControls
           onNewGame={getNewPlayer}
-          onToggleReveal={() => setShowPlayer(!showPlayer)}
-          showRevealButton={!hasWon}
-          revealLabel={showPlayer ? "HIDE PLAYER" : "REVEAL PLAYER"}
+          onGiveUp={() => { setShowPlayer(true); setHasLost(true); }}
+          hasLost={hasLost || hasWon}
         />
       )}
     </div>
