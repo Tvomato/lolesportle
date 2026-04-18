@@ -42,8 +42,6 @@ function TeamContent({
           src={getFullSizeImageUrl(logoUrl)}
           alt={teamName}
           className={styles.teamLogo}
-          draggable={false}
-          onContextMenu={(e) => e.preventDefault()}
         />
       )}
       <p className={styles.teamName}>{teamName}</p>

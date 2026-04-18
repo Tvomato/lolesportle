@@ -81,6 +81,8 @@ function FaceContent({ imageUrl }: { imageUrl: string }) {
         src={imageUrl.split("/revision")[0]}
         alt="Player face"
         className={styles.faceImage}
+        draggable={false}
+        onContextMenu={(e) => e.preventDefault()}
       />
     </div>
   );

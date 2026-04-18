@@ -50,8 +50,6 @@ export default function FaceGuessRow({
         src={getFullSizeImageUrl(player.image_url)}
         alt={player.player}
         className={styles.face}
-        draggable={false}
-        onContextMenu={(e) => e.preventDefault()}
       />
       <div className={styles.name}>{decode(player.player)}</div>
     </div>

@@ -49,6 +49,8 @@ export function getColumnMapping(
                 }
                 alt={age < currentPlayer.age ? "Older" : "Younger"}
                 className={styles.arrowIcon}
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
               />
             )}
           </div>
@@ -109,6 +111,8 @@ export function getColumnMapping(
                 }
                 alt={trophies < currentPlayer.trophies ? "More" : "Fewer"}
                 className={styles.arrowIcon}
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
               />
             )}
           </div>
@@ -133,6 +137,8 @@ export function getColumnMapping(
                   worlds < currentPlayer.worlds_appearances ? "More" : "Fewer"
                 }
                 className={styles.arrowIcon}
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
               />
             )}
           </div>
@@ -165,6 +171,8 @@ export function getColumnMapping(
                       : "Fewer"
                   }
                   className={styles.arrowIcon}
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
                 />
               )}
           </div>
