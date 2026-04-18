@@ -161,6 +161,7 @@ export default function GameBoard() {
 
         {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
         {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
+        {(hasWon || hasLost) && <div className={styles.attemptsText}>Total guesses: {guessedPlayers.length}</div>}
 
         {currentPlayer && !hasWon && !showPlayer && (
           <SearchBar ref={searchBarRef} playerNames={availableNames} onSelect={handleAddPlayer} />

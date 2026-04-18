@@ -116,6 +116,13 @@
   animation: victoryPop 0.5s ease-out;
 }
 
+.attemptsText {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+}
+
 @keyframes victoryPop {
   0% {
     transform: scale(0.5);

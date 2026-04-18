@@ -171,6 +171,7 @@ export default function FaceBoard() {
 
             {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
             {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
+            {(hasWon || hasLost) && <div className={styles.attemptsText}>Total guesses: {guessedPlayers.length}</div>}
 
             {!hasWon && !showPlayer && (
               <SearchBar
