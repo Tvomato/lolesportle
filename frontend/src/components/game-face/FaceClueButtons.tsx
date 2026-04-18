@@ -16,8 +16,8 @@ interface FaceClueButtonsProps {
 }
 
 const CLUES = [
-  { label: "Clue 1: Current Team", threshold: 5 },
-  { label: "Clue 2: Full Name", threshold: 8 },
+  { label: "Clue 1: Full Name", threshold: 4 },
+  { label: "Clue 2: Current Team", threshold: 8 },
 ];
 
 function TeamContent({
@@ -146,15 +146,15 @@ export default function FaceClueButtons({
           }}
         >
           {openClue === 0 && (
-            <TeamContent
-              teamName={currentPlayer.team_name}
-              logoUrl={teamLogoUrl}
-            />
-          )}
-          {openClue === 1 && (
             <FullNameContent
               fullName={currentPlayer.name}
               nativeName={currentPlayer.native_name}
+            />
+          )}
+          {openClue === 1 && (
+            <TeamContent
+              teamName={currentPlayer.team_name}
+              logoUrl={teamLogoUrl}
             />
           )}
         </ClueModal>
