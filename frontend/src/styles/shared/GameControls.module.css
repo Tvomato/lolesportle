@@ -1,6 +1,13 @@
-.gameSetup {
+.newGameWrapper {
   display: flex;
-  padding: 10px 6px 24px;
+  padding: 8px 6px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.giveUpWrapper {
+  display: flex;
+  padding: 4px 6px 24px;
   gap: 8px;
   flex-shrink: 0;
 }

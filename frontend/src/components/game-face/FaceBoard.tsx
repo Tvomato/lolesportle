@@ -6,7 +6,7 @@ import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
-import GameControls from "@/components/shared/GameControls";
+import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 // import FaceImageBlurred from "./FaceImageBlurred";
 import FaceImageZoom from "./FaceImageZoom";
 import FaceGuessRow from "./FaceGuessRow";
@@ -41,6 +41,12 @@ export default function FaceBoard() {
   const hasWon = currentPlayer
     ? guessedPlayers.some((p) => p.player === currentPlayer.player)
     : false;
+
+  useEffect(() => {
+    if (!hasWon) return;
+    const timer = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), GUESS_ANIMATION_MS);
+    return () => clearTimeout(timer);
+  }, [hasWon]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -184,6 +190,10 @@ export default function FaceBoard() {
         )}
       </div>
 
+      {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
+        <NewGameButton onNewGame={getNewPlayer} />
+      )}
+
       {/* Scrollable guess list */}
       {currentPlayer && (showPlayer || guessedPlayers.length > 0) && (
         <div className={styles.listSection}>
@@ -210,12 +220,8 @@ export default function FaceBoard() {
         </div>
       )}
 
-      {currentPlayer && guessedPlayers.length >= 1 && (
-        <GameControls
-          onNewGame={getNewPlayer}
-          onGiveUp={() => { setShowPlayer(true); setHasLost(true); }}
-          hasLost={hasLost || hasWon}
-        />
+      {currentPlayer && guessedPlayers.length >= 1 && !(hasLost || hasWon) && (
+        <GiveUpButton onGiveUp={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setShowPlayer(true); setHasLost(true); }} />
       )}
     </div>
   );

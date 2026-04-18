@@ -32,7 +32,11 @@ export default function ClueModal({ title, onClose, children }: ClueModalProps) 
   }, [onClose, handleClose]);
 
   const handleAnimationEnd = () => {
-    if (closing) onClose();
+    if (closing) {
+      const scrollY = window.scrollY;
+      onClose();
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
+    }
   };
 
   return createPortal(

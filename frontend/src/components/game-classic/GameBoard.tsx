@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Player, Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import GameControls from "@/components/shared/GameControls";
+import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
@@ -42,6 +42,10 @@ export default function GameBoard() {
         (p) => p.player === currentPlayer.player && revealedPlayers.has(p.player)
       )
     : false;
+
+  useEffect(() => {
+    if (hasWon) window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [hasWon]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -168,6 +172,10 @@ export default function GameBoard() {
         )}
       </div>
 
+      {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
+        <NewGameButton onNewGame={getNewPlayer} />
+      )}
+
       {/* Scrollable table section */}
       {currentPlayer && (
         <div className={styles.tableSection}>
@@ -181,15 +189,14 @@ export default function GameBoard() {
         </div>
       )}
 
-      {currentPlayer && guessedPlayers.length >= 1 && (
-        <GameControls
-          onNewGame={getNewPlayer}
+      {currentPlayer && guessedPlayers.length >= 1 && !(hasLost || hasWon) && (
+        <GiveUpButton
           onGiveUp={() => {
             if (currentPlayer && guessedPlayers.some((p) => p.player === currentPlayer.player)) return;
+            window.scrollTo({ top: 0, behavior: "smooth" });
             setShowPlayer(true);
             setHasLost(true);
           }}
-          hasLost={hasLost || hasWon}
         />
       )}
     </div>

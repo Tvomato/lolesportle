@@ -3,9 +3,6 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
 }
 
 .topSection {
@@ -20,9 +17,6 @@
 }
 
 .tableSection {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: auto;
   width: 100%;
   display: flex;
   justify-content: center;
