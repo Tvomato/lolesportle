@@ -31,16 +31,17 @@ export default function GameBoard() {
   const [hasLost, setHasLost] = useState(false);
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
-  const [revealComplete, setRevealComplete] = useState(true);
+  const [revealedPlayers, setRevealedPlayers] = useState<Set<string>>(new Set());
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
 
   const ANIMATION_DURATION = 3000;
 
-  const hasWon =
-    currentPlayer && revealComplete
-      ? guessedPlayers.some((p) => p.player === currentPlayer.player)
-      : false;
+  const hasWon = currentPlayer
+    ? guessedPlayers.some(
+        (p) => p.player === currentPlayer.player && revealedPlayers.has(p.player)
+      )
+    : false;
 
   useEffect(() => {
     const loadData = async () => {
@@ -89,6 +90,7 @@ export default function GameBoard() {
       setCurrentPlayer(player);
       setGuessedPlayers([]);
       setGuessedRawNames(new Set());
+      setRevealedPlayers(new Set());
       setShowPlayer(false);
       setHasLost(false);
       setGuessRevealId(0);
@@ -116,14 +118,14 @@ export default function GameBoard() {
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
-      setRevealComplete(false);
+      const revealedName = player.player;
 
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
       setGuessRevealId((prev) => prev + 1);
 
       setTimeout(() => {
-        setRevealComplete(true);
+        setRevealedPlayers((prev) => new Set(prev).add(revealedName));
         setLoading(false);
       }, ANIMATION_DURATION);
     } catch (error) {
