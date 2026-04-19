@@ -21,8 +21,8 @@ body {
   margin: 0;
   background-color: var(--color-secondary);
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)),
-    url('/images/trophy_background.jpg');
+    linear-gradient(rgba(0, 0, 0, 0.86), rgba(0, 0, 0, 0.86)),
+    url('/images/worlds_2025_background.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
