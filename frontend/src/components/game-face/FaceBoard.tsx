@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
+import { recordResult } from "@/utils/storage";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
@@ -51,6 +52,20 @@ export default function FaceBoard() {
     ? guessedPlayers.some((p) => p.player === currentPlayer.player)
     : false;
 
+  // Starts true if restoring an already-finished game — prevents double-counting on reload
+  const statsRecordedRef = useRef(hasWon || hasLost);
+
+  useEffect(() => {
+    if (statsRecordedRef.current) return;
+    if (hasWon) {
+      recordResult("face", true, guessedPlayers.length);
+      statsRecordedRef.current = true;
+    } else if (hasLost) {
+      recordResult("face", false, guessedPlayers.length);
+      statsRecordedRef.current = true;
+    }
+  }, [hasWon, hasLost, guessedPlayers.length]);
+
   useEffect(() => {
     if (!hasWon) return;
     const timer = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), GUESS_ANIMATION_MS);
@@ -93,6 +108,7 @@ export default function FaceBoard() {
 
       await preloadImage(player.image_url);
 
+      statsRecordedRef.current = false;
       resetGame();
       setCurrentPlayer(player);
       setGuessRevealId(0);

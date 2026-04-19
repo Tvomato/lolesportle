@@ -14,13 +14,32 @@ export interface PersistedGameState {
   savedAt: string;
 }
 
-// Reserved for future statistics feature:
-// export interface ModeStats { gamesPlayed, wins, losses, currentStreak, maxStreak, guessCounts, lastPlayedDate }
-// export interface GameStats { version, classic: ModeStats, face: ModeStats }
-// Use STORAGE_KEYS.stats to read/write stats via loadStats() / saveStats() (to be implemented).
+export interface GameResult {
+  won: boolean;
+  guesses: number;
+  date: string;
+}
+
+export interface ModeStats {
+  gamesPlayed: number;
+  wins: number;
+  losses: number;
+  totalGuesses: number;
+  currentStreak: number;
+  maxStreak: number;
+  guessCounts: Record<string, number>;
+  history: GameResult[];
+}
+
+export interface GameStats {
+  version: number;
+  classic: ModeStats;
+  face: ModeStats;
+}
 
 const GAME_STATE_VERSION = 1;
 const GAME_STATE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const STATS_VERSION = 1;
 
 const STORAGE_KEYS = {
   classic: "lolesportle_classic_game",
@@ -65,4 +84,60 @@ export function clearGameState(mode: GameMode): void {
   } catch {
     // ignore
   }
+}
+
+function emptyModeStats(): ModeStats {
+  return {
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    totalGuesses: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    guessCounts: {},
+    history: [],
+  };
+}
+
+export function loadStats(): GameStats {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.stats);
+    if (!raw) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
+    const parsed: GameStats = JSON.parse(raw);
+    if (parsed.version !== STATS_VERSION) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
+    return parsed;
+  } catch {
+    return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
+  }
+}
+
+export function saveStats(stats: GameStats): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(stats));
+  } catch {
+    // ignore
+  }
+}
+
+export function recordResult(mode: GameMode, won: boolean, guesses: number): void {
+  const stats = loadStats();
+  const m = stats[mode];
+
+  m.gamesPlayed++;
+  m.totalGuesses += guesses;
+  m.guessCounts[String(guesses)] = (m.guessCounts[String(guesses)] ?? 0) + 1;
+
+  const result: GameResult = { won, guesses, date: new Date().toISOString() };
+  m.history = [...m.history, result].slice(-100);
+
+  if (won) {
+    m.wins++;
+    m.currentStreak++;
+    if (m.currentStreak > m.maxStreak) m.maxStreak = m.currentStreak;
+  } else {
+    m.losses++;
+    m.currentStreak = 0;
+  }
+
+  saveStats(stats);
 }

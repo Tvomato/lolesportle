@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
+import { recordResult } from "@/utils/storage";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
@@ -50,6 +51,20 @@ export default function GameBoard() {
         (p) => p.player === currentPlayer.player && revealedPlayers.has(p.player)
       )
     : false;
+
+  // Starts true if restoring an already-finished game — prevents double-counting on reload
+  const statsRecordedRef = useRef(hasWon || hasLost);
+
+  useEffect(() => {
+    if (statsRecordedRef.current) return;
+    if (hasWon) {
+      recordResult("classic", true, guessedPlayers.length);
+      statsRecordedRef.current = true;
+    } else if (hasLost) {
+      recordResult("classic", false, guessedPlayers.length);
+      statsRecordedRef.current = true;
+    }
+  }, [hasWon, hasLost, guessedPlayers.length]);
 
   useEffect(() => {
     if (hasWon) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -99,6 +114,7 @@ export default function GameBoard() {
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
+      statsRecordedRef.current = false;
       resetGame();
       setCurrentPlayer(player);
       setGuessRevealId(0);

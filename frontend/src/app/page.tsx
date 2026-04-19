@@ -1,8 +1,16 @@
-import { MdPerson, MdImage, MdHistory, MdMoreHoriz, MdSettings, MdBarChart } from "react-icons/md";
+"use client";
+
+import { useState } from "react";
+import { MdPerson, MdImage, MdMoreHoriz, MdSettings, MdBarChart } from "react-icons/md";
 import MenuItem from "@/components/shared/MenuItem";
+import StatsModal from "@/components/shared/StatsModal";
+import SettingsModal from "@/components/shared/SettingsModal";
 import styles from "@/styles/shared/Home.module.css";
 
 export default function Home() {
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
     <div className={styles.container}>
       <p className={styles.modeLabel}>Select a mode to play:</p>
@@ -30,15 +38,18 @@ export default function Home() {
       </div>
 
       <div className={styles.utilityRow}>
-        <button className={styles.utilityItem}>
+        <button className={styles.utilityItem} onClick={() => setStatsOpen(true)}>
+          <MdBarChart className={styles.utilityIcon} />
+          Statistics
+        </button>
+        <button className={styles.utilityItem} onClick={() => setSettingsOpen(true)}>
           <MdSettings className={styles.utilityIcon} />
           Settings (WIP)
         </button>
-        <button className={styles.utilityItem}>
-          <MdBarChart className={styles.utilityIcon} />
-          Statistics (WIP)
-        </button>
       </div>
+
+      {statsOpen && <StatsModal onClose={() => setStatsOpen(false)} />}
+      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }
