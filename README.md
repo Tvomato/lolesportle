@@ -71,7 +71,13 @@ Yellow color legend:
 * Tournaments Played: The mystery player's tournament participation count is within 5
 
 ## Screenshots
-**To be added**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/621ca7e0-d41f-47ab-956e-3d3b1604206e" />
+---
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/08413035-4aa5-4904-ac1f-b5bdf7318814" />
+---
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a7966c52-e283-4066-b734-576f36eaade9" />
+---
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9f382930-ae71-4275-a896-46e5437848f8" />
 
 ## TODO
 * Add new gamemodes (tbd)
