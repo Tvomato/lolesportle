@@ -12,6 +12,7 @@ backend/__pycache__
 # Next.js
 frontend/.next/
 frontend/out/
+frontend/tsconfig.tsbuildinfo
 
 # Legacy frontend
 frontend-legacy

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Player, Team } from "@/types";
+import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
@@ -12,6 +12,7 @@ import FaceImageZoom from "./FaceImageZoom";
 import FaceGuessRow from "./FaceGuessRow";
 import FaceClueButtons from "./FaceClueButtons";
 import styles from "@/styles/game-face/FaceBoard.module.css";
+import { useGameState } from "@/hooks/useGameState";
 
 function preloadImage(url: string): Promise<void> {
   return new Promise((resolve) => {
@@ -27,11 +28,19 @@ const GUESS_ANIMATION_MS = 600;
 export default function FaceBoard() {
   const [playerNames, setPlayerNames] = useState<string[]>([]);
   const [teamMap, setTeamMap] = useState<Map<string, Team>>(new Map());
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [guessedPlayers, setGuessedPlayers] = useState<Player[]>([]);
-  const [guessedRawNames, setGuessedRawNames] = useState<Set<string>>(new Set());
-  const [showPlayer, setShowPlayer] = useState(false);
-  const [hasLost, setHasLost] = useState(false);
+  const {
+    currentPlayer,
+    guessedPlayers,
+    guessedRawNames,
+    showPlayer,
+    hasLost,
+    setCurrentPlayer,
+    setGuessedPlayers,
+    setGuessedRawNames,
+    setShowPlayer,
+    setHasLost,
+    resetGame,
+  } = useGameState("face");
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
@@ -84,11 +93,8 @@ export default function FaceBoard() {
 
       await preloadImage(player.image_url);
 
+      resetGame();
       setCurrentPlayer(player);
-      setGuessedPlayers([]);
-      setGuessedRawNames(new Set());
-      setShowPlayer(false);
-      setHasLost(false);
       setGuessRevealId(0);
       setGameId((prev) => prev + 1);
     } catch (error) {

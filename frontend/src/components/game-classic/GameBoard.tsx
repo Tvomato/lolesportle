@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Player, Team } from "@/types";
+import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
@@ -9,6 +9,7 @@ import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
 import styles from "@/styles/game-classic/GameBoard.module.css";
+import { useGameState } from "@/hooks/useGameState";
 
 function preloadImage(url: string): Promise<void> {
   return new Promise((resolve) => {
@@ -22,16 +23,23 @@ function preloadImage(url: string): Promise<void> {
 export default function GameBoard() {
   const [playerNames, setPlayerNames] = useState<string[]>([]);
   const [teamMap, setTeamMap] = useState<Map<string, Team>>(new Map());
-  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
-  const [guessedPlayers, setGuessedPlayers] = useState<Player[]>([]);
-  const [guessedRawNames, setGuessedRawNames] = useState<Set<string>>(
-    new Set()
-  );
-  const [showPlayer, setShowPlayer] = useState(false);
-  const [hasLost, setHasLost] = useState(false);
+  const {
+    currentPlayer,
+    guessedPlayers,
+    guessedRawNames,
+    showPlayer,
+    hasLost,
+    revealedPlayers,
+    setCurrentPlayer,
+    setGuessedPlayers,
+    setGuessedRawNames,
+    setShowPlayer,
+    setHasLost,
+    setRevealedPlayers,
+    resetGame,
+  } = useGameState("classic");
   const [loading, setLoading] = useState(true);
   const [guessRevealId, setGuessRevealId] = useState(0);
-  const [revealedPlayers, setRevealedPlayers] = useState<Set<string>>(new Set());
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
 
@@ -91,12 +99,8 @@ export default function GameBoard() {
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
+      resetGame();
       setCurrentPlayer(player);
-      setGuessedPlayers([]);
-      setGuessedRawNames(new Set());
-      setRevealedPlayers(new Set());
-      setShowPlayer(false);
-      setHasLost(false);
       setGuessRevealId(0);
     } catch (error) {
       console.error("Error fetching player:", error);
