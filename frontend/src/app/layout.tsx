@@ -10,8 +10,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Lolesportle",
-  description:
-    "A Wordle-inspired guessing game for League of Legends esports players",
+  description: "The League of Legends esports player guessing game",
 };
 
 export default function RootLayout({
