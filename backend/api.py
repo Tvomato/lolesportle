@@ -95,6 +95,10 @@ async def get_players_by_tournament_count(
     include_retired: bool = Query(
         False, description="Include players without a current team"
     ),
+    include_current_year: bool = Query(
+        True,
+        description="Also include players who participated in any tournament this year",
+    ),
     db: Session = Depends(get_db_session),
 ):
     """
@@ -102,23 +106,36 @@ async def get_players_by_tournament_count(
     Returns only the player column.
     """
     try:
-        query = (
+        base_query = (
             db.query(Player.player)
             .join(player_tournament, Player.player == player_tournament.c.player_name)
             .join(Tournament, player_tournament.c.tournament_name == Tournament.name)
-            .filter(Tournament.year >= start_year, Tournament.year <= end_year)
         )
 
         if not include_retired:
-            query = query.filter(Player.team_name.isnot(None))
+            base_query = base_query.filter(Player.team_name.isnot(None))
 
-        result = (
-            query.group_by(Player.player)
+        count_query = (
+            base_query.filter(
+                Tournament.year >= start_year, Tournament.year <= end_year
+            )
+            .group_by(Player.player)
             .having(func.count(func.distinct(Tournament.name)) >= tourny_count)
-            .all()
         )
 
-        return [PlayerNameResponse(player=row[0]) for row in result]
+        player_set = {row[0] for row in count_query.all()}
+
+        if include_current_year:
+            current_year = date.today().year
+            current_year_query = (
+                base_query.filter(Tournament.date_start.isnot(None))
+                .filter(func.extract("year", Tournament.date_start) == current_year)
+                .group_by(Player.player)
+            )
+            for row in current_year_query.all():
+                player_set.add(row[0])
+
+        return [PlayerNameResponse(player=p) for p in player_set]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
@@ -146,9 +163,7 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
     if not player:
         raise HTTPException(status_code=404, detail=f"Player '{player_id}' not found")
 
-    data = {
-        c.name: getattr(player, c.name) for c in Player.__table__.columns
-    }
+    data = {c.name: getattr(player, c.name) for c in Player.__table__.columns}
     data["tournaments_played"] = [t.name for t in player.tournaments]
     data["tournaments_won"] = [t.name for t in player.tournaments_won_list]
 
