@@ -43,6 +43,7 @@ export default function FaceBoard() {
     resetGame,
   } = useGameState("face");
   const [loading, setLoading] = useState(true);
+  const [noPlayers, setNoPlayers] = useState(false);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
   const pendingGuessesRef = useRef(new Set<string>());
@@ -81,6 +82,7 @@ export default function FaceBoard() {
         ])
         setPlayerNames(names);
         setTeamMap(new Map(teams.map((t) => [t.name, t])));
+        if (names.length === 0) setNoPlayers(true);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -154,6 +156,15 @@ export default function FaceBoard() {
       <div className={styles.loadingWrapper}>
         <div className={styles.spinner} />
         <div className={styles.loadingText}>Loading</div>
+      </div>
+    );
+  }
+
+  if (noPlayers) {
+    return (
+      <div className={styles.emptyError}>
+        No valid players found for the current query.
+        <span>Try adjusting the filters in settings.</span>
       </div>
     );
   }
