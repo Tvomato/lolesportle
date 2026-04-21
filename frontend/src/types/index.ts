@@ -45,7 +45,7 @@ export interface Team {
   region: string;
 }
 
-/** API response item from GET /api/players/tournaments */
+/** API response item from GET /api/players */
 export interface PlayerName {
   player: string;
 }

@@ -79,7 +79,7 @@ class TournamentResponse(BaseModel):
 
 # API Endpoints
 @app.get(
-    "/api/players/tournaments",
+    "/api/players",
     response_model=List[PlayerNameResponse],
     summary="Get players by tournament participation",
     description="Returns players who participated in N or more tournaments within a year range",
