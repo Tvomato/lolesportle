@@ -45,7 +45,44 @@ const STORAGE_KEYS = {
   classic: "lolesportle_classic_game",
   face: "lolesportle_face_game",
   stats: "lolesportle_stats",
+  settings: "lolesportle_settings",
 } as const;
+
+export interface PlayerQuerySettings {
+  start_year: number;
+  end_year: number;
+  tourny_count: number;
+  include_retired: boolean;
+  include_current_year: boolean;
+}
+
+const CURRENT_YEAR = new Date().getFullYear();
+
+export const DEFAULT_SETTINGS: PlayerQuerySettings = {
+  start_year: CURRENT_YEAR - 4,
+  end_year: CURRENT_YEAR,
+  tourny_count: 5,
+  include_retired: false,
+  include_current_year: true,
+};
+
+export function loadSettings(): PlayerQuerySettings {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.settings);
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+export function saveSettings(s: PlayerQuerySettings): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(s));
+  } catch {
+    // ignore
+  }
+}
 
 export function loadGameState(mode: GameMode): PersistedGameState | null {
   try {

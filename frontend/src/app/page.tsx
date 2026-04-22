@@ -44,7 +44,7 @@ export default function Home() {
         </button>
         <button className={styles.utilityItem} onClick={() => setSettingsOpen(true)}>
           <MdSettings className={styles.utilityIcon} />
-          Settings (WIP)
+          Settings
         </button>
       </div>
 

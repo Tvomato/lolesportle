@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import { recordResult } from "@/utils/storage";
+import { recordResult, loadSettings } from "@/utils/storage";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GuessTable from "./GuessTable";
@@ -75,7 +75,7 @@ export default function GameBoard() {
     const loadData = async () => {
       try {
         const [names, teams] = await Promise.all([
-          fetchPlayerNames(),
+          fetchPlayerNames(loadSettings()),
           fetchTeams(),
         ]);
         setPlayerNames(names);

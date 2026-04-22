@@ -8,6 +8,7 @@
   --color-surface-light: #1a1a1a;
   --color-text: #ffffff;
   --color-text-muted: #aaaaaa;
+  --color-error: #e05252;
 
   /* Guess feedback colors — shared across game modes */
   --color-guess-correct: #14bc1a;

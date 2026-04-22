@@ -1,10 +1,19 @@
 import { PlayerRaw, PlayerName, Team } from "@/types";
+import { PlayerQuerySettings } from "@/utils/storage";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
-export async function fetchPlayerNames(): Promise<string[]> {
-  const res = await fetch(`${API_BASE}/api/players`);
+export async function fetchPlayerNames(settings?: PlayerQuerySettings): Promise<string[]> {
+  const params = new URLSearchParams();
+  if (settings) {
+    params.set("start_year", String(settings.start_year));
+    params.set("end_year", String(settings.end_year));
+    params.set("tourny_count", String(settings.tourny_count));
+    params.set("include_retired", String(settings.include_retired));
+    params.set("include_current_year", String(settings.include_current_year));
+  }
+  const res = await fetch(`${API_BASE}/api/players?${params}`);
   if (!res.ok) throw new Error(`Failed to fetch player names: ${res.status}`);
   const data: PlayerName[] = await res.json();
   return data.map((p) => p.player);

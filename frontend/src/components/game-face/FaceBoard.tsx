@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Team } from "@/types";
 import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import { recordResult } from "@/utils/storage";
+import { recordResult, loadSettings } from "@/utils/storage";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
@@ -77,7 +77,7 @@ export default function FaceBoard() {
     const loadData = async () => {
       try {
         const [names, teams] = await Promise.all([
-          fetchPlayerNames(),
+          fetchPlayerNames(loadSettings()),
           fetchTeams(),
         ])
         setPlayerNames(names);
