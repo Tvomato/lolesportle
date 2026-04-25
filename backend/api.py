@@ -156,6 +156,7 @@ async def get_players_by_tournament_count(
                 row[0]
                 for row in db.query(TeamHistory.player_name)
                 .filter(TeamHistory.player_name.in_(player_set))
+                .filter((TeamHistory.duration >= 30) | (TeamHistory.duration.is_(None)))
                 .group_by(TeamHistory.player_name)
                 .having(func.count(func.distinct(TeamHistory.team)) >= min_teams)
                 .all()
