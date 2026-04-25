@@ -1,29 +1,23 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Team } from "@/types";
-import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
+import { fetchPlayerDetails } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import { recordResult, loadSettings } from "@/utils/storage";
+import { useInitialGameData } from "@/hooks/useInitialGameData";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
+import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
+import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
+import GameOutcome from "@/components/shared/GameOutcome";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
 import styles from "@/styles/game-classic/GameBoard.module.css";
+import { preloadImage } from "@/utils/playerImage";
 import { useGameState } from "@/hooks/useGameState";
-
-function preloadImage(url: string): Promise<void> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve();
-    img.onerror = () => resolve();
-    img.src = url.split("/revision")[0];
-  });
-}
+import { useStatsRecording } from "@/hooks/useStatsRecording";
 
 export default function GameBoard() {
-  const [playerNames, setPlayerNames] = useState<string[]>([]);
-  const [teamMap, setTeamMap] = useState<Map<string, Team>>(new Map());
+  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData();
   const {
     currentPlayer,
     guessedPlayers,
@@ -39,8 +33,6 @@ export default function GameBoard() {
     setRevealedPlayers,
     resetGame,
   } = useGameState("classic");
-  const [loading, setLoading] = useState(true);
-  const [noPlayers, setNoPlayers] = useState(false);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
@@ -53,43 +45,12 @@ export default function GameBoard() {
       )
     : false;
 
-  // Starts true if restoring an already-finished game — prevents double-counting on reload
-  const statsRecordedRef = useRef(hasWon || hasLost);
-
-  useEffect(() => {
-    if (statsRecordedRef.current) return;
-    if (hasWon) {
-      recordResult("classic", true, guessedPlayers.length);
-      statsRecordedRef.current = true;
-    } else if (hasLost) {
-      recordResult("classic", false, guessedPlayers.length);
-      statsRecordedRef.current = true;
-    }
-  }, [hasWon, hasLost, guessedPlayers.length]);
+  const { resetStats } = useStatsRecording("classic", hasWon, hasLost, guessedPlayers.length);
 
   useEffect(() => {
     if (hasWon) window.scrollTo({ top: 0, behavior: "smooth" });
   }, [hasWon]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [names, teams] = await Promise.all([
-          fetchPlayerNames(loadSettings()),
-          fetchTeams(),
-        ]);
-        setPlayerNames(names);
-        setTeamMap(new Map(teams.map((t) => [t.name, t])));
-        if (names.length === 0) setNoPlayers(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
 
   const availableNames = useMemo(() => {
     return playerNames
@@ -100,7 +61,6 @@ export default function GameBoard() {
   const getNewPlayer = async () => {
     if (playerNames.length === 0) return;
 
-    setLoading(true);
     try {
       const randomName =
         playerNames[Math.floor(Math.random() * playerNames.length)];
@@ -116,21 +76,18 @@ export default function GameBoard() {
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve()
       ]);
 
-      statsRecordedRef.current = false;
+      resetStats();
       resetGame();
       setCurrentPlayer(player);
       setGuessRevealId(0);
     } catch (error) {
       console.error("Error fetching player:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;
     pendingGuessesRef.current.add(name);
-    setLoading(true);
     try {
       const raw = await fetchPlayerDetails(name);
 
@@ -152,33 +109,16 @@ export default function GameBoard() {
 
       setTimeout(() => {
         setRevealedPlayers((prev) => new Set(prev).add(revealedName));
-        setLoading(false);
       }, ANIMATION_DURATION);
     } catch (error) {
       console.error("Error fetching player details:", error);
     } finally {
       pendingGuessesRef.current.delete(name);
-      setLoading(false);
     }
   };
 
-  if (loading && playerNames.length === 0) {
-    return (
-      <div className={styles.loadingWrapper}>
-        <div className={styles.spinner} />
-        <div className={styles.loadingText}>Loading</div>
-      </div>
-    );
-  }
-
-  if (noPlayers) {
-    return (
-      <div className={styles.emptyError}>
-        No valid players found for the current query.
-        <span>Try adjusting the filters in settings.</span>
-      </div>
-    );
-  }
+  if (loading) return <GameLoadingSpinner />;
+  if (noPlayers) return <NoPlayersMessage />;
 
   return (
     <div className={styles.gameContainer}>
@@ -194,9 +134,7 @@ export default function GameBoard() {
           <ClueButtons key={currentPlayer.player} guessCount={guessedPlayers.length} currentPlayer={currentPlayer} gameOver={!!hasWon || showPlayer} onClueClose={() => searchBarRef.current?.focus()} />
         )}
 
-        {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
-        {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
-        {(hasWon || hasLost) && <div className={styles.attemptsText}>Total guesses: {guessedPlayers.length}</div>}
+        <GameOutcome hasWon={hasWon} hasLost={hasLost} guessCount={guessedPlayers.length} />
 
         {currentPlayer && !hasWon && !showPlayer && (
           <SearchBar ref={searchBarRef} playerNames={availableNames} onSelect={handleAddPlayer} />

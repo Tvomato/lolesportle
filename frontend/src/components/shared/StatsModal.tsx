@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { MdClose } from "react-icons/md";
 import { loadStats, ModeStats } from "@/utils/storage";
+import { useModalAnimation } from "@/hooks/useModalAnimation";
 import styles from "@/styles/shared/StatsModal.module.css";
 
 const TABS = [
@@ -88,34 +89,9 @@ function TotalStatsView({ classic, face }: { classic: ModeStats; face: ModeStats
 }
 
 export default function StatsModal({ onClose }: StatsModalProps) {
-  const [closing, setClosing] = useState(false);
+  const { closing, handleClose, handleAnimationEnd } = useModalAnimation(onClose);
   const [activeTab, setActiveTab] = useState<TabKey>("total");
   const stats = loadStats();
-
-  const handleClose = useCallback(() => {
-    if (!closing) setClosing(true);
-  }, [closing]);
-
-  useEffect(() => {
-    const onPopState = () => onClose();
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
-    window.addEventListener("popstate", onPopState);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("popstate", onPopState);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [onClose, handleClose]);
-
-  const handleAnimationEnd = () => {
-    if (closing) {
-      const scrollY = window.scrollY;
-      onClose();
-      requestAnimationFrame(() => window.scrollTo(0, scrollY));
-    }
-  };
 
   return createPortal(
     <div

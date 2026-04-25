@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { MdLock } from "react-icons/md";
 import { Player } from "@/types";
 import { getChampIconPath } from "@/utils/champIcon";
+import { useClueUnlocks } from "@/hooks/useClueUnlocks";
 import ClueModal from "./ClueModal";
 import styles from "@/styles/game-classic/ClueButtons.module.css";
 
@@ -94,24 +95,8 @@ export default function ClueButtons({
   gameOver,
   onClueClose,
 }: ClueButtonsProps) {
-  const [justUnlocked, setJustUnlocked] = useState<Set<number>>(new Set());
+  const { justUnlocked } = useClueUnlocks(CLUES, guessCount);
   const [openClue, setOpenClue] = useState<number | null>(null);
-  const hasAnimated = useRef<Set<number>>(new Set());
-
-  useEffect(() => {
-    const newlyUnlocked = new Set<number>();
-    CLUES.forEach((clue, i) => {
-      if (guessCount >= clue.threshold && !hasAnimated.current.has(i)) {
-        newlyUnlocked.add(i);
-        hasAnimated.current.add(i);
-      }
-    });
-    if (newlyUnlocked.size > 0) {
-      setJustUnlocked(newlyUnlocked);
-      const timer = setTimeout(() => setJustUnlocked(new Set()), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [guessCount]);
 
   return (
     <>

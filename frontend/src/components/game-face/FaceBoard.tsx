@@ -1,34 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Team } from "@/types";
-import { fetchPlayerNames, fetchPlayerDetails, fetchTeams } from "@/utils/api";
+import { fetchPlayerDetails } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import { recordResult, loadSettings } from "@/utils/storage";
-import { getFullSizeImageUrl } from "@/utils/playerImage";
+import { preloadImage } from "@/utils/playerImage";
+import { useInitialGameData } from "@/hooks/useInitialGameData";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
+import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
+import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
+import GameOutcome from "@/components/shared/GameOutcome";
 // import FaceImageBlurred from "./FaceImageBlurred";
 import FaceImageZoom from "./FaceImageZoom";
 import FaceGuessRow from "./FaceGuessRow";
 import FaceClueButtons from "./FaceClueButtons";
 import styles from "@/styles/game-face/FaceBoard.module.css";
 import { useGameState } from "@/hooks/useGameState";
-
-function preloadImage(url: string): Promise<void> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve();
-    img.onerror = () => resolve();
-    img.src = getFullSizeImageUrl(url);
-  });
-}
+import { useStatsRecording } from "@/hooks/useStatsRecording";
 
 const GUESS_ANIMATION_MS = 600;
 
 export default function FaceBoard() {
-  const [playerNames, setPlayerNames] = useState<string[]>([]);
-  const [teamMap, setTeamMap] = useState<Map<string, Team>>(new Map());
+  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData();
   const {
     currentPlayer,
     guessedPlayers,
@@ -42,8 +35,6 @@ export default function FaceBoard() {
     setHasLost,
     resetGame,
   } = useGameState("face");
-  const [loading, setLoading] = useState(true);
-  const [noPlayers, setNoPlayers] = useState(false);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
   const pendingGuessesRef = useRef(new Set<string>());
@@ -53,44 +44,13 @@ export default function FaceBoard() {
     ? guessedPlayers.some((p) => p.player === currentPlayer.player)
     : false;
 
-  // Starts true if restoring an already-finished game — prevents double-counting on reload
-  const statsRecordedRef = useRef(hasWon || hasLost);
-
-  useEffect(() => {
-    if (statsRecordedRef.current) return;
-    if (hasWon) {
-      recordResult("face", true, guessedPlayers.length);
-      statsRecordedRef.current = true;
-    } else if (hasLost) {
-      recordResult("face", false, guessedPlayers.length);
-      statsRecordedRef.current = true;
-    }
-  }, [hasWon, hasLost, guessedPlayers.length]);
+  const { resetStats } = useStatsRecording("face", hasWon, hasLost, guessedPlayers.length);
 
   useEffect(() => {
     if (!hasWon) return;
     const timer = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), GUESS_ANIMATION_MS);
     return () => clearTimeout(timer);
   }, [hasWon]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [names, teams] = await Promise.all([
-          fetchPlayerNames(loadSettings()),
-          fetchTeams(),
-        ])
-        setPlayerNames(names);
-        setTeamMap(new Map(teams.map((t) => [t.name, t])));
-        if (names.length === 0) setNoPlayers(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
 
   const availableNames = useMemo(() => {
     return playerNames
@@ -101,7 +61,6 @@ export default function FaceBoard() {
   const getNewPlayer = async () => {
     if (playerNames.length === 0) return;
 
-    setLoading(true);
     try {
       const randomName =
         playerNames[Math.floor(Math.random() * playerNames.length)];
@@ -110,22 +69,19 @@ export default function FaceBoard() {
 
       await preloadImage(player.image_url);
 
-      statsRecordedRef.current = false;
+      resetStats();
       resetGame();
       setCurrentPlayer(player);
       setGuessRevealId(0);
       setGameId((prev) => prev + 1);
     } catch (error) {
       console.error("Error fetching player:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;
     pendingGuessesRef.current.add(name);
-    setLoading(true);
     try {
       const raw = await fetchPlayerDetails(name);
       const player = transformData(raw);
@@ -141,33 +97,15 @@ export default function FaceBoard() {
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
       setGuessRevealId((prev) => prev + 1);
-
-      setTimeout(() => setLoading(false), GUESS_ANIMATION_MS);
     } catch (error) {
       console.error("Error fetching player details:", error);
-      setLoading(false);
     } finally {
       pendingGuessesRef.current.delete(name);
     }
   };
 
-  if (loading && playerNames.length === 0) {
-    return (
-      <div className={styles.loadingWrapper}>
-        <div className={styles.spinner} />
-        <div className={styles.loadingText}>Loading</div>
-      </div>
-    );
-  }
-
-  if (noPlayers) {
-    return (
-      <div className={styles.emptyError}>
-        No valid players found for the current query.
-        <span>Try adjusting the filters in settings.</span>
-      </div>
-    );
-  }
+  if (loading) return <GameLoadingSpinner />;
+  if (noPlayers) return <NoPlayersMessage />;
 
   const revealed = hasWon || showPlayer;
   const guessCount = guessedPlayers.length;
@@ -208,9 +146,7 @@ export default function FaceBoard() {
               onClueClose={() => searchBarRef.current?.focus()}
             />
 
-            {hasWon && <div className={styles.victoryText}>YOU WIN!</div>}
-            {hasLost && !hasWon && <div className={styles.defeatText}>YOU LOSE!</div>}
-            {(hasWon || hasLost) && <div className={styles.attemptsText}>Total guesses: {guessedPlayers.length}</div>}
+            <GameOutcome hasWon={hasWon} hasLost={hasLost} guessCount={guessedPlayers.length} compact />
 
             {!hasWon && !showPlayer && (
               <SearchBar

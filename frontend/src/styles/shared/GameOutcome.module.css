@@ -1,0 +1,48 @@
+.victoryText {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 10px rgba(16, 227, 247, 0.4),
+    0 0 30px rgba(16, 227, 247, 0.2);
+  animation: victoryPop 0.5s ease-out;
+}
+
+.defeatText {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 10px rgba(247, 152, 16, 0.4),
+    0 0 30px rgba(247, 152, 16, 0.2);
+  animation: victoryPop 0.5s ease-out;
+}
+
+.compact {
+  font-size: 40px;
+}
+
+.attemptsText {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+}
+
+@keyframes victoryPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

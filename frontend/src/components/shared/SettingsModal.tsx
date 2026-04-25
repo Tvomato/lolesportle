@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { MdClose } from "react-icons/md";
 import {
@@ -10,6 +10,7 @@ import {
   DEFAULT_SETTINGS,
   PlayerQuerySettings,
 } from "@/utils/storage";
+import { useModalAnimation } from "@/hooks/useModalAnimation";
 import styles from "@/styles/shared/SettingsModal.module.css";
 
 interface SettingsModalProps {
@@ -88,34 +89,9 @@ function NumberInput({ id, field, value, min, max, error, label, narrow, onChang
 }
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
-  const [closing, setClosing] = useState(false);
+  const { closing, handleClose, handleAnimationEnd } = useModalAnimation(onClose);
   const [draft, setDraft] = useState<PlayerQuerySettings>(() => loadSettings());
   const [errors, setErrors] = useState<FieldErrors>({});
-
-  const handleClose = useCallback(() => {
-    if (!closing) setClosing(true);
-  }, [closing]);
-
-  useEffect(() => {
-    const onPopState = () => onClose();
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
-    window.addEventListener("popstate", onPopState);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("popstate", onPopState);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [onClose, handleClose]);
-
-  const handleAnimationEnd = () => {
-    if (closing) {
-      const scrollY = window.scrollY;
-      onClose();
-      requestAnimationFrame(() => window.scrollTo(0, scrollY));
-    }
-  };
 
   const setNumber = (field: NumericField, raw: string) => {
     const val = raw === "" ? NaN : parseInt(raw, 10);

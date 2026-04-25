@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { MdLock } from "react-icons/md";
 import { Player, Team } from "@/types";
 import { getFullSizeImageUrl } from "@/utils/playerImage";
+import { useClueUnlocks } from "@/hooks/useClueUnlocks";
 import ClueModal from "@/components/game-classic/ClueModal";
 import styles from "@/styles/game-face/FaceClueButtons.module.css";
 
@@ -76,24 +77,8 @@ export default function FaceClueButtons({
   gameOver,
   onClueClose,
 }: FaceClueButtonsProps) {
-  const [justUnlocked, setJustUnlocked] = useState<Set<number>>(new Set());
+  const { justUnlocked } = useClueUnlocks(CLUES, guessCount);
   const [openClue, setOpenClue] = useState<number | null>(null);
-  const hasAnimated = useRef<Set<number>>(new Set());
-
-  useEffect(() => {
-    const newlyUnlocked = new Set<number>();
-    CLUES.forEach((clue, i) => {
-      if (guessCount >= clue.threshold && !hasAnimated.current.has(i)) {
-        newlyUnlocked.add(i);
-        hasAnimated.current.add(i);
-      }
-    });
-    if (newlyUnlocked.size > 0) {
-      setJustUnlocked(newlyUnlocked);
-      const timer = setTimeout(() => setJustUnlocked(new Set()), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [guessCount]);
 
   const teamLogoUrl = currentPlayer.team_name
     ? teamMap.get(currentPlayer.team_name)?.logo_url

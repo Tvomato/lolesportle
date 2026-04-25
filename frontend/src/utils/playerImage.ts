@@ -10,3 +10,12 @@
 export function getFullSizeImageUrl(url: string): string {
   return url.split("/revision")[0];
 }
+
+export function preloadImage(url: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = getFullSizeImageUrl(url);
+  });
+}

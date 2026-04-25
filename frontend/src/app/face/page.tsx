@@ -1,5 +1,5 @@
 import FaceBoard from "@/components/game-face/FaceBoard";
-import styles from "@/styles/game-face/FacePage.module.css";
+import styles from "@/styles/shared/GamePage.module.css";
 
 export default function FacePage() {
   return (
