@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import Generator, List, Optional
 from datetime import date
 from db_config import get_db
-from create_skeletons import Player, Team, Tournament, player_tournament
+from create_skeletons import Player, Team, Tournament, player_tournament, TeamHistory
 
 app = FastAPI()
 
@@ -110,6 +110,11 @@ async def get_players_by_tournament_count(
         True,
         description="Also include players who participated in any tournament this year",
     ),
+    min_teams: int = Query(
+        0,
+        description="Minimum number of distinct teams in career history (0 = no filter)",
+        ge=0,
+    ),
     db: Session = Depends(get_db_session),
 ):
     """
@@ -145,6 +150,17 @@ async def get_players_by_tournament_count(
             )
             for row in current_year_query.all():
                 player_set.add(row[0])
+
+        if min_teams > 0:
+            qualifying = {
+                row[0]
+                for row in db.query(TeamHistory.player_name)
+                .filter(TeamHistory.player_name.in_(player_set))
+                .group_by(TeamHistory.player_name)
+                .having(func.count(func.distinct(TeamHistory.team)) >= min_teams)
+                .all()
+            }
+            player_set = player_set & qualifying
 
         return [PlayerNameResponse(player=p) for p in player_set]
     except Exception as e:
