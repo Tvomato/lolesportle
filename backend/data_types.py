@@ -86,3 +86,13 @@ class UpdatedPlayerQueryResult(TypedDict):
     TeamLast: str
     IsRetired: str
     FavChamps: str
+
+
+class TenureQueryResult(TypedDict):
+    """Raw team tenure data returned from the wiki API (TenuresUnbroken table)."""
+
+    Team: str
+    DateJoin: str
+    DateLeave: str
+    Duration: str
+    IsCurrent: str

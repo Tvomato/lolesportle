@@ -1,13 +1,14 @@
 """Update player information in the database."""
 
 import json
-from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from data_types import PlayerData, UpdatedPlayerQueryResult
 from db_config import get_db
-from create_skeletons import Player, Team
-from executor import exec_query, exec_api
+from create_skeletons import Player
+from executor import exec_query
+from teams_utils import get_or_create_team
+from get_team_history import upsert_team_history
 
 
 def load_players(filename: str = "players.json") -> dict[str, PlayerData]:
@@ -22,60 +23,6 @@ def save_players(
     """Save player data to JSON file."""
     with open(filename, "w") as file:
         json.dump(players_dict, file, indent=4)
-
-
-def get_image_url(filename: str) -> str:
-    """Get image URL from filename using API."""
-    image = exec_api(
-        action="query",
-        format="json",
-        titles=f"File:{filename}",
-        prop="imageinfo",
-        iiprop="url",
-    )
-    image_info = next(iter(image["query"]["pages"].values()))["imageinfo"][0]
-    return image_info["url"]
-
-
-def normalize_region(region: str) -> str:
-    """Normalize region names to standard format."""
-    if region in ("Europe", "EMEA"):
-        return "Europe & EMEA"
-    elif region in ("North America", "Brazil", "Latin America"):
-        return "Americas"
-    return region
-
-
-def get_or_create_team(session: Session, team_name: Optional[str]) -> Optional[Team]:
-    """Get existing team or create new one. Returns None if team not found in wiki."""
-    if not team_name:
-        return None
-
-    team = session.query(Team).filter_by(name=team_name).first()
-    if team:
-        normalized = normalize_region(team.region)
-        if normalized != team.region:
-            team.region = normalized
-        return team
-
-    res = exec_query(
-        tables="Teams=T",
-        fields="T.Name, T.Region",
-        where=f"""T.OverviewPage='{team_name.replace("'", "''")}'""",
-        limit=1,
-    )
-
-    if not res:
-        return None
-
-    region = normalize_region(res[0].get("Region"))
-    team = Team(
-        name=team_name,
-        logo_url=get_image_url(team_name + "logo square.png"),
-        region=region,
-    )
-    session.add(team)
-    return team
 
 
 def get_updated_player_info(player_id: str) -> list[UpdatedPlayerQueryResult]:
@@ -131,6 +78,8 @@ def update_player(
         players_dict[cur_player_name].update(p)
     else:
         players_dict[player_id].update(p)
+
+    upsert_team_history(session, cur_player_name or player_id)
 
 
 def main() -> int:

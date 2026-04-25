@@ -9,6 +9,7 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
     Table,
+    Index,
 )
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -59,6 +60,9 @@ class Player(Base):
     tournaments_won_list = relationship(
         "Tournament", secondary=tournament_winner, back_populates="winners"
     )
+    team_history = relationship(
+        "TeamHistory", back_populates="player", order_by="TeamHistory.date_join"
+    )
 
 
 class Team(Base):
@@ -92,6 +96,24 @@ class Tournament(Base):
     winners = relationship(
         "Player", secondary=tournament_winner, back_populates="tournaments_won_list"
     )
+
+
+class TeamHistory(Base):
+    """Team tenure history for a player."""
+
+    __tablename__ = "team_history"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    player_name = Column(String, ForeignKey("players.player"), nullable=False)
+    team = Column(String, nullable=False)
+    date_join = Column(Date, nullable=True)
+    date_leave = Column(Date, nullable=True)
+    duration = Column(Integer, nullable=True)
+    is_current = Column(Boolean, default=False)
+
+    player = relationship("Player", back_populates="team_history")
+
+    __table_args__ = (Index("ix_team_history_player", "player_name"),)
 
 
 def main() -> int:

@@ -19,6 +19,7 @@ def main() -> int:
         "insert_players_and_teams.py",
         "get_tourny_winners.py",
         "get_worlds_appearances.py",
+        "get_team_history.py",
     ]
 
     print(">> Now commencing backend setup <<")

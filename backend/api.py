@@ -37,6 +37,16 @@ def get_db_session() -> Generator[Session, None, None]:
 
 
 # Pydantic response models for type safety and TypeScript generation
+class TeamHistoryEntry(BaseModel):
+    team: str
+    date_join: Optional[date] = None
+    date_leave: Optional[date] = None
+    duration: Optional[int] = None
+    is_current: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class PlayerResponse(BaseModel):
     player: str
     name: str
@@ -54,6 +64,7 @@ class PlayerResponse(BaseModel):
     tournaments_played: List[str] = []
     tournaments_won: List[str] = []
     tier1_debut: Optional[str] = None
+    team_history: List[TeamHistoryEntry] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -155,6 +166,7 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
         .options(
             selectinload(Player.tournaments),
             selectinload(Player.tournaments_won_list),
+            selectinload(Player.team_history),
         )
         .filter(Player.player == player_id)
         .first()
@@ -172,6 +184,10 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
         default=None,
     )
     data["tier1_debut"] = earliest.isoformat() if earliest else None
+
+    data["team_history"] = [
+        TeamHistoryEntry.model_validate(th) for th in player.team_history
+    ]
 
     return PlayerResponse(**data)
 
