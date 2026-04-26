@@ -21,15 +21,59 @@ def _parse_date(s: Optional[str]) -> Optional[date]:
         return None
 
 
+def _filter_tenures(rows: list[TenureQueryResult]) -> list[TenureQueryResult]:
+    results = []
+    for row in rows:
+        roles_ingame = (row.get("RolesIngame") or "").strip()
+        roles_staff = (row.get("RolesStaff") or "").strip()
+        role_mod = (row.get("RoleModifier") or "").strip()
+
+        # NULL join on RosterChanges -- no role data, include
+        if not roles_ingame and not roles_staff and not role_mod:
+            results.append(row)
+            continue
+
+        # Pure staff/coach -- no ingame role
+        if not roles_ingame and roles_staff:
+            continue
+
+        # Sub or Trainee
+        if role_mod in ("Sub", "Trainee"):
+            continue
+
+        results.append(row)
+    return results
+
+
 def get_player_tenures(player_id: str) -> list[TenureQueryResult]:
-    """Fetch all team tenures for a player, resolving historical name changes."""
-    return exec_query(
-        tables="TenuresUnbroken=TU, PlayerRedirects=PR",
-        join_on="TU.Player=PR.AllName",
-        fields="TU.Team, TU.DateJoin, TU.DateLeave, TU.Duration, TU.IsCurrent",
+    """Fetch active (non-staff, non-sub) team tenures for a player."""
+    rows = exec_query(
+        tables="TenuresUnbroken=TU, PlayerRedirects=PR, RosterChanges=RC",
+        join_on="TU.Player=PR.AllName, TU.RosterChangeIdJoin=RC.RosterChangeId",
+        fields=(
+            "TU.Team, TU.DateJoin, TU.DateLeave, TU.Duration, TU.IsCurrent,"
+            "RC.RolesIngame, RC.RolesStaff, RC.RoleModifier"
+        ),
         where=f"PR._pageName='{player_id.replace(chr(39), chr(39) * 2)}'",
         order_by="TU.DateJoin ASC",
     )
+    tenures = _filter_tenures(rows)
+
+    # Backfill Duration from DateJoin/DateLeave when missing
+    for tenure in tenures:
+        if (
+            not tenure.get("Duration")
+            and tenure.get("DateJoin")
+            and tenure.get("DateLeave")
+        ):
+            try:
+                join_dt = datetime.strptime(tenure["DateJoin"], "%Y-%m-%d")
+                leave_dt = datetime.strptime(tenure["DateLeave"], "%Y-%m-%d")
+                tenure["Duration"] = str((leave_dt - join_dt).days)
+            except ValueError:
+                pass
+
+    return tenures
 
 
 def upsert_team_history(session: Session, player_id: str) -> None:

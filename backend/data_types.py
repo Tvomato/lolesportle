@@ -96,3 +96,6 @@ class TenureQueryResult(TypedDict):
     DateLeave: str
     Duration: str
     IsCurrent: str
+    RolesIngame: str
+    RolesStaff: str
+    RoleModifier: str
