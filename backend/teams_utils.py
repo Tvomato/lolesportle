@@ -44,9 +44,10 @@ def get_or_create_team(session: Session, team_name: Optional[str]) -> Optional[T
         return team
 
     res = exec_query(
-        tables="Teams=T",
-        fields="T.Name, T.Region",
-        where=f"""T.OverviewPage='{team_name.replace("'", "''")}'""",
+        tables="TeamRedirects=TR, Teams=T",
+        join_on="TR._pageName=T.OverviewPage",
+        fields="T.Name, T.Region, T.Short, T.Location, T.TeamLocation",
+        where=f"TR.AllName='{team_name.replace(chr(39), chr(39) * 2)}'",
         limit=1,
     )
 

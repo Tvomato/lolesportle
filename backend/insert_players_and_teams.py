@@ -64,7 +64,7 @@ def get_or_create_team(
     res = exec_query(
         tables="Teams=T",
         fields="T.Name, T.Region",
-        where=f"""T.OverviewPage='{team_name.replace("'", "''")}'""",
+        where=f"""T.OverviewPage='{team_name.replace(chr(39), chr(39) * 2)}'""",
         limit=1,
     )
 

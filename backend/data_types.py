@@ -89,13 +89,11 @@ class UpdatedPlayerQueryResult(TypedDict):
 
 
 class TenureQueryResult(TypedDict):
-    """Raw team tenure data returned from the wiki API (TenuresUnbroken table)."""
+    """Processed tenure data returned by get_player_tenures (TU fields only)."""
 
     Team: str
     DateJoin: str
     DateLeave: str
     Duration: str
     IsCurrent: str
-    RolesIngame: str
-    RolesStaff: str
-    RoleModifier: str
+    RosterChangeIdJoin: str
