@@ -5,7 +5,7 @@ import { Team } from "@/types";
 import { fetchPlayerNames, fetchTeams } from "@/utils/api";
 import { loadSettings } from "@/utils/storage";
 
-export function useInitialGameData(): {
+export function useInitialGameData(options?: { minTeams?: number }): {
   playerNames: string[];
   teamMap: Map<string, Team>;
   loading: boolean;
@@ -20,7 +20,7 @@ export function useInitialGameData(): {
     const loadData = async () => {
       try {
         const [names, teams] = await Promise.all([
-          fetchPlayerNames(loadSettings()),
+          fetchPlayerNames(loadSettings(), options?.minTeams),
           fetchTeams(),
         ]);
         setPlayerNames(names);

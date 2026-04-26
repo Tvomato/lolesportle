@@ -1,0 +1,53 @@
+.tileRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 110px;
+  gap: 4px;
+}
+
+.tileLogo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  flex-shrink: 0;
+  user-select: none;
+  margin-bottom: 4px;
+}
+
+.tileLogoObfuscated {
+  filter: grayscale(1) opacity(0.35);
+}
+
+.tileName {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-align: center;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.tileObfuscated .tileName {
+  color: var(--color-text-muted);
+}
+
+.tileYear {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}

@@ -1,3 +1,11 @@
+export interface TeamHistoryEntry {
+  team: string;
+  date_join: string | null;
+  date_leave: string | null;
+  duration: number | null;
+  is_current: boolean;
+}
+
 /** API response from GET /api/player/{id} */
 export interface PlayerRaw {
   player: string;
@@ -16,6 +24,7 @@ export interface PlayerRaw {
   tournaments_played: string[];
   tournaments_won: string[];
   tier1_debut: string | null;
+  team_history: TeamHistoryEntry[];
 }
 
 /** Transformed player used in game logic */
@@ -36,6 +45,7 @@ export interface Player {
   team_last: string | null;
   tournaments_played: string[];
   tier1_debut: string | null;
+  team_history: TeamHistoryEntry[];
 }
 
 /** API response from GET /api/teams */

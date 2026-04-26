@@ -26,5 +26,6 @@ export function transformData(p: PlayerRaw): Player {
     team_last: p.team_last,
     tournaments_played: p.tournaments_played,
     tier1_debut: p.tier1_debut,
+    team_history: p.team_history,
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MdPerson, MdImage, MdMoreHoriz, MdSettings, MdBarChart } from "react-icons/md";
+import { MdPerson, MdImage, MdHistory, MdMoreHoriz, MdSettings, MdBarChart } from "react-icons/md";
 import MenuItem from "@/components/shared/MenuItem";
 import StatsModal from "@/components/shared/StatsModal";
 import SettingsModal from "@/components/shared/SettingsModal";
@@ -25,11 +25,11 @@ export default function Home() {
           icon={<MdImage size={22} />}
           title="Guess by Face"
         />
-        {/* <MenuItem
-          disabled
+        <MenuItem
+          href="/teamhistory"
           icon={<MdHistory size={22} />}
-          title="Team History (WIP)"
-        /> */}
+          title="Team History"
+        />
         <MenuItem
           disabled
           icon={<MdMoreHoriz size={22} />}

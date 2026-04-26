@@ -1,27 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { fetchPlayerDetails } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
-import { preloadImage } from "@/utils/playerImage";
+import { preloadImage, getFullSizeImageUrl } from "@/utils/playerImage";
 import { useInitialGameData } from "@/hooks/useInitialGameData";
+import { useGameState } from "@/hooks/useGameState";
+import { loadSettings } from "@/utils/storage";
+import { useStatsRecording } from "@/hooks/useStatsRecording";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
 import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
 import GameOutcome from "@/components/shared/GameOutcome";
-// import FaceImageBlurred from "./FaceImageBlurred";
-import FaceImageZoom from "./FaceImageZoom";
 import PlayerGuessRow from "@/components/shared/PlayerGuessRow";
-import FaceClueButtons from "./FaceClueButtons";
-import styles from "@/styles/game-face/FaceBoard.module.css";
-import { useGameState } from "@/hooks/useGameState";
-import { useStatsRecording } from "@/hooks/useStatsRecording";
+import TeamHistoryDisplay from "./TeamHistoryDisplay";
+import TeamHistoryClueButtons from "./TeamHistoryClueButtons";
+import styles from "@/styles/game-teamhistory/TeamHistoryBoard.module.css";
 
-const GUESS_ANIMATION_MS = 600;
-
-export default function FaceBoard() {
-  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData();
+export default function TeamHistoryBoard() {
+  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ minTeams: loadSettings().min_teams });
   const {
     currentPlayer,
     guessedPlayers,
@@ -34,9 +32,11 @@ export default function FaceBoard() {
     setShowPlayer,
     setHasLost,
     resetGame,
-  } = useGameState("face");
+  } = useGameState("team-history");
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
+  const [showYears, setShowYears] = useState(false);
+  const [showLastTeam, setShowLastTeam] = useState(false);
   const [loadingNewGame, setLoadingNewGame] = useState(false);
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
@@ -45,13 +45,7 @@ export default function FaceBoard() {
     ? guessedPlayers.some((p) => p.player === currentPlayer.player)
     : false;
 
-  const { resetStats } = useStatsRecording("face", hasWon, hasLost, guessedPlayers.length);
-
-  useEffect(() => {
-    if (!hasWon) return;
-    const timer = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), GUESS_ANIMATION_MS);
-    return () => clearTimeout(timer);
-  }, [hasWon]);
+  const { resetStats } = useStatsRecording("team-history", hasWon, hasLost, guessedPlayers.length);
 
   const availableNames = useMemo(() => {
     return playerNames
@@ -63,15 +57,23 @@ export default function FaceBoard() {
     if (playerNames.length === 0) return;
     setLoadingNewGame(true);
     try {
-      const randomName =
-        playerNames[Math.floor(Math.random() * playerNames.length)];
+      const randomName = playerNames[Math.floor(Math.random() * playerNames.length)];
       const raw = await fetchPlayerDetails(randomName);
       const player = transformData(raw);
 
-      await preloadImage(player.image_url);
+      const logoUrls = player.team_history
+        .map((entry) => teamMap.get(entry.team)?.logo_url)
+        .filter((url): url is string => !!url);
+
+      await Promise.all([
+        preloadImage(player.image_url),
+        ...logoUrls.map((url) => preloadImage(url)),
+      ]);
 
       resetStats();
       resetGame();
+      setShowYears(false);
+      setShowLastTeam(false);
       setCurrentPlayer(player);
       setGuessRevealId(0);
       setGameId((prev) => prev + 1);
@@ -88,14 +90,8 @@ export default function FaceBoard() {
     try {
       const raw = await fetchPlayerDetails(name);
       const player = transformData(raw);
-      const teamLogoUrl = player.team_name
-        ? teamMap.get(player.team_name)?.logo_url
-        : undefined;
 
-      await Promise.all([
-        preloadImage(player.image_url),
-        teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve(),
-      ]);
+      await preloadImage(player.image_url);
 
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
@@ -115,7 +111,6 @@ export default function FaceBoard() {
 
   return (
     <div className={styles.gameContainer}>
-      {/* Top section: images, clues, search, victory */}
       <div className={styles.topSection}>
         {!currentPlayer && (
           <button className={styles.startButton} onClick={getNewPlayer} disabled={loadingNewGame}>
@@ -125,27 +120,28 @@ export default function FaceBoard() {
 
         {currentPlayer && (
           <>
-            <div className={styles.imageRow}>
-              {/* <FaceImageBlurred
-                key={`blur-${gameId}`}
-                imageUrl={currentPlayer.image_url}
-                guessCount={guessCount}
-                revealed={revealed}
-              /> */}
-              <FaceImageZoom
-                key={`zoom-${gameId}`}
-                imageUrl={currentPlayer.image_url}
-                guessCount={guessCount}
+            <div key={`history-${gameId}`} className={styles.historyContainer}>
+              <TeamHistoryDisplay
+                teamHistory={currentPlayer.team_history}
+                teamMap={teamMap}
+                showYears={showYears || revealed}
+                showLastTeam={showLastTeam || revealed}
                 revealed={revealed}
               />
             </div>
 
-            <FaceClueButtons
+            <TeamHistoryClueButtons
               key={currentPlayer.player}
               guessCount={guessCount}
               currentPlayer={currentPlayer}
-              teamMap={teamMap}
-              gameOver={hasWon || showPlayer}
+              gameOver={revealed}
+              onShowYears={() => setShowYears(true)}
+              onShowLastTeam={async () => {
+                const lastEntry = currentPlayer.team_history[currentPlayer.team_history.length - 1];
+                const logoUrl = teamMap.get(lastEntry.team)?.logo_url;
+                if (logoUrl) await preloadImage(getFullSizeImageUrl(logoUrl));
+                setShowLastTeam(true);
+              }}
               onClueClose={() => searchBarRef.current?.focus()}
             />
 
@@ -166,7 +162,6 @@ export default function FaceBoard() {
         <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
       )}
 
-      {/* Scrollable guess list */}
       {currentPlayer && (showPlayer || guessedPlayers.length > 0) && (
         <div className={styles.listSection}>
           <div className={styles.listInner}>
@@ -183,7 +178,7 @@ export default function FaceBoard() {
                 key={`${player.player}-${guessedPlayers.length - index}`}
                 player={player}
                 variant={
-                  player.player === currentPlayer.player ? "correct" : "incorrect"
+                  player.player === currentPlayer!.player ? "correct" : "incorrect"
                 }
                 justGuessed={index === 0 && guessRevealId > 0}
               />
@@ -193,7 +188,13 @@ export default function FaceBoard() {
       )}
 
       {currentPlayer && guessedPlayers.length >= 1 && !(hasLost || hasWon) && (
-        <GiveUpButton onGiveUp={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setShowPlayer(true); setHasLost(true); }} />
+        <GiveUpButton
+          onGiveUp={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setShowPlayer(true);
+            setHasLost(true);
+          }}
+        />
       )}
     </div>
   );

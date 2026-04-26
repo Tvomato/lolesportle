@@ -4,7 +4,7 @@ import { PlayerQuerySettings } from "@/utils/storage";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
-export async function fetchPlayerNames(settings?: PlayerQuerySettings): Promise<string[]> {
+export async function fetchPlayerNames(settings?: PlayerQuerySettings, minTeams?: number): Promise<string[]> {
   const params = new URLSearchParams();
   if (settings) {
     params.set("start_year", String(settings.start_year));
@@ -12,6 +12,9 @@ export async function fetchPlayerNames(settings?: PlayerQuerySettings): Promise<
     params.set("tourny_count", String(settings.tourny_count));
     params.set("include_retired", String(settings.include_retired));
     params.set("include_current_year", String(settings.include_current_year));
+  }
+  if (minTeams !== undefined) {
+    params.set("min_teams", String(minTeams));
   }
   const res = await fetch(`${API_BASE}/api/players?${params}`);
   if (!res.ok) throw new Error(`Failed to fetch player names: ${res.status}`);

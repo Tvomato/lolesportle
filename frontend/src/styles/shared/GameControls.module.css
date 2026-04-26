@@ -38,3 +38,9 @@
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(16, 227, 247, 0.2);
 }
+
+.loadingButton {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}

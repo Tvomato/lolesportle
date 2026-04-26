@@ -11,6 +11,7 @@ const TABS = [
   { key: "total", label: "Total" },
   { key: "classic", label: "Classic Mode" },
   { key: "face", label: "Guess by Face" },
+  { key: "team-history", label: "Team History" },
 ] as const;
 type TabKey = typeof TABS[number]["key"];
 
@@ -57,14 +58,14 @@ function ModeStatsView({ m }: { m: ModeStats }) {
   );
 }
 
-function TotalStatsView({ classic, face }: { classic: ModeStats; face: ModeStats }) {
-  const gamesPlayed = classic.gamesPlayed + face.gamesPlayed;
+function TotalStatsView({ classic, face, teamHistory }: { classic: ModeStats; face: ModeStats; teamHistory: ModeStats }) {
+  const gamesPlayed = classic.gamesPlayed + face.gamesPlayed + teamHistory.gamesPlayed;
   if (gamesPlayed === 0) {
     return <p className={styles.noData}>No games played yet.</p>;
   }
-  const wins = classic.wins + face.wins;
-  const losses = classic.losses + face.losses;
-  const totalGuesses = classic.totalGuesses + face.totalGuesses;
+  const wins = classic.wins + face.wins + teamHistory.wins;
+  const losses = classic.losses + face.losses + teamHistory.losses;
+  const totalGuesses = classic.totalGuesses + face.totalGuesses + teamHistory.totalGuesses;
   const avgG = gamesPlayed > 0 ? fmt(totalGuesses / gamesPlayed) : "—";
   const rate = gamesPlayed > 0 ? `${Math.round((wins / gamesPlayed) * 100)}%` : "—";
 
@@ -123,10 +124,11 @@ export default function StatsModal({ onClose }: StatsModalProps) {
         </div>
 
         {activeTab === "total" && (
-          <TotalStatsView classic={stats.classic} face={stats.face} />
+          <TotalStatsView classic={stats.classic} face={stats.face} teamHistory={stats["team-history"]} />
         )}
         {activeTab === "classic" && <ModeStatsView m={stats.classic} />}
         {activeTab === "face" && <ModeStatsView m={stats.face} />}
+        {activeTab === "team-history" && <ModeStatsView m={stats["team-history"]} />}
       </div>
     </div>,
     document.body

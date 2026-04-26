@@ -1,6 +1,6 @@
 import { Player } from "@/types";
 
-export type GameMode = "classic" | "face";
+export type GameMode = "classic" | "face" | "team-history";
 
 export interface PersistedGameState {
   version: number;
@@ -35,6 +35,7 @@ export interface GameStats {
   version: number;
   classic: ModeStats;
   face: ModeStats;
+  "team-history": ModeStats;
 }
 
 const GAME_STATE_VERSION = 1;
@@ -44,6 +45,7 @@ const STATS_VERSION = 1;
 const STORAGE_KEYS = {
   classic: "lolesportle_classic_game",
   face: "lolesportle_face_game",
+  "team-history": "lolesportle_teamhistory_game",
   stats: "lolesportle_stats",
   settings: "lolesportle_settings",
 } as const;
@@ -54,6 +56,7 @@ export interface PlayerQuerySettings {
   tourny_count: number;
   include_retired: boolean;
   include_current_year: boolean;
+  min_teams: number;
 }
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -64,6 +67,7 @@ export const DEFAULT_SETTINGS: PlayerQuerySettings = {
   tourny_count: 5,
   include_retired: false,
   include_current_year: true,
+  min_teams: 4,
 };
 
 export function loadSettings(): PlayerQuerySettings {
@@ -139,12 +143,17 @@ function emptyModeStats(): ModeStats {
 export function loadStats(): GameStats {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.stats);
-    if (!raw) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
+    if (!raw) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
     const parsed: GameStats = JSON.parse(raw);
-    if (parsed.version !== STATS_VERSION) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
-    return parsed;
+    if (parsed.version !== STATS_VERSION) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
+    return {
+      ...parsed,
+      classic: parsed.classic ?? emptyModeStats(),
+      face: parsed.face ?? emptyModeStats(),
+      "team-history": parsed["team-history"] ?? emptyModeStats(),
+    };
   } catch {
-    return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats() };
+    return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
   }
 }
 

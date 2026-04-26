@@ -20,7 +20,7 @@ interface SettingsModalProps {
 const CURRENT_YEAR = new Date().getFullYear();
 const MIN_YEAR = 2013;
 
-type NumericField = "start_year" | "end_year" | "tourny_count";
+type NumericField = "start_year" | "end_year" | "tourny_count" | "min_teams";
 type FieldErrors = Partial<Record<keyof PlayerQuerySettings, string>>;
 
 function validate(draft: PlayerQuerySettings): FieldErrors {
@@ -36,6 +36,9 @@ function validate(draft: PlayerQuerySettings): FieldErrors {
   }
   if (!Number.isInteger(draft.tourny_count) || draft.tourny_count < 1) {
     errors.tourny_count = "Must be at least 1";
+  }
+  if (!Number.isInteger(draft.min_teams) || draft.min_teams < 1) {
+    errors.min_teams = "Must be at least 1";
   }
 
   return errors;
@@ -120,6 +123,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     saveSettings(draft);
     clearGameState("classic");
     clearGameState("face");
+    clearGameState("team-history");
     handleClose();
   };
 
@@ -215,6 +219,24 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
             <p className={styles.hint}>
               (Players who competed in any tier 1 tournament this year, regardless of the year range and tournament count above)
             </p>
+          </div>
+
+          <div className={styles.section}>
+            <span className={styles.sectionLabel}>Team History Mode</span>
+            <NumberInput
+              id="min_teams"
+              field="min_teams"
+              label="Minimum number of teams in player history"
+              value={draft.min_teams}
+              min={1}
+              error={errors.min_teams}
+              narrow
+              onChange={setNumber}
+              onStep={stepNumber}
+            />
+            {/* <p className={styles.hint}>
+              (Only affects Team History mode — players with fewer teams than this will not appear)
+            </p> */}
           </div>
 
           <div className={styles.divider} />
