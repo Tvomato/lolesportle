@@ -156,9 +156,9 @@ async def get_players_by_tournament_count(
                 row[0]
                 for row in db.query(TeamHistory.player_name)
                 .filter(TeamHistory.player_name.in_(player_set))
-                .filter((TeamHistory.duration >= 30) | (TeamHistory.duration.is_(None)))
+                .filter((TeamHistory.duration >= 31) | (TeamHistory.duration.is_(None)))
                 .group_by(TeamHistory.player_name)
-                .having(func.count(func.distinct(TeamHistory.team)) >= min_teams)
+                .having(func.count(TeamHistory.id) >= min_teams)
                 .all()
             }
             player_set = player_set & qualifying
@@ -203,7 +203,9 @@ async def get_player_details(player_id: str, db: Session = Depends(get_db_sessio
     data["tier1_debut"] = earliest.isoformat() if earliest else None
 
     data["team_history"] = [
-        TeamHistoryEntry.model_validate(th) for th in player.team_history
+        TeamHistoryEntry.model_validate(th)
+        for th in player.team_history
+        if th.duration is None or th.duration >= 31
     ]
 
     return PlayerResponse(**data)
