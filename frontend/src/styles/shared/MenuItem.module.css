@@ -56,6 +56,19 @@
   letter-spacing: 0.3px;
 }
 
+.navigating {
+  pointer-events: none;
+}
+
+.navigating .menuCircle {
+  animation: circlePulse 0.8s ease-in-out infinite;
+}
+
+@keyframes circlePulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(16, 227, 247, 0.25); }
+  50% { box-shadow: 0 2px 20px rgba(16, 227, 247, 0.7); }
+}
+
 .disabled {
   opacity: 0.4;
   cursor: not-allowed;
