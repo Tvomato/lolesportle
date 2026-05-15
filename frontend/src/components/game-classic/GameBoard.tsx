@@ -16,11 +16,8 @@ import styles from "@/styles/game-classic/GameBoard.module.css";
 import { preloadImage } from "@/utils/playerImage";
 import { useGameState } from "@/hooks/useGameState";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
-import { usePlayMode } from "@/contexts/PlayModeContext";
 
-export default function GameBoard() {
-  const { playMode } = usePlayMode();
-  const isDaily = playMode === "daily";
+export default function GameBoard({ isDaily }: { isDaily: boolean }) {
 
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ isDaily });
   const {

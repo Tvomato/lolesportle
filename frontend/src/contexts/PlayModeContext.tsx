@@ -6,22 +6,18 @@ import { PlayMode, loadPlayMode, savePlayMode } from "@/utils/storage";
 interface PlayModeContextValue {
   playMode: PlayMode;
   setPlayMode: (mode: PlayMode) => void;
-  isMounted: boolean;
 }
 
 const PlayModeContext = createContext<PlayModeContextValue>({
-  playMode: "endless",
+  playMode: "daily",
   setPlayMode: () => {},
-  isMounted: false,
 });
 
 export function PlayModeProvider({ children }: { children: ReactNode }) {
-  const [playMode, setPlayModeState] = useState<PlayMode>("endless");
-  const [isMounted, setIsMounted] = useState(false);
+  const [playMode, setPlayModeState] = useState<PlayMode>("daily");
 
   useEffect(() => {
     setPlayModeState(loadPlayMode());
-    setIsMounted(true);
   }, []);
 
   function setPlayMode(mode: PlayMode) {
@@ -30,7 +26,7 @@ export function PlayModeProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <PlayModeContext.Provider value={{ playMode, setPlayMode, isMounted }}>
+    <PlayModeContext.Provider value={{ playMode, setPlayMode }}>
       {children}
     </PlayModeContext.Provider>
   );

@@ -8,7 +8,6 @@ import { useInitialGameData } from "@/hooks/useInitialGameData";
 import { useGameState } from "@/hooks/useGameState";
 import { loadSettings, DEFAULT_SETTINGS } from "@/utils/storage";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
-import { usePlayMode } from "@/contexts/PlayModeContext";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
@@ -20,9 +19,7 @@ import TeamHistoryDisplay from "./TeamHistoryDisplay";
 import TeamHistoryClueButtons from "./TeamHistoryClueButtons";
 import styles from "@/styles/game-teamhistory/TeamHistoryBoard.module.css";
 
-export default function TeamHistoryBoard() {
-  const { playMode } = usePlayMode();
-  const isDaily = playMode === "daily";
+export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
 
   const minTeams = isDaily ? DEFAULT_SETTINGS.min_teams : loadSettings().min_teams;
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ minTeams, isDaily });

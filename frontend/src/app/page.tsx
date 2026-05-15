@@ -14,23 +14,25 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { playMode } = usePlayMode();
 
+  const suffix = playMode === "endless" ? "/endless" : "";
+
   return (
     <div className={styles.container}>
       <p className={styles.modeLabel}>Select a mode to play:</p>
       <PlayModeToggle />
       <div className={styles.menuBox}>
         <MenuItem
-          href="/classic"
+          href={`/classic${suffix}`}
           icon={<MdPerson size={24} />}
           title="Classic Mode"
         />
         <MenuItem
-          href="/face"
+          href={`/face${suffix}`}
           icon={<MdImage size={22} />}
           title="Guess by Face"
         />
         <MenuItem
-          href="/teamhistory"
+          href={`/teamhistory${suffix}`}
           icon={<MdHistory size={22} />}
           title="Team History"
         />

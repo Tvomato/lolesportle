@@ -98,9 +98,9 @@ export function loadPlayMode(): PlayMode {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.play_mode);
     if (raw === "daily" || raw === "endless") return raw;
-    return "endless";
+    return "daily";
   } catch {
-    return "endless";
+    return "daily";
   }
 }
 

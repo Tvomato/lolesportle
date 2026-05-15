@@ -18,13 +18,10 @@ import FaceClueButtons from "./FaceClueButtons";
 import styles from "@/styles/game-face/FaceBoard.module.css";
 import { useGameState } from "@/hooks/useGameState";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
-import { usePlayMode } from "@/contexts/PlayModeContext";
 
 const GUESS_ANIMATION_MS = 600;
 
-export default function FaceBoard() {
-  const { playMode } = usePlayMode();
-  const isDaily = playMode === "daily";
+export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
 
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ isDaily });
   const {

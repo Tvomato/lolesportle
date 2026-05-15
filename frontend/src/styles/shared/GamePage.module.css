@@ -14,3 +14,9 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
+
+.modeBadge {
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.55;
+}
