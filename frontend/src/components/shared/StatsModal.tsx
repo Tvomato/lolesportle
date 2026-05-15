@@ -161,22 +161,23 @@ export default function StatsModal({ onClose, initialPlayMode = "endless" }: Sta
         onAnimationEnd={handleAnimationEnd}
       >
         <div className={styles.header}>
-          <h3 className={styles.title}>Statistics</h3>
+          <div className={styles.headerLeft}>
+            <h3 className={styles.title}>Statistics</h3>
+            <div className={styles.playModeToggle}>
+              {(["daily", "endless"] as PlayMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  className={`${styles.playModeOption} ${selectedPlayMode === mode ? styles.playModeActive : ""}`}
+                  onClick={() => setSelectedPlayMode(mode)}
+                >
+                  {mode === "daily" ? "Daily" : "Endless"}
+                </button>
+              ))}
+            </div>
+          </div>
           <button className={styles.closeButton} onClick={handleClose}>
             <MdClose size={18} />
           </button>
-        </div>
-
-        <div className={styles.playModeToggle}>
-          {(["daily", "endless"] as PlayMode[]).map((mode) => (
-            <button
-              key={mode}
-              className={`${styles.playModeOption} ${selectedPlayMode === mode ? styles.playModeActive : ""}`}
-              onClick={() => setSelectedPlayMode(mode)}
-            >
-              {mode === "daily" ? "Daily" : "Endless"}
-            </button>
-          ))}
         </div>
 
         <div className={styles.tabBarWrapper}>
