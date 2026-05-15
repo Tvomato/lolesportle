@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { GameMode, recordResult, recordDailyResult } from "@/utils/storage";
+import { GameMode, recordResult } from "@/utils/storage";
 
 export function useStatsRecording(
   mode: GameMode,
@@ -18,8 +18,7 @@ export function useStatsRecording(
   useEffect(() => {
     if (statsRecordedRef.current) return;
     if (hasWon || hasLost) {
-      const record = isDaily ? recordDailyResult : recordResult;
-      record(mode, hasWon, guessCount);
+      recordResult(mode, hasWon, guessCount, isDaily);
       statsRecordedRef.current = true;
     }
   }, [hasWon, hasLost, guessCount, mode, isDaily]);

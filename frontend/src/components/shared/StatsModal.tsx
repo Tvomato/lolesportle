@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { MdClose, MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { loadStats, loadDailyStats, ModeStats, PlayMode } from "@/utils/storage";
+import { loadStats, ModeStats, PlayMode } from "@/utils/storage";
 import { useModalAnimation } from "@/hooks/useModalAnimation";
 import styles from "@/styles/shared/StatsModal.module.css";
 
@@ -91,7 +91,7 @@ export default function StatsModal({ onClose, initialPlayMode = "endless" }: Sta
   const [activeTab, setActiveTab] = useState<TabKey>("total");
   const [selectedPlayMode, setSelectedPlayMode] = useState<PlayMode>(initialPlayMode);
 
-  const stats = selectedPlayMode === "daily" ? loadDailyStats() : loadStats();
+  const stats = loadStats(selectedPlayMode === "daily");
 
   const tabBarRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

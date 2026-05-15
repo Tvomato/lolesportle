@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { fetchPlayerDetails, fetchDailyPlayer } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { preloadImage, getFullSizeImageUrl } from "@/utils/playerImage";
@@ -8,6 +8,7 @@ import { useInitialGameData } from "@/hooks/useInitialGameData";
 import { useGameState } from "@/hooks/useGameState";
 import { loadSettings, DEFAULT_SETTINGS } from "@/utils/storage";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
+import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
@@ -102,13 +103,7 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  // Auto-start daily game when there's no saved state
-  useEffect(() => {
-    if (isDaily && !loading && !noPlayers && !currentPlayer) {
-      getDailyPlayer();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDaily, loading, noPlayers]);
+  useDailyAutoStart(isDaily, loading, noPlayers, !!currentPlayer, getDailyPlayer);
 
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;

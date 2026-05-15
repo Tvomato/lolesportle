@@ -18,6 +18,7 @@ import FaceClueButtons from "./FaceClueButtons";
 import styles from "@/styles/game-face/FaceBoard.module.css";
 import { useGameState } from "@/hooks/useGameState";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
+import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 
 const GUESS_ANIMATION_MS = 600;
 
@@ -95,13 +96,7 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  // Auto-start daily game when there's no saved state
-  useEffect(() => {
-    if (isDaily && !loading && !noPlayers && !currentPlayer) {
-      getDailyPlayer();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDaily, loading, noPlayers]);
+  useDailyAutoStart(isDaily, loading, noPlayers, !!currentPlayer, getDailyPlayer);
 
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;

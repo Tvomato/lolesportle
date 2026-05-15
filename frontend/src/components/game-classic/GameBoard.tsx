@@ -16,6 +16,7 @@ import styles from "@/styles/game-classic/GameBoard.module.css";
 import { preloadImage } from "@/utils/playerImage";
 import { useGameState } from "@/hooks/useGameState";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
+import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 
 export default function GameBoard({ isDaily }: { isDaily: boolean }) {
 
@@ -95,25 +96,13 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  // Auto-start daily game when there's no saved state
-  useEffect(() => {
-    if (isDaily && !loading && !noPlayers && !currentPlayer) {
-      getDailyPlayer();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDaily, loading, noPlayers]);
+  useDailyAutoStart(isDaily, loading, noPlayers, !!currentPlayer, getDailyPlayer);
 
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;
     pendingGuessesRef.current.add(name);
     try {
-      const raw = await fetchPlayerDetails(name);
-      const player = transformData(raw);
-      const teamLogoUrl = player.team_name ? teamMap.get(player.team_name)?.logo_url : undefined;
-      await Promise.all([
-        preloadImage(player.image_url),
-        teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve(),
-      ]);
+      const player = await loadPlayerByName(name);
       const revealedName = player.player;
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
