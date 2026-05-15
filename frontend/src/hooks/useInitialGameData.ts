@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { Team } from "@/types";
 import { fetchPlayerNames, fetchTeams } from "@/utils/api";
-import { loadSettings } from "@/utils/storage";
+import { loadSettings, DEFAULT_SETTINGS } from "@/utils/storage";
 
-export function useInitialGameData(options?: { minTeams?: number }): {
+export function useInitialGameData(options?: { minTeams?: number; isDaily?: boolean }): {
   playerNames: string[];
   teamMap: Map<string, Team>;
   loading: boolean;
@@ -19,8 +19,9 @@ export function useInitialGameData(options?: { minTeams?: number }): {
   useEffect(() => {
     const loadData = async () => {
       try {
+        const settings = options?.isDaily ? DEFAULT_SETTINGS : loadSettings();
         const [names, teams] = await Promise.all([
-          fetchPlayerNames(loadSettings(), options?.minTeams),
+          fetchPlayerNames(settings, options?.minTeams),
           fetchTeams(),
         ]);
         setPlayerNames(names);

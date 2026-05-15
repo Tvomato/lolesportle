@@ -67,6 +67,39 @@
   color: var(--color-text);
 }
 
+.playModeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.playModeOption {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease, border-color 0.2s ease;
+  padding-bottom: 2px;
+}
+
+.playModeOption:hover {
+  color: var(--color-text);
+}
+
+.playModeActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
 .tabBarWrapper {
   position: relative;
 }

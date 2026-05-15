@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { GameMode } from "@/utils/storage";
-import { recordResult } from "@/utils/storage";
+import { GameMode, recordResult, recordDailyResult } from "@/utils/storage";
 
 export function useStatsRecording(
   mode: GameMode,
   hasWon: boolean,
   hasLost: boolean,
-  guessCount: number
+  guessCount: number,
+  isDaily = false
 ): { resetStats: () => void } {
   // Starts true if restoring an already-finished game — prevents double-counting on reload
   const statsRecordedRef = useRef(hasWon || hasLost);
@@ -17,14 +17,12 @@ export function useStatsRecording(
 
   useEffect(() => {
     if (statsRecordedRef.current) return;
-    if (hasWon) {
-      recordResult(mode, true, guessCount);
-      statsRecordedRef.current = true;
-    } else if (hasLost) {
-      recordResult(mode, false, guessCount);
+    if (hasWon || hasLost) {
+      const record = isDaily ? recordDailyResult : recordResult;
+      record(mode, hasWon, guessCount);
       statsRecordedRef.current = true;
     }
-  }, [hasWon, hasLost, guessCount, mode]);
+  }, [hasWon, hasLost, guessCount, mode, isDaily]);
 
   return { resetStats };
 }

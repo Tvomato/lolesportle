@@ -1,5 +1,11 @@
 import { PlayerRaw, PlayerName, Team } from "@/types";
-import { PlayerQuerySettings } from "@/utils/storage";
+import { GameMode, PlayerQuerySettings } from "@/utils/storage";
+
+const DAILY_MODE_PATH: Record<GameMode, string> = {
+  classic: "classic",
+  face: "face",
+  "team-history": "teamhistory",
+};
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -37,4 +43,11 @@ export async function fetchTeams(): Promise<Team[]> {
   const res = await fetch(`${API_BASE}/api/teams`);
   if (!res.ok) throw new Error(`Failed to fetch teams: ${res.status}`);
   return res.json();
+}
+
+export async function fetchDailyPlayer(mode: GameMode): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/daily/${DAILY_MODE_PATH[mode]}`);
+  if (!res.ok) throw new Error(`Failed to fetch daily player: ${res.status}`);
+  const data: { player: string; game_day: string } = await res.json();
+  return data.player;
 }

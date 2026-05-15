@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchPlayerDetails } from "@/utils/api";
+import { fetchPlayerDetails, fetchDailyPlayer } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { preloadImage } from "@/utils/playerImage";
 import { useInitialGameData } from "@/hooks/useInitialGameData";
@@ -10,6 +10,7 @@ import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
 import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
 import GameOutcome from "@/components/shared/GameOutcome";
+import DailyCountdown from "@/components/shared/DailyCountdown";
 // import FaceImageBlurred from "./FaceImageBlurred";
 import FaceImageZoom from "./FaceImageZoom";
 import PlayerGuessRow from "@/components/shared/PlayerGuessRow";
@@ -17,11 +18,15 @@ import FaceClueButtons from "./FaceClueButtons";
 import styles from "@/styles/game-face/FaceBoard.module.css";
 import { useGameState } from "@/hooks/useGameState";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
+import { usePlayMode } from "@/contexts/PlayModeContext";
 
 const GUESS_ANIMATION_MS = 600;
 
 export default function FaceBoard() {
-  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData();
+  const { playMode } = usePlayMode();
+  const isDaily = playMode === "daily";
+
+  const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ isDaily });
   const {
     currentPlayer,
     guessedPlayers,
@@ -34,7 +39,7 @@ export default function FaceBoard() {
     setShowPlayer,
     setHasLost,
     resetGame,
-  } = useGameState("face");
+  } = useGameState("face", isDaily);
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
   const [loadingNewGame, setLoadingNewGame] = useState(false);
@@ -45,7 +50,7 @@ export default function FaceBoard() {
     ? guessedPlayers.some((p) => p.player === currentPlayer.player)
     : false;
 
-  const { resetStats } = useStatsRecording("face", hasWon, hasLost, guessedPlayers.length);
+  const { resetStats } = useStatsRecording("face", hasWon, hasLost, guessedPlayers.length, isDaily);
 
   useEffect(() => {
     if (!hasWon) return;
@@ -63,13 +68,10 @@ export default function FaceBoard() {
     if (playerNames.length === 0) return;
     setLoadingNewGame(true);
     try {
-      const randomName =
-        playerNames[Math.floor(Math.random() * playerNames.length)];
+      const randomName = playerNames[Math.floor(Math.random() * playerNames.length)];
       const raw = await fetchPlayerDetails(randomName);
       const player = transformData(raw);
-
       await preloadImage(player.image_url);
-
       resetStats();
       resetGame();
       setCurrentPlayer(player);
@@ -82,21 +84,39 @@ export default function FaceBoard() {
     }
   };
 
+  const getDailyPlayer = async () => {
+    try {
+      const name = await fetchDailyPlayer("face");
+      const raw = await fetchPlayerDetails(name);
+      const player = transformData(raw);
+      await preloadImage(player.image_url);
+      setCurrentPlayer(player);
+      setGuessRevealId(0);
+      setGameId((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error fetching daily player:", error);
+    }
+  };
+
+  // Auto-start daily game when there's no saved state
+  useEffect(() => {
+    if (isDaily && !loading && !noPlayers && !currentPlayer) {
+      getDailyPlayer();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDaily, loading, noPlayers]);
+
   const handleAddPlayer = async (name: string) => {
     if (guessedRawNames.has(name) || pendingGuessesRef.current.has(name)) return;
     pendingGuessesRef.current.add(name);
     try {
       const raw = await fetchPlayerDetails(name);
       const player = transformData(raw);
-      const teamLogoUrl = player.team_name
-        ? teamMap.get(player.team_name)?.logo_url
-        : undefined;
-
+      const teamLogoUrl = player.team_name ? teamMap.get(player.team_name)?.logo_url : undefined;
       await Promise.all([
         preloadImage(player.image_url),
         teamLogoUrl ? preloadImage(teamLogoUrl) : Promise.resolve(),
       ]);
-
       setGuessedPlayers((prev) => [player, ...prev]);
       setGuessedRawNames((prev) => new Set(prev).add(name));
       setGuessRevealId((prev) => prev + 1);
@@ -117,7 +137,7 @@ export default function FaceBoard() {
     <div className={styles.gameContainer}>
       {/* Top section: images, clues, search, victory */}
       <div className={styles.topSection}>
-        {!currentPlayer && (
+        {!currentPlayer && !isDaily && (
           <button className={styles.startButton} onClick={getNewPlayer} disabled={loadingNewGame}>
             {loadingNewGame ? "LOADING..." : "START GAME"}
           </button>
@@ -163,7 +183,7 @@ export default function FaceBoard() {
       </div>
 
       {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
-        <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
+        isDaily ? <DailyCountdown /> : <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
       )}
 
       {/* Scrollable guess list */}

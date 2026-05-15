@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/shared/Header";
+import { PlayModeProvider } from "@/contexts/PlayModeContext";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.className}>
-        <Header />
-        <main>{children}</main>
+        <PlayModeProvider>
+          <Header />
+          <main>{children}</main>
+        </PlayModeProvider>
       </body>
     </html>
   );

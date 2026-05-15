@@ -21,8 +21,8 @@ export interface GameState {
   resetGame: () => void;
 }
 
-export function useGameState(mode: GameMode): GameState {
-  const persisted = loadGameState(mode);
+export function useGameState(mode: GameMode, isDaily = false): GameState {
+  const persisted = loadGameState(mode, isDaily);
 
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(
     persisted?.currentPlayer ?? null
@@ -43,11 +43,11 @@ export function useGameState(mode: GameMode): GameState {
   // Persist whenever game state changes
   useEffect(() => {
     if (!currentPlayer) return;
-    saveGameState(mode, { currentPlayer, guessedPlayers, guessedRawNames, showPlayer, hasLost });
-  }, [mode, currentPlayer, guessedPlayers, showPlayer, hasLost]);
+    saveGameState(mode, { currentPlayer, guessedPlayers, guessedRawNames, showPlayer, hasLost }, isDaily);
+  }, [mode, isDaily, currentPlayer, guessedPlayers, showPlayer, hasLost]);
 
   function resetGame() {
-    clearGameState(mode);
+    clearGameState(mode, isDaily);
     setCurrentPlayer(null);
     setGuessedPlayers([]);
     setGuessedRawNames(new Set());

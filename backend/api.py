@@ -1,10 +1,11 @@
+import hashlib
 from fastapi import FastAPI, HTTPException, Query, Depends
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session, selectinload
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict
-from typing import Generator, List, Optional
-from datetime import date
+from typing import Generator, List, Optional, Set
+from datetime import date, datetime, timezone, timedelta
 from db_config import get_db
 from create_skeletons import Player, Team, Tournament, player_tournament, TeamHistory
 
@@ -261,6 +262,95 @@ async def get_all_tournaments(db: Session = Depends(get_db_session)):
         return [TournamentResponse.model_validate(t) for t in tournaments]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+# --- Daily mode helpers ---
+
+def _get_game_day() -> str:
+    # Daily reset at 3 AM EST = 08:00 UTC. Subtract 8h so the date flips at that moment.
+    return (datetime.now(timezone.utc) - timedelta(hours=8)).date().isoformat()
+
+
+def _daily_seed(mode: str) -> int:
+    key = f"{_get_game_day()}-{mode}"
+    return int(hashlib.md5(key.encode()).hexdigest(), 16)
+
+
+def _default_player_pool(db: Session, min_teams: int = 0) -> List[str]:
+    """Return sorted player names using hardcoded default settings."""
+    today = date.today()
+    start_year = today.year - 4
+    end_year = today.year
+    tourny_count = 5
+
+    base_query = (
+        db.query(Player.player)
+        .join(player_tournament, Player.player == player_tournament.c.player_name)
+        .join(Tournament, player_tournament.c.tournament_name == Tournament.name)
+        .filter(Player.team_name.isnot(None))
+    )
+
+    count_query = (
+        base_query.filter(Tournament.year >= start_year, Tournament.year <= end_year)
+        .group_by(Player.player)
+        .having(func.count(func.distinct(Tournament.name)) >= tourny_count)
+    )
+    player_set: Set[str] = {row[0] for row in count_query.all()}
+
+    # include_current_year=True: add all tier-1 active players from this year
+    current_year_query = (
+        base_query.filter(Tournament.date_start.isnot(None))
+        .filter(func.extract("year", Tournament.date_start) == today.year)
+        .group_by(Player.player)
+    )
+    for row in current_year_query.all():
+        player_set.add(row[0])
+
+    if min_teams > 0:
+        qualifying = {
+            row[0]
+            for row in db.query(TeamHistory.player_name)
+            .filter(TeamHistory.player_name.in_(player_set))
+            .filter((TeamHistory.duration >= 31) | (TeamHistory.duration.is_(None)))
+            .group_by(TeamHistory.player_name)
+            .having(func.count(TeamHistory.id) >= min_teams)
+            .all()
+        }
+        player_set = player_set & qualifying
+
+    return sorted(player_set)
+
+
+class DailyPlayerResponse(BaseModel):
+    player: str
+    game_day: str
+
+
+@app.get("/api/daily/classic", response_model=DailyPlayerResponse, summary="Get today's Classic daily player")
+async def get_daily_classic(db: Session = Depends(get_db_session)):
+    players = _default_player_pool(db, min_teams=0)
+    if not players:
+        raise HTTPException(status_code=404, detail="No players available")
+    seed = _daily_seed("classic")
+    return DailyPlayerResponse(player=players[seed % len(players)], game_day=_get_game_day())
+
+
+@app.get("/api/daily/face", response_model=DailyPlayerResponse, summary="Get today's Face daily player")
+async def get_daily_face(db: Session = Depends(get_db_session)):
+    players = _default_player_pool(db, min_teams=0)
+    if not players:
+        raise HTTPException(status_code=404, detail="No players available")
+    seed = _daily_seed("face")
+    return DailyPlayerResponse(player=players[seed % len(players)], game_day=_get_game_day())
+
+
+@app.get("/api/daily/teamhistory", response_model=DailyPlayerResponse, summary="Get today's Team History daily player")
+async def get_daily_teamhistory(db: Session = Depends(get_db_session)):
+    players = _default_player_pool(db, min_teams=4)
+    if not players:
+        raise HTTPException(status_code=404, detail="No players available")
+    seed = _daily_seed("teamhistory")
+    return DailyPlayerResponse(player=players[seed % len(players)], game_day=_get_game_day())
 
 
 # Health check endpoint

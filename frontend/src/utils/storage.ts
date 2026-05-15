@@ -1,6 +1,7 @@
 import { Player } from "@/types";
 
 export type GameMode = "classic" | "face" | "team-history";
+export type PlayMode = "daily" | "endless";
 
 export interface PersistedGameState {
   version: number;
@@ -39,15 +40,20 @@ export interface GameStats {
 }
 
 const GAME_STATE_VERSION = 1;
-const GAME_STATE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const GAME_STATE_TTL_MS = 30 * 60 * 1000; // 30 minutes (endless only)
 const STATS_VERSION = 1;
 
 const STORAGE_KEYS = {
   classic: "lolesportle_classic_game",
   face: "lolesportle_face_game",
   "team-history": "lolesportle_teamhistory_game",
+  classic_daily: "lolesportle_classic_daily_game",
+  face_daily: "lolesportle_face_daily_game",
+  "team-history_daily": "lolesportle_teamhistory_daily_game",
   stats: "lolesportle_stats",
+  daily_stats: "lolesportle_daily_stats",
   settings: "lolesportle_settings",
+  play_mode: "lolesportle_play_mode",
 } as const;
 
 export interface PlayerQuerySettings {
@@ -88,24 +94,68 @@ export function saveSettings(s: PlayerQuerySettings): void {
   }
 }
 
-export function loadGameState(mode: GameMode): PersistedGameState | null {
+export function loadPlayMode(): PlayMode {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS[mode]);
+    const raw = localStorage.getItem(STORAGE_KEYS.play_mode);
+    if (raw === "daily" || raw === "endless") return raw;
+    return "endless";
+  } catch {
+    return "endless";
+  }
+}
+
+export function savePlayMode(mode: PlayMode): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.play_mode, mode);
+  } catch {
+    // ignore
+  }
+}
+
+/** Returns the current "game day" string (YYYY-MM-DD) using 3 AM EST = 08:00 UTC as the boundary. */
+function getCurrentGameDay(): string {
+  const shifted = new Date(Date.now() - 8 * 60 * 60 * 1000);
+  return shifted.toISOString().slice(0, 10);
+}
+
+function getDailyKey(mode: GameMode): string {
+  return STORAGE_KEYS[`${mode}_daily` as keyof typeof STORAGE_KEYS];
+}
+
+export function loadGameState(mode: GameMode, isDaily = false): PersistedGameState | null {
+  try {
+    const key = isDaily ? getDailyKey(mode) : STORAGE_KEYS[mode];
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed: PersistedGameState = JSON.parse(raw);
     if (parsed.version !== GAME_STATE_VERSION) return null;
-    if (Date.now() - new Date(parsed.savedAt).getTime() > GAME_STATE_TTL_MS) {
-      localStorage.removeItem(STORAGE_KEYS[mode]);
-      return null;
+
+    if (isDaily) {
+      // Daily: stale if the saved game day differs from today's game day
+      const savedGameDay = new Date(new Date(parsed.savedAt).getTime() - 8 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10);
+      if (savedGameDay !== getCurrentGameDay()) {
+        localStorage.removeItem(key);
+        return null;
+      }
+    } else {
+      // Endless: 30-minute TTL
+      if (Date.now() - new Date(parsed.savedAt).getTime() > GAME_STATE_TTL_MS) {
+        localStorage.removeItem(key);
+        return null;
+      }
     }
+
     return parsed;
   } catch {
     return null;
   }
 }
 
-export function saveGameState(mode: GameMode, state: Omit<PersistedGameState, "version" | "mode" | "savedAt" | "guessedRawNames"> & { guessedRawNames: Set<string> }): void {
+export function saveGameState(mode: GameMode, state: Omit<PersistedGameState, "version" | "mode" | "savedAt" | "guessedRawNames"> & { guessedRawNames: Set<string> }, isDaily = false): void {
   try {
+    const key = isDaily ? getDailyKey(mode) : STORAGE_KEYS[mode];
     const payload: PersistedGameState = {
       ...state,
       guessedRawNames: Array.from(state.guessedRawNames),
@@ -113,15 +163,16 @@ export function saveGameState(mode: GameMode, state: Omit<PersistedGameState, "v
       mode,
       savedAt: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEYS[mode], JSON.stringify(payload));
+    localStorage.setItem(key, JSON.stringify(payload));
   } catch {
     // Silently ignore storage errors (e.g. private browsing quota exceeded)
   }
 }
 
-export function clearGameState(mode: GameMode): void {
+export function clearGameState(mode: GameMode, isDaily = false): void {
   try {
-    localStorage.removeItem(STORAGE_KEYS[mode]);
+    const key = isDaily ? getDailyKey(mode) : STORAGE_KEYS[mode];
+    localStorage.removeItem(key);
   } catch {
     // ignore
   }
@@ -140,12 +191,16 @@ function emptyModeStats(): ModeStats {
   };
 }
 
+function emptyGameStats(): GameStats {
+  return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
+}
+
 export function loadStats(): GameStats {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.stats);
-    if (!raw) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
+    if (!raw) return emptyGameStats();
     const parsed: GameStats = JSON.parse(raw);
-    if (parsed.version !== STATS_VERSION) return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
+    if (parsed.version !== STATS_VERSION) return emptyGameStats();
     return {
       ...parsed,
       classic: parsed.classic ?? emptyModeStats(),
@@ -153,7 +208,7 @@ export function loadStats(): GameStats {
       "team-history": parsed["team-history"] ?? emptyModeStats(),
     };
   } catch {
-    return { version: STATS_VERSION, classic: emptyModeStats(), face: emptyModeStats(), "team-history": emptyModeStats() };
+    return emptyGameStats();
   }
 }
 
@@ -165,10 +220,44 @@ export function saveStats(stats: GameStats): void {
   }
 }
 
+export function loadDailyStats(): GameStats {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.daily_stats);
+    if (!raw) return emptyGameStats();
+    const parsed: GameStats = JSON.parse(raw);
+    if (parsed.version !== STATS_VERSION) return emptyGameStats();
+    return {
+      ...parsed,
+      classic: parsed.classic ?? emptyModeStats(),
+      face: parsed.face ?? emptyModeStats(),
+      "team-history": parsed["team-history"] ?? emptyModeStats(),
+    };
+  } catch {
+    return emptyGameStats();
+  }
+}
+
+export function saveDailyStats(stats: GameStats): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.daily_stats, JSON.stringify(stats));
+  } catch {
+    // ignore
+  }
+}
+
 export function recordResult(mode: GameMode, won: boolean, guesses: number): void {
   const stats = loadStats();
-  const m = stats[mode];
+  _applyResult(stats[mode], won, guesses);
+  saveStats(stats);
+}
 
+export function recordDailyResult(mode: GameMode, won: boolean, guesses: number): void {
+  const stats = loadDailyStats();
+  _applyResult(stats[mode], won, guesses);
+  saveDailyStats(stats);
+}
+
+function _applyResult(m: ModeStats, won: boolean, guesses: number): void {
   m.gamesPlayed++;
   m.totalGuesses += guesses;
   m.guessCounts[String(guesses)] = (m.guessCounts[String(guesses)] ?? 0) + 1;
@@ -184,6 +273,4 @@ export function recordResult(mode: GameMode, won: boolean, guesses: number): voi
     m.losses++;
     m.currentStreak = 0;
   }
-
-  saveStats(stats);
 }

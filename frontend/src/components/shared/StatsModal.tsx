@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { MdClose, MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { loadStats, ModeStats } from "@/utils/storage";
+import { loadStats, loadDailyStats, ModeStats, PlayMode } from "@/utils/storage";
 import { useModalAnimation } from "@/hooks/useModalAnimation";
 import styles from "@/styles/shared/StatsModal.module.css";
 
@@ -17,6 +17,7 @@ type TabKey = typeof TABS[number]["key"];
 
 interface StatsModalProps {
   onClose: () => void;
+  initialPlayMode?: PlayMode;
 }
 
 function winRate(m: ModeStats): string {
@@ -85,10 +86,12 @@ function TotalStatsView({ classic, face, teamHistory }: { classic: ModeStats; fa
   );
 }
 
-export default function StatsModal({ onClose }: StatsModalProps) {
+export default function StatsModal({ onClose, initialPlayMode = "endless" }: StatsModalProps) {
   const { closing, handleClose, handleAnimationEnd } = useModalAnimation(onClose);
   const [activeTab, setActiveTab] = useState<TabKey>("total");
-  const stats = loadStats();
+  const [selectedPlayMode, setSelectedPlayMode] = useState<PlayMode>(initialPlayMode);
+
+  const stats = selectedPlayMode === "daily" ? loadDailyStats() : loadStats();
 
   const tabBarRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -164,6 +167,18 @@ export default function StatsModal({ onClose }: StatsModalProps) {
           </button>
         </div>
 
+        <div className={styles.playModeToggle}>
+          {(["daily", "endless"] as PlayMode[]).map((mode) => (
+            <button
+              key={mode}
+              className={`${styles.playModeOption} ${selectedPlayMode === mode ? styles.playModeActive : ""}`}
+              onClick={() => setSelectedPlayMode(mode)}
+            >
+              {mode === "daily" ? "Daily" : "Endless"}
+            </button>
+          ))}
+        </div>
+
         <div className={styles.tabBarWrapper}>
           {canScrollLeft && <div className={`${styles.fadeEdge} ${styles.fadeEdgeLeft}`} />}
           {canScrollRight && <div className={`${styles.fadeEdge} ${styles.fadeEdgeRight}`} />}
@@ -171,7 +186,7 @@ export default function StatsModal({ onClose }: StatsModalProps) {
             {TABS.map((tab) => (
               <button
                 key={tab.key}
-className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ""}`}
+                className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ""}`}
                 onClick={(e) => {
                   setActiveTab(tab.key);
                   scrollTabIntoView(e.currentTarget);

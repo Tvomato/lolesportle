@@ -151,6 +151,8 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           </button>
         </div>
 
+        <p className={styles.endlessOnlyNote}>Settings only apply to Endless mode</p>
+
         <div className={styles.body}>
           <div className={styles.section}>
             <span className={styles.sectionLabel}>Year Range</span>

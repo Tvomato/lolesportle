@@ -5,15 +5,19 @@ import { MdPerson, MdImage, MdHistory, MdMoreHoriz, MdSettings, MdBarChart } fro
 import MenuItem from "@/components/shared/MenuItem";
 import StatsModal from "@/components/shared/StatsModal";
 import SettingsModal from "@/components/shared/SettingsModal";
+import PlayModeToggle from "@/components/shared/PlayModeToggle";
+import { usePlayMode } from "@/contexts/PlayModeContext";
 import styles from "@/styles/shared/Home.module.css";
 
 export default function Home() {
   const [statsOpen, setStatsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { playMode } = usePlayMode();
 
   return (
     <div className={styles.container}>
       <p className={styles.modeLabel}>Select a mode to play:</p>
+      <PlayModeToggle />
       <div className={styles.menuBox}>
         <MenuItem
           href="/classic"
@@ -48,7 +52,7 @@ export default function Home() {
         </button>
       </div>
 
-      {statsOpen && <StatsModal onClose={() => setStatsOpen(false)} />}
+      {statsOpen && <StatsModal onClose={() => setStatsOpen(false)} initialPlayMode={playMode} />}
       {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </div>
   );
