@@ -21,7 +21,6 @@ import TeamHistoryClueButtons from "./TeamHistoryClueButtons";
 import styles from "@/styles/game-teamhistory/TeamHistoryBoard.module.css";
 
 export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
-
   const minTeams = isDaily ? DEFAULT_SETTINGS.min_teams : loadSettings().min_teams;
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ minTeams, isDaily });
   const {
@@ -42,6 +41,8 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
   const [showYears, setShowYears] = useState(false);
   const [showLastTeam, setShowLastTeam] = useState(false);
   const [loadingNewGame, setLoadingNewGame] = useState(false);
+  const [loadingDailyPlayer, setLoadingDailyPlayer] = useState(false);
+  const [dailyError, setDailyError] = useState(false);
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
 
@@ -90,6 +91,8 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
   };
 
   const getDailyPlayer = async () => {
+    setLoadingDailyPlayer(true);
+    setDailyError(false);
     try {
       const name = await fetchDailyPlayer("team-history");
       const raw = await fetchPlayerDetails(name);
@@ -100,6 +103,9 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
       setGameId((prev) => prev + 1);
     } catch (error) {
       console.error("Error fetching daily player:", error);
+      setDailyError(true);
+    } finally {
+      setLoadingDailyPlayer(false);
     }
   };
 
@@ -122,7 +128,7 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  if (loading) return <GameLoadingSpinner />;
+  if (loading || loadingDailyPlayer) return <GameLoadingSpinner />;
   if (noPlayers) return <NoPlayersMessage />;
 
   const revealed = hasWon || showPlayer;
@@ -135,6 +141,12 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
           <button className={styles.startButton} onClick={getNewPlayer} disabled={loadingNewGame}>
             {loadingNewGame ? "LOADING..." : "START GAME"}
           </button>
+        )}
+        {isDaily && dailyError && !currentPlayer && (
+          <>
+            <p className={styles.errorText}>Failed to load today&apos;s player.</p>
+            <button className={styles.retryButton} onClick={getDailyPlayer}>TRY AGAIN</button>
+          </>
         )}
 
         {currentPlayer && (

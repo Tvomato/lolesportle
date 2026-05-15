@@ -23,7 +23,6 @@ import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 const GUESS_ANIMATION_MS = 600;
 
 export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
-
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ isDaily });
   const {
     currentPlayer,
@@ -41,6 +40,8 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
   const [guessRevealId, setGuessRevealId] = useState(0);
   const [gameId, setGameId] = useState(0);
   const [loadingNewGame, setLoadingNewGame] = useState(false);
+  const [loadingDailyPlayer, setLoadingDailyPlayer] = useState(false);
+  const [dailyError, setDailyError] = useState(false);
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
 
@@ -83,6 +84,8 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
   };
 
   const getDailyPlayer = async () => {
+    setLoadingDailyPlayer(true);
+    setDailyError(false);
     try {
       const name = await fetchDailyPlayer("face");
       const raw = await fetchPlayerDetails(name);
@@ -93,6 +96,9 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
       setGameId((prev) => prev + 1);
     } catch (error) {
       console.error("Error fetching daily player:", error);
+      setDailyError(true);
+    } finally {
+      setLoadingDailyPlayer(false);
     }
   };
 
@@ -119,7 +125,7 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  if (loading) return <GameLoadingSpinner />;
+  if (loading || loadingDailyPlayer) return <GameLoadingSpinner />;
   if (noPlayers) return <NoPlayersMessage />;
 
   const revealed = hasWon || showPlayer;
@@ -133,6 +139,12 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
           <button className={styles.startButton} onClick={getNewPlayer} disabled={loadingNewGame}>
             {loadingNewGame ? "LOADING..." : "START GAME"}
           </button>
+        )}
+        {isDaily && dailyError && !currentPlayer && (
+          <>
+            <p className={styles.errorText}>Failed to load today&apos;s player.</p>
+            <button className={styles.retryButton} onClick={getDailyPlayer}>TRY AGAIN</button>
+          </>
         )}
 
         {currentPlayer && (

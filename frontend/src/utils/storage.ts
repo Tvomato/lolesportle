@@ -232,11 +232,11 @@ export function saveStats(stats: GameStats, isDaily = false): void {
 
 export function recordResult(mode: GameMode, won: boolean, guesses: number, isDaily = false): void {
   const stats = loadStats(isDaily);
-  _applyResult(stats[mode], won, guesses);
+  applyResult(stats[mode], won, guesses);
   saveStats(stats, isDaily);
 }
 
-function _applyResult(m: ModeStats, won: boolean, guesses: number): void {
+function applyResult(m: ModeStats, won: boolean, guesses: number): void {
   m.gamesPlayed++;
   m.totalGuesses += guesses;
   m.guessCounts[String(guesses)] = (m.guessCounts[String(guesses)] ?? 0) + 1;

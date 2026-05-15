@@ -19,7 +19,6 @@ import { useStatsRecording } from "@/hooks/useStatsRecording";
 import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 
 export default function GameBoard({ isDaily }: { isDaily: boolean }) {
-
   const { playerNames, teamMap, loading, noPlayers } = useInitialGameData({ isDaily });
   const {
     currentPlayer,
@@ -37,6 +36,8 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
     resetGame,
   } = useGameState("classic", isDaily);
   const [guessRevealId, setGuessRevealId] = useState(0);
+  const [loadingDailyPlayer, setLoadingDailyPlayer] = useState(false);
+  const [dailyError, setDailyError] = useState(false);
   const pendingGuessesRef = useRef(new Set<string>());
   const searchBarRef = useRef<SearchBarHandle>(null);
 
@@ -86,6 +87,8 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
   };
 
   const getDailyPlayer = async () => {
+    setLoadingDailyPlayer(true);
+    setDailyError(false);
     try {
       const name = await fetchDailyPlayer("classic");
       const player = await loadPlayerByName(name);
@@ -93,6 +96,9 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
       setGuessRevealId(0);
     } catch (error) {
       console.error("Error fetching daily player:", error);
+      setDailyError(true);
+    } finally {
+      setLoadingDailyPlayer(false);
     }
   };
 
@@ -117,7 +123,7 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
     }
   };
 
-  if (loading) return <GameLoadingSpinner />;
+  if (loading || loadingDailyPlayer) return <GameLoadingSpinner />;
   if (noPlayers) return <NoPlayersMessage />;
 
   return (
@@ -128,6 +134,12 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
           <button className={styles.startButton} onClick={getNewPlayer}>
             START GAME
           </button>
+        )}
+        {isDaily && dailyError && !currentPlayer && (
+          <>
+            <p className={styles.errorText}>Failed to load today&apos;s player.</p>
+            <button className={styles.retryButton} onClick={getDailyPlayer}>TRY AGAIN</button>
+          </>
         )}
 
         {currentPlayer && (
