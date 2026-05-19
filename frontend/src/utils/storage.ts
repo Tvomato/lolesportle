@@ -112,6 +112,22 @@ export function savePlayMode(mode: PlayMode): void {
   }
 }
 
+export function loadColorblindMode(): boolean {
+  try {
+    return localStorage.getItem("lolesportle_colorblind") === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function saveColorblindMode(enabled: boolean): void {
+  try {
+    localStorage.setItem("lolesportle_colorblind", String(enabled));
+  } catch {
+    // ignore
+  }
+}
+
 /** Returns the current "game day" string (YYYY-MM-DD) using 3 AM EST = 08:00 UTC as the boundary. */
 function getCurrentGameDay(): string {
   const shifted = new Date(Date.now() - 8 * 60 * 60 * 1000);

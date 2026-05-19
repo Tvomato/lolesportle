@@ -16,6 +16,19 @@
   --color-guess-partial: #db8f13;
   --color-guess-neutral: #4d4d4d;
   --color-guess-player: #256ecd;
+
+  /* Guess feedback colors for colorblind mode */
+  --color-guess-correct-colorblind: #009E73;
+  --color-guess-incorrect-colorblind: #D55E00;
+  --color-guess-partial-colorblind: #E69F00;
+  --color-guess-player-colorblind: #0072B2;
+}
+
+body.colorblind {
+  --color-guess-correct: var(--color-guess-correct-colorblind);
+  --color-guess-incorrect: var(--color-guess-incorrect-colorblind);
+  --color-guess-partial: var(--color-guess-partial-colorblind);
+  --color-guess-player: var(--color-guess-player-colorblind);
 }
 
 body {

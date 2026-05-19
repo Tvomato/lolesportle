@@ -10,6 +10,7 @@ import {
   DEFAULT_SETTINGS,
   PlayerQuerySettings,
 } from "@/utils/storage";
+import { useColorblind } from "@/contexts/ColorblindContext";
 import { useModalAnimation } from "@/hooks/useModalAnimation";
 import styles from "@/styles/shared/SettingsModal.module.css";
 
@@ -95,6 +96,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   const { closing, handleClose, handleAnimationEnd } = useModalAnimation(onClose);
   const [draft, setDraft] = useState<PlayerQuerySettings>(() => loadSettings());
   const [errors, setErrors] = useState<FieldErrors>({});
+  const { colorblindMode, setColorblindMode } = useColorblind();
 
   const setNumber = (field: NumericField, raw: string) => {
     const val = raw === "" ? NaN : parseInt(raw, 10);
@@ -151,9 +153,27 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           </button>
         </div>
 
-        <p className={styles.endlessOnlyNote}>Settings only apply to Endless mode</p>
-
         <div className={styles.body}>
+          <div className={styles.section}>
+            <span className={styles.sectionLabel}>Accessibility</span>
+            <label className={styles.toggleRow}>
+              <span className={styles.toggleLabel}>Colorblind mode</span>
+              <span className={styles.toggle}>
+                <input
+                  type="checkbox"
+                  className={styles.toggleInput}
+                  checked={colorblindMode}
+                  onChange={(e) => setColorblindMode(e.target.checked)}
+                />
+                <span className={styles.toggleTrack} />
+              </span>
+            </label>
+          </div>
+
+          <div className={styles.divider} />
+
+          <p className={styles.endlessOnlyNote} style={{ margin: 0 }}>Settings below only apply to Endless mode</p>
+
           <div className={styles.section}>
             <span className={styles.sectionLabel}>Year Range</span>
             <div className={styles.row}>
