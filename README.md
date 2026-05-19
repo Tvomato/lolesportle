@@ -2,6 +2,8 @@
 
 League-of-Legends-Esports-Player-Guessing-Gamedle (or Lolesportle for short) is a guessing game centered around guessing a mystery League of Legends pro player, in a style similar to the popular web-based word game `Wordle`. The game will feature a hidden player you must guess, where each additional guess provides more hints to help you narrow down your options.
 
+Lolesportle is available at [lolesportle.vercel.app](https://lolesportle.vercel.app/). There is a daily mode and an endless mode, the latter of which features extended customization.
+
 The dataset used includes any player (and subsequently their corresponding team) who has played in any major region split (NA LCS / LCS / LTA North, EU LCS / LEC, Champions / LCK, LPL) or an international tournament (First Stand, MSI, Worlds) since 2013. By default, the pool of available players for the game includes any who has played at least 3 splits or international tournaments since 2021 and is currently on a team. 
 
 Notes:
@@ -35,17 +37,17 @@ Follow these steps to install and run this project locally:
   ```
 5. Install NPM packages for the frontend
   ```sh
-  cd ../frontend
+  cd frontend
   npm install
   ```
 6. Start the FastAPI backend server
   ```sh
-  cd ../backend
+  # (In the /backend/ directory)
   uvicorn api:app --reload --port 8000
   ```
 7. Start the Next.js frontend dev server
   ```sh
-  cd ../frontend
+  # (In the /frontend/ directory)
   npm run dev
   ```
 
@@ -70,7 +72,7 @@ Yellow color legend:
 * Worlds Appearances: The mystery player's worlds appearances count is within 2
 * Tournaments Played: The mystery player's tournament participation count is within 5
 
-## Screenshots
+## Screenshots (outdated)
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/621ca7e0-d41f-47ab-956e-3d3b1604206e" />
 ---
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/08413035-4aa5-4904-ac1f-b5bdf7318814" />
@@ -78,9 +80,3 @@ Yellow color legend:
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a7966c52-e283-4066-b734-576f36eaade9" />
 ---
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9f382930-ae71-4275-a896-46e5437848f8" />
-
-## TODO
-* Add new gamemodes (tbd)
-* Allow customizing pool of players chosen in settings (the FastAPI endpoint supports `start_year`, `end_year`, `tourny_count`, and `include_retired` query params)
-* Keep track of game statistics and keep progress on refresh
-* Host site online
