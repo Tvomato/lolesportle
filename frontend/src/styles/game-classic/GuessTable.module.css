@@ -63,6 +63,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   word-break: break-word;
   padding: 4px;
+  position: relative;
 }
 
 /* Player cell — no padding so image fills edge-to-edge */
@@ -110,6 +111,34 @@
   height: 55px;
   object-fit: contain;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+
+.cellTooltip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px;
+  opacity: 0;
+  overflow: hidden;
+  user-select: text;
+  cursor: text;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.3;
+  border-radius: 0 0 8px 8px;
+  text-shadow: none;
+}
+
+.cell:hover .cellTooltip,
+.flipBack:hover .cellTooltip {
+  opacity: 1;
 }
 
 /* Age / trophies / worlds / tournaments cells with arrow overlay */

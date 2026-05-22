@@ -54,6 +54,10 @@ export default function GuessTable({
             ? NEUTRAL_BG
             : (getCellStyle(column, player, currentPlayer, teamMap)
                 .backgroundColor as string);
+          const teamTooltip =
+            column === "team_name" && player.team_name
+              ? player.team_name.split(" (")[0]
+              : null;
           return (
             <FlipCell
               key={column}
@@ -67,6 +71,9 @@ export default function GuessTable({
                   player
                 )}
               </AutoFit>
+              {teamTooltip && (
+                <span className={styles.cellTooltip}>{teamTooltip}</span>
+              )}
             </FlipCell>
           );
         })}
