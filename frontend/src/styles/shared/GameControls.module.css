@@ -44,3 +44,64 @@
   cursor: not-allowed;
   transform: none !important;
 }
+
+.dailyGameOverWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.nextModeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.nextModeLabel {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.nextModeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.nextModeButton:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(16, 227, 247, 0.25);
+  transform: translateY(-2px);
+}
+
+.nextModeButton:active {
+  transform: translateY(0);
+}
+
+.nextModeIcon {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+  font-size: 18px;
+}

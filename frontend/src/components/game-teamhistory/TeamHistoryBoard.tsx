@@ -10,11 +10,11 @@ import { loadSettings, DEFAULT_SETTINGS } from "@/utils/storage";
 import { useStatsRecording } from "@/hooks/useStatsRecording";
 import { useDailyAutoStart } from "@/hooks/useDailyAutoStart";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
-import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
+import { MdPerson } from "react-icons/md";
+import { NewGameButton, GiveUpButton, DailyGameOverControls } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
 import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
 import GameOutcome from "@/components/shared/GameOutcome";
-import DailyCountdown from "@/components/shared/DailyCountdown";
 import PlayerGuessRow from "@/components/shared/PlayerGuessRow";
 import TeamHistoryDisplay from "./TeamHistoryDisplay";
 import TeamHistoryClueButtons from "./TeamHistoryClueButtons";
@@ -190,7 +190,7 @@ export default function TeamHistoryBoard({ isDaily }: { isDaily: boolean }) {
       </div>
 
       {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
-        isDaily ? <DailyCountdown /> : <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
+        isDaily ? <DailyGameOverControls nextHref="/classic" nextLabel="Classic" nextIcon={<MdPerson />} /> : <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
       )}
 
       {currentPlayer && (showPlayer || guessedPlayers.length > 0) && (

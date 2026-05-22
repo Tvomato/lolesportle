@@ -4,12 +4,12 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { fetchPlayerDetails, fetchDailyPlayer } from "@/utils/api";
 import { transformData } from "@/utils/transformData";
 import { useInitialGameData } from "@/hooks/useInitialGameData";
-import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
+import { MdImage } from "react-icons/md";
+import { NewGameButton, GiveUpButton, DailyGameOverControls } from "@/components/shared/GameControls";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
 import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
 import GameOutcome from "@/components/shared/GameOutcome";
-import DailyCountdown from "@/components/shared/DailyCountdown";
 import GuessTable from "./GuessTable";
 import ClueButtons from "./ClueButtons";
 import styles from "@/styles/game-classic/GameBoard.module.css";
@@ -154,7 +154,7 @@ export default function GameBoard({ isDaily }: { isDaily: boolean }) {
       </div>
 
       {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
-        isDaily ? <DailyCountdown /> : <NewGameButton onNewGame={getNewPlayer} />
+        isDaily ? <DailyGameOverControls nextHref="/face" nextLabel="Face" nextIcon={<MdImage />} /> : <NewGameButton onNewGame={getNewPlayer} />
       )}
 
       {/* Scrollable table section */}
