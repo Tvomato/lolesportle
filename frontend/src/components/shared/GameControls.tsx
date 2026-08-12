@@ -1,5 +1,8 @@
 "use client";
 
+import { ReactNode } from "react";
+import Link from "next/link";
+import DailyCountdown from "@/components/shared/DailyCountdown";
 import styles from "@/styles/shared/GameControls.module.css";
 
 interface NewGameButtonProps {
@@ -31,6 +34,27 @@ export function GiveUpButton({ onGiveUp }: GiveUpButtonProps) {
       <button className={styles.displayButton} onClick={onGiveUp}>
         GIVE UP?
       </button>
+    </div>
+  );
+}
+
+interface DailyGameOverControlsProps {
+  nextHref: string;
+  nextLabel: string;
+  nextIcon: ReactNode;
+}
+
+export function DailyGameOverControls({ nextHref, nextLabel, nextIcon }: DailyGameOverControlsProps) {
+  return (
+    <div className={styles.dailyGameOverWrapper}>
+      <DailyCountdown />
+      <div className={styles.nextModeSection}>
+        <p className={styles.nextModeLabel}>Next Mode:</p>
+        <Link href={nextHref} className={styles.nextModeButton}>
+          <span className={styles.nextModeIcon}>{nextIcon}</span>
+          {nextLabel}
+        </Link>
+      </div>
     </div>
   );
 }

@@ -6,11 +6,11 @@ import { transformData } from "@/utils/transformData";
 import { preloadImage } from "@/utils/playerImage";
 import { useInitialGameData } from "@/hooks/useInitialGameData";
 import SearchBar, { SearchBarHandle } from "@/components/shared/SearchBar";
-import { NewGameButton, GiveUpButton } from "@/components/shared/GameControls";
+import { MdHistory } from "react-icons/md";
+import { NewGameButton, GiveUpButton, DailyGameOverControls } from "@/components/shared/GameControls";
 import GameLoadingSpinner from "@/components/shared/GameLoadingSpinner";
 import NoPlayersMessage from "@/components/shared/NoPlayersMessage";
 import GameOutcome from "@/components/shared/GameOutcome";
-import DailyCountdown from "@/components/shared/DailyCountdown";
 // import FaceImageBlurred from "./FaceImageBlurred";
 import FaceImageZoom from "./FaceImageZoom";
 import PlayerGuessRow from "@/components/shared/PlayerGuessRow";
@@ -187,7 +187,7 @@ export default function FaceBoard({ isDaily }: { isDaily: boolean }) {
       </div>
 
       {currentPlayer && guessedPlayers.length >= 1 && (hasLost || hasWon) && (
-        isDaily ? <DailyCountdown /> : <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
+        isDaily ? <DailyGameOverControls nextHref="/teamhistory" nextLabel="Team History" nextIcon={<MdHistory />} /> : <NewGameButton onNewGame={getNewPlayer} loading={loadingNewGame} />
       )}
 
       {/* Scrollable guess list */}

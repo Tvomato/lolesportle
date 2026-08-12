@@ -29,7 +29,7 @@ export default function FlipCell({
         });
       });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!wasAnimated.current) {
     return (

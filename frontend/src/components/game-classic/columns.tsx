@@ -11,13 +11,15 @@ export function getColumnMapping(
       header: "Player",
       render: (value: unknown, player: Player) => {
         const name = value as string;
+        const tooltipText = decode(name).split(" (")[0];
         return (
-          <div className={styles.playerCell} title={decode(name)}>
+          <div className={styles.playerCell}>
             <img
               src={player.image_url.split("/revision")[0]}
               alt={decode(name)}
               className={styles.playerImageFill}
             />
+            <span className={styles.cellTooltip}>{tooltipText}</span>
           </div>
         );
       },
@@ -72,7 +74,7 @@ export function getColumnMapping(
           ? teamName
           : `No team, prev: ${player.team_last}`;
         return (
-          <div className={styles.teamCell} title={displayName ?? ""}>
+          <div className={styles.teamCell}>
             {player.team_name ? (
               <img
                 src={
