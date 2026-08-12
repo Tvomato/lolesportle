@@ -24,7 +24,7 @@
 }
 
 .imageZoom {
-  transform-origin: center center;
+  transform-origin: center 40%;
 }
 
 .empty {
